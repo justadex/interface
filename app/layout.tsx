@@ -1,4 +1,5 @@
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/react";
 import { Inter } from "next/font/google";
 const inter = Inter({ subsets: ["latin"] });
 import Connect from "./components/Connect/wallet-connect";
@@ -19,6 +20,7 @@ export default function RootLayout({
     <html className={inter.className} lang="en">
       <body>
         <Connect>{children}</Connect>
+        <Analytics />
       </body>
     </html>
   );
