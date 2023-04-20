@@ -7,18 +7,22 @@ export default function Navbar() {
       <div className="flex flex-row items-center justify-between w-full">
         <Link href={"/"}>
           <Image
-            src={"/logo/icon-white.svg"}
+            src={"/logo/logo-white.svg"}
             alt="Just a DEX Logo"
-            height={60}
-            width={60}
+            height={50}
+            width={200}
+            priority
           />
         </Link>
         <ul className="flex flex-row items-center justify-center gap-12">
           <li>
-            <Link href={"/swap"}>Swap</Link>
+            <Link
+              href={"/app/swap"}
+              className="px-6 py-3 text-black bg-white rounded-md shadow-sm"
+            >
+              Launch App
+            </Link>
           </li>
-          <li>Pool</li>
-          <li>Portfolio</li>
         </ul>
       </div>
     </nav>
