@@ -34,7 +34,7 @@ export default function Navbar() {
                   className={pathname === "/app/swap" ? "font-bold" : ""}
                   href={"/app/swap"}
                 >
-                  Swapped
+                  Swap
                 </Link>
               </li>
               <li>
