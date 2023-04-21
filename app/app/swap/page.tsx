@@ -1,11 +1,4 @@
-"use client";
-
-export default function Swap() {
-  return (
-    <>
-      <section className="flex items-center justify-center min-h-screen">
-        <h1>Swap</h1>
-      </section>
-    </>
-  );
+import Main from "./main";
+export default function Page() {
+  return <Main />;
 }

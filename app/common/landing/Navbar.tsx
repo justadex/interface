@@ -18,7 +18,7 @@ export default function Navbar() {
           <li>
             <Link
               href={"/app/swap"}
-              className="px-6 py-3 text-black bg-white rounded-md shadow-sm"
+              className="px-4 py-2 rounded-md shadow-sm cursor-pointer bg-slate-200 text-slate-600 hover:text-slate-200 hover:bg-slate-600"
             >
               Launch App
             </Link>
