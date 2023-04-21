@@ -1,14 +1,12 @@
 "use client";
-import { useAccount, useConnect, useEnsName, useDisconnect } from "wagmi";
-
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import AppLinks from "./data/AppLinks.json";
 
 const Navbar = () => {
   const pathname = usePathname();
-  const { address, isConnected } = useAccount();
 
   return (
     <nav className="fixed z-20 flex flex-row items-center justify-between w-full px-8 py-6 lg:px-24 text-offwhite">
@@ -23,27 +21,28 @@ const Navbar = () => {
           />
         </Link>
         <ul className="flex flex-row items-center justify-center gap-12">
-          <li>
-            <Link
-              className={
-                pathname === "/app/swap" ? "font-semibold text-white" : ""
-              }
-              href={"/app/swap"}
-            >
-              Swap
-            </Link>
-          </li>
-          <li>
-            <Link
-              className={
-                pathname === "/app/pool" ? "font-semibold text-white" : ""
-              }
-              href={"/app/pool"}
-            >
-              Pool
-            </Link>
-          </li>
-          <li>Portfolio</li>
+          {AppLinks.map((link, i) => {
+            return (
+              <li
+                className="flex flex-col items-center justify-center gap-1"
+                key={i}
+              >
+                <Link
+                  className={
+                    pathname === link.link ? "font-semibold text-white" : ""
+                  }
+                  href={link.link}
+                >
+                  {link.name}
+                </Link>
+                {pathname === link.link ? (
+                  <div className="w-2 h-1 text-center bg-white rounded-full"></div>
+                ) : (
+                  <div className="w-2 h-1 text-center rounded-full bg-trasparent"></div>
+                )}
+              </li>
+            );
+          })}
         </ul>
         <div className="flex justify-end">
           <ConnectButton showBalance={false} />

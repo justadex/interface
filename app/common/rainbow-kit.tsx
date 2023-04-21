@@ -24,16 +24,16 @@ const wagmiClient = createClient({
   provider,
 });
 
-export default function RainbowKit({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+const RainbowKit = ({ children }: { children: React.ReactNode }) => {
   return (
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider
         theme={darkTheme({
+          accentColor: "#4C82FB",
+          accentColorForeground: "white",
+          borderRadius: "medium",
           fontStack: "system",
+          overlayBlur: "small",
         })}
         chains={chains}
       >
@@ -41,4 +41,5 @@ export default function RainbowKit({
       </RainbowKitProvider>
     </WagmiConfig>
   );
-}
+};
+export default RainbowKit;

@@ -26,11 +26,11 @@ body {
 
 .border {
   border-radius: 12px;
-  height: 40px;
-  width: 40px;
+  height: 42px;
+  width: 42px;
   position: relative;
   margin: -18px auto;
   background-color: rgb(41, 50, 73);
-  border: 4px solid rgb(13, 17, 28);
+  border: 5px solid rgb(13, 17, 28);
   z-index: 2;
 }
