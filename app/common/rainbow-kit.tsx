@@ -28,10 +28,11 @@ const RainbowKit = ({ children }: { children: React.ReactNode }) => {
   return (
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider
+        modalSize="compact"
         theme={darkTheme({
           accentColor: "#4C82FB",
           accentColorForeground: "white",
-          borderRadius: "medium",
+          borderRadius: "large",
           fontStack: "system",
           overlayBlur: "small",
         })}

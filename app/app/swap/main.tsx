@@ -352,7 +352,7 @@ const Swap = () => {
               {Tokens.map((token, i) => {
                 return (
                   <div
-                    className="flex flex-row items-start mx-4 justify-start gap-4 px-2.5 py-1.5 hover:opacity-60 rounded-full cursor-pointer w-full"
+                    className="flex flex-row items-start mx-4 justify-start gap-4 px-2.5 py-1 hover:opacity-60 rounded-full cursor-pointer w-full"
                     key={i}
                   >
                     <Image
