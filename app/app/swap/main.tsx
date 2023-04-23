@@ -294,7 +294,7 @@ const Swap = () => {
       >
         <div className="fixed inset-0 bg-black/60" aria-hidden="true" />
         <div className="fixed inset-0 flex items-center justify-center p-4 text-black">
-          <Dialog.Panel className="flex flex-col w-full max-w-md text-white bg-primary rounded-3xl border-[1px] border-opacity-25 border-offwhite shadow-md">
+          <Dialog.Panel className="flex flex-col w-full max-w-md text-white bg-primary rounded-3xl border-[1px] border-opacity-25 border-offwhite shadow-md overflow-clip">
             <div className="flex flex-col gap-4 px-4 py-6">
               <div className="flex flex-row items-center justify-between">
                 <h3>Select a Token</h3>
@@ -354,24 +354,31 @@ const Swap = () => {
               </div>
             </div>
             <div className="h-[1px] w-full border-[1px] border-offwhite border-opacity-25"></div>
-            <div className="flex flex-col items-start justify-start w-full gap-4 py-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-96">
+            <div className="flex flex-col items-start justify-start gap-4 py-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-96">
               {Tokens.map((token, i) => {
                 return (
                   <div
-                    className="flex flex-row items-start mx-4 justify-start gap-4 px-2.5 py-1 hover:opacity-60 rounded-full cursor-pointer w-full"
+                    className="flex flex-row items-center justify-between w-full gap-4 px-4 pt-1.5 rounded-full cursor-pointer hover:opacity-60"
                     key={i}
                   >
-                    <Image
-                      className="rounded-full"
-                      src={token.image}
-                      alt={token.name}
-                      height="35"
-                      width="35"
-                    />
-                    <div className="flex flex-col">
-                      <h4>{token.name}</h4>
-                      <h5 className="text-sm text-offwhite">{token.ticker}</h5>
+                    <div className="flex flex-row items-center justify-start w-1/2 gap-4">
+                      <div>
+                        <Image
+                          className="rounded-full aspect-square"
+                          src={token.image}
+                          alt={token.name}
+                          height="35"
+                          width="35"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <h4>{token.name}</h4>
+                        <h5 className="text-sm text-offwhite">
+                          {token.ticker}
+                        </h5>
+                      </div>
                     </div>
+                    <div>0</div>
                   </div>
                 );
               })}
