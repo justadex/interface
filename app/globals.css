@@ -34,3 +34,14 @@ body {
   border: 5px solid rgb(13, 17, 28);
   z-index: 2;
 }
+.scrollbar::-webkit-scrollbar-track {
+  background: white;
+}
+.scrollbardark::-webkit-scrollbar-track {
+  background: black;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}

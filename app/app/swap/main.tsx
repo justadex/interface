@@ -215,7 +215,10 @@ const Swap = () => {
                 </span>
               </button>
             </div>
-            <div className="text-sm">$1,886.28</div>
+            <div className="flex flex-row items-center justify-between">
+              <div className="text-sm">$1,886.28</div>
+              <div className="text-sm">Balance: 10.00</div>
+            </div>
           </div>
           <div className="border">
             <div className="flex items-center justify-center h-full">
@@ -263,7 +266,10 @@ const Swap = () => {
                 </span>
               </button>
             </div>
-            <div className="text-sm">$1,886.28</div>
+            <div className="flex flex-row items-center justify-between">
+              <div className="text-sm">$1,886.28</div>
+              <div className="text-sm">Balance: 10.00</div>
+            </div>
           </div>
         </div>
         <div>
@@ -348,7 +354,7 @@ const Swap = () => {
               </div>
             </div>
             <div className="h-[1px] w-full border-[1px] border-offwhite border-opacity-25"></div>
-            <div className="flex flex-col items-start justify-start w-full gap-4 py-2 overflow-y-auto h-96">
+            <div className="flex flex-col items-start justify-start w-full gap-4 py-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-96">
               {Tokens.map((token, i) => {
                 return (
                   <div
