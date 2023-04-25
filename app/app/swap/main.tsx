@@ -180,7 +180,7 @@ const Swap = () => {
             </Menu>
           </div>
         </div>
-        <div className="my-4">
+        <div className="my-4 mt-2">
           <div className="flex flex-col items-stretch justify-center gap-4 px-4 py-6 rounded-xl bg-secondary">
             <div className="flex flex-row items-center justify-between">
               <input
@@ -228,7 +228,7 @@ const Swap = () => {
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className="w-6 h-6"
+                className="w-6 h-6 cursor-pointer"
               >
                 <path
                   strokeLinecap="round"
@@ -347,7 +347,7 @@ const Swap = () => {
                           height="25"
                           width="25"
                         />
-                        <h4>{token.ticker}</h4>
+                        <h4 className="text-base">{token.ticker}</h4>
                       </div>
                     )
                 )}
@@ -372,7 +372,7 @@ const Swap = () => {
                         />
                       </div>
                       <div className="flex flex-col">
-                        <h4>{token.name}</h4>
+                        <h4 className="text-base">{token.name}</h4>
                         <h5 className="text-sm text-offwhite">
                           {token.ticker}
                         </h5>
