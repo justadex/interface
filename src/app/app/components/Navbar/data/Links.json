@@ -1,0 +1,14 @@
+[
+    {
+        "name": "Swap",
+        "link": "/app/swap"
+    },
+    {
+        "name": "Pool",
+        "link": "/app/pool"
+    },
+    {
+        "name": "Portfolio",
+        "link": "/app/portfolio"
+    }
+]

@@ -18,16 +18,30 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background: rgb(0, 0, 0);
+  background: -moz-linear-gradient(rgb(32, 39, 56) 0%, rgb(7, 8, 22) 100%);
+  background: -webkit-linear-gradient(rgb(32, 39, 56) 0%, rgb(7, 8, 22) 100%);
+  background: linear-gradient(rgb(32, 39, 56) 0%, rgb(7, 8, 22) 100%);
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+.border {
+  border-radius: 12px;
+  height: 42px;
+  width: 42px;
+  position: relative;
+  margin: -18px auto;
+  background-color: rgb(41, 50, 73);
+  border: 5px solid rgb(13, 17, 28);
+  z-index: 2;
+}
+.scrollbar::-webkit-scrollbar-track {
+  background: white;
+}
+.scrollbardark::-webkit-scrollbar-track {
+  background: black;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
 }
