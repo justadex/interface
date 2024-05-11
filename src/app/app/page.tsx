@@ -3,6 +3,7 @@ import { useReadContract } from "wagmi";
 import { YakRouterABI } from "./abi/YakRouterABI";
 import { formatEther } from "viem";
 import { ethers } from "ethers";
+import Main from "./main";
 
 export default function Page() {
   const result = useReadContract({
@@ -37,9 +38,5 @@ export default function Page() {
   //     console.log(result);
   //   }
   //   getBestPaths();
-  return (
-    <div className="flex flex-col justify-center items-center min-h-screen">
-      <div>App</div>
-    </div>
-  );
+  return <Main />;
 }
