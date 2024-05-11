@@ -2,17 +2,72 @@
 
 import { Fragment, useEffect, useRef, useState } from "react";
 
-import { useAccount, useConnect } from "wagmi";
+import { useAccount, useConnect, useReadContract } from "wagmi";
 
 import Image from "next/image";
 
 import Tokens from "@/app/app/data/tokens.json";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { YakRouterABI } from "./abi/YakRouterABI";
+import { formatEther, formatUnits } from "viem";
 
 const Swap = () => {
-  const [enabled, setEnabled] = useState(false);
+  // const [enabled, setEnabled] = useState(false);
   const { address, isConnected } = useAccount();
   const [isOpen, setIsOpen] = useState(false);
+  const [isOpenOut, setIsOpenOut] = useState(false);
+  const [tokenIn, setTokenIn] = useState<any>("");
+  const [tokenOut, setTokenOut] = useState<any>("");
+  const [amountIn, setAmountIn] = useState("0");
+  const [amountOut, setAmountOut] = useState("0");
+  const [quote, setQuote] = useState<any>();
+
+
+  const { data, refetch: getQuote, error } = useReadContract({
+    abi: YakRouterABI,
+    address: "0x64f1Cd91F37553E5A8718f7D235e5078C962b7e7",
+    functionName: "findBestPathWithGas",
+    args: [
+      amountIn && parseFloat(amountIn) ? convertToBigInt(parseFloat(amountIn), parseInt(tokenIn.decimal)) : BigInt(0),
+      tokenIn.address,
+      tokenOut.address,
+      BigInt("4"),
+      BigInt("0"),
+    ],
+  });
+
+
+  useEffect(() => {
+    if (data) {
+      console.log(data);
+      if (data?.amounts.length > 0) {
+        setAmountOut(formatUnits(data?.amounts[1], tokenOut.decimal))
+      } else {
+        // no path found
+        setAmountOut("0")
+      }
+    }
+  }, [data])
+
+  //1000000000000000000n
+  useEffect(() => {
+    console.log(amountIn && parseFloat(amountIn) ? convertToBigInt(parseFloat(amountIn), parseInt(tokenIn.decimal)) : 0);
+  }, [amountIn])
+
+  useEffect(() => {
+    console.log(error);
+  }, [error])
+
+
+  function convertToBigInt(amount: number, decimals: number) {
+    console.log(amount)
+    const parsedAmountIn = BigInt(amount * Math.pow(10, 6));
+    console.log(parsedAmountIn);
+    if (decimals >= 6)
+      return parsedAmountIn * (BigInt(10) ** BigInt(decimals - 6))
+    else
+      return parsedAmountIn / (BigInt(10) ** BigInt(6 - decimals))
+  }
 
   return (
     <section className="flex items-center justify-center min-h-screen">
@@ -28,6 +83,10 @@ const Swap = () => {
                 className="w-full text-3xl bg-transparent focus:outline-none"
                 type="text"
                 placeholder="0"
+                value={amountIn}
+                onChange={(e) => {
+                  setAmountIn(e.target.value)
+                }}
               />
               <button
                 className="flex flex-row items-center justify-center gap-1 px-4 py-1 text-white rounded-full cursor-pointer bg-slate-600"
@@ -39,7 +98,7 @@ const Swap = () => {
                   height="20"
                   alt="ETH"
                 />
-                <h3 className="font-semibold w-max">ETH</h3>
+                <h3 className="font-semibold w-24 truncate">{tokenIn ? tokenIn.ticker : "Select Token"}</h3>
                 <span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -56,10 +115,10 @@ const Swap = () => {
                 </span>
               </button>
             </div>
-            <div className="flex flex-row items-center justify-between">
+            {/* <div className="flex flex-row items-center justify-between">
               <div className="text-sm">$1,886.28</div>
               <div className="text-sm">Balance: 10.00</div>
-            </div>
+            </div> */}
           </div>
           <div className="border">
             <div className="flex items-center justify-center h-full">
@@ -85,12 +144,16 @@ const Swap = () => {
                 className="w-full text-3xl bg-transparent focus:outline-none"
                 type="text"
                 placeholder="0"
+                onChange={() => {
+
+                }}
+                value={amountOut}
               />
               <button
                 className="flex flex-row items-center justify-center gap-1 px-4 py-1 text-white rounded-full cursor-pointer bg-accent"
-                onClick={() => setIsOpen(true)}
+                onClick={() => setIsOpenOut(true)}
               >
-                <h3 className="font-semibold w-max">Select a token</h3>
+                <h3 className="font-semibold w-24 truncate">{tokenOut ? tokenOut.ticker : "Select token"}</h3>
                 <span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -126,10 +189,70 @@ const Swap = () => {
         </div>
       </div>
       <Dialog open={isOpen}>
-        {/* <div className="fixed inset-0 bg-black/60" aria-hidden="true" /> */}
-        {/* <div className="fixed inset-0 flex items-center justify-center p-4 text-black">
-         
-        </div> */}
+        <DialogContent className="flex flex-col w-full max-w-md text-white bg-primary rounded-3xl border-[1px] border-opacity-25 border-offwhite shadow-md overflow-clip">
+          <div className="flex flex-col gap-4 px-4 pb-6 pt-0">
+            <div className="flex flex-row items-center justify-between">
+              <DialogTitle>Select a Token</DialogTitle>
+              <DialogClose onClick={() => setIsOpen(false)} >x</DialogClose>
+            </div>
+            <div className="relative">
+              <input
+                className="w-full px-12 py-2 bg-secondary rounded-2xl focus:outline-none focus:bg-primary border-[1px] border-opacity-25 border-offwhite"
+                placeholder="Search a name or paste address"
+              />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="absolute w-6 h-6 top-2 left-2"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10.5 3.75a6.75 6.75 0 100 13.5 6.75 6.75 0 000-13.5zM2.25 10.5a8.25 8.25 0 1114.59 5.28l4.69 4.69a.75.75 0 11-1.06 1.06l-4.69-4.69A8.25 8.25 0 012.25 10.5z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+          </div>
+          <div className="h-[1px] w-full border-[1px] border-offwhite border-opacity-25"></div>
+          <div className="flex flex-col items-start justify-start gap-4 py-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-96">
+            {Tokens.map((token, i) => {
+              return (
+                <div
+                  onClick={() => {
+                    console.log("cvalled");
+                    setTokenIn(token);
+                    setIsOpen(false);
+                  }}
+                  className="flex flex-row items-center justify-between w-full gap-4 px-4 pt-1.5 rounded-full cursor-pointer hover:opacity-60"
+                  key={i}
+                >
+                  <div className="flex flex-row items-center justify-start w-1/2 gap-4">
+                    <div>
+                      <Image
+                        className="rounded-full aspect-square"
+                        src={token.image}
+                        alt={token.name}
+                        height="35"
+                        width="35"
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <h4 className="text-base">{token.name}</h4>
+                      <h5 className="text-sm text-offwhite">{token.ticker}</h5>
+                    </div>
+                  </div>
+                  <div>0</div>
+                </div>
+              );
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+
+
+      <Dialog open={isOpenOut}>
         <DialogContent className="flex flex-col w-full max-w-md text-white bg-primary rounded-3xl border-[1px] border-opacity-25 border-offwhite shadow-md overflow-clip">
           <div className="flex flex-col gap-4 px-4 pb-6 pt-0">
             <div className="flex flex-row items-center justify-between">
@@ -153,11 +276,15 @@ const Swap = () => {
                 />
               </svg>
             </div>
-            <div className="flex flex-row flex-wrap items-start justify-start gap-4">
+            {/* <div className="flex flex-row flex-wrap items-start justify-start gap-4">
               {Tokens.map(
                 (token, i) =>
                   token.featured === true && (
                     <div
+                      onClick={() => {
+                        setTokenOut(token.address);
+                        setIsOpenOut(false);
+                      }}
                       className="flex flex-row items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-full bg-secondary border-[1px] border-opacity-25 border-offwhite hover:bg-primary cursor-pointer"
                       key={i}
                     >
@@ -172,13 +299,17 @@ const Swap = () => {
                     </div>
                   )
               )}
-            </div>
+            </div> */}
           </div>
           <div className="h-[1px] w-full border-[1px] border-offwhite border-opacity-25"></div>
           <div className="flex flex-col items-start justify-start gap-4 py-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-96">
             {Tokens.map((token, i) => {
               return (
                 <div
+                  onClick={() => {
+                    setTokenOut(token);
+                    setIsOpenOut(false);
+                  }}
                   className="flex flex-row items-center justify-between w-full gap-4 px-4 pt-1.5 rounded-full cursor-pointer hover:opacity-60"
                   key={i}
                 >
