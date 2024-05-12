@@ -14,15 +14,24 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { YakRouterABI } from "./abi/YakRouterABI";
-import { formatEther, formatUnits } from "viem";
+import { formatEther, formatUnits, Address } from "viem";
+
+export interface Token {
+  name: string;
+  ticker: string;
+  address: string;
+  image: string;
+  decimal: string;
+  featured: boolean;
+}
 
 const Swap = () => {
   // const [enabled, setEnabled] = useState(false);
   const { address, isConnected } = useAccount();
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenOut, setIsOpenOut] = useState(false);
-  const [tokenIn, setTokenIn] = useState<any>("");
-  const [tokenOut, setTokenOut] = useState<any>("");
+  const [tokenIn, setTokenIn] = useState<Token>(Tokens[0]);
+  const [tokenOut, setTokenOut] = useState<Token>();
   const [amountIn, setAmountIn] = useState("0");
   const [amountOut, setAmountOut] = useState("0");
   const [quote, setQuote] = useState<any>();
@@ -39,8 +48,8 @@ const Swap = () => {
       amountIn && parseFloat(amountIn)
         ? convertToBigInt(parseFloat(amountIn), parseInt(tokenIn.decimal))
         : BigInt(0),
-      tokenIn.address,
-      tokenOut.address,
+      tokenIn.address as Address,
+      tokenOut?.address as Address,
       BigInt("4"),
       BigInt("0"),
     ],
@@ -49,8 +58,8 @@ const Swap = () => {
   useEffect(() => {
     if (data) {
       console.log(data);
-      if (data?.amounts.length > 0) {
-        setAmountOut(formatUnits(data?.amounts[1], tokenOut.decimal));
+      if (data?.amounts.length > 0 && tokenOut) {
+        setAmountOut(formatUnits(data?.amounts[1], parseInt(tokenOut.decimal)));
       } else {
         // no path found
         setAmountOut("0");
