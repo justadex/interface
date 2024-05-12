@@ -24,7 +24,7 @@ body {
   background: linear-gradient(rgb(32, 39, 56) 0%, rgb(7, 8, 22) 100%);
 }
 
-.border {
+.border-swap {
   border-radius: 12px;
   height: 42px;
   width: 42px;

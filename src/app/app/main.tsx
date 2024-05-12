@@ -7,7 +7,12 @@ import { useAccount, useConnect, useReadContract } from "wagmi";
 import Image from "next/image";
 
 import Tokens from "@/app/app/data/tokens.json";
-import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { YakRouterABI } from "./abi/YakRouterABI";
 import { formatEther, formatUnits } from "viem";
 
@@ -22,13 +27,18 @@ const Swap = () => {
   const [amountOut, setAmountOut] = useState("0");
   const [quote, setQuote] = useState<any>();
 
-
-  const { data, refetch: getQuote, error } = useReadContract({
+  const {
+    data,
+    refetch: getQuote,
+    error,
+  } = useReadContract({
     abi: YakRouterABI,
     address: "0x64f1Cd91F37553E5A8718f7D235e5078C962b7e7",
     functionName: "findBestPathWithGas",
     args: [
-      amountIn && parseFloat(amountIn) ? convertToBigInt(parseFloat(amountIn), parseInt(tokenIn.decimal)) : BigInt(0),
+      amountIn && parseFloat(amountIn)
+        ? convertToBigInt(parseFloat(amountIn), parseInt(tokenIn.decimal))
+        : BigInt(0),
       tokenIn.address,
       tokenOut.address,
       BigInt("4"),
@@ -36,37 +46,38 @@ const Swap = () => {
     ],
   });
 
-
   useEffect(() => {
     if (data) {
       console.log(data);
       if (data?.amounts.length > 0) {
-        setAmountOut(formatUnits(data?.amounts[1], tokenOut.decimal))
+        setAmountOut(formatUnits(data?.amounts[1], tokenOut.decimal));
       } else {
         // no path found
-        setAmountOut("0")
+        setAmountOut("0");
       }
     }
-  }, [data])
+  }, [data]);
 
   //1000000000000000000n
   useEffect(() => {
-    console.log(amountIn && parseFloat(amountIn) ? convertToBigInt(parseFloat(amountIn), parseInt(tokenIn.decimal)) : 0);
-  }, [amountIn])
+    console.log(
+      amountIn && parseFloat(amountIn)
+        ? convertToBigInt(parseFloat(amountIn), parseInt(tokenIn.decimal))
+        : 0
+    );
+  }, [amountIn]);
 
   useEffect(() => {
     console.log(error);
-  }, [error])
-
+  }, [error]);
 
   function convertToBigInt(amount: number, decimals: number) {
-    console.log(amount)
+    console.log(amount);
     const parsedAmountIn = BigInt(amount * Math.pow(10, 6));
     console.log(parsedAmountIn);
     if (decimals >= 6)
-      return parsedAmountIn * (BigInt(10) ** BigInt(decimals - 6))
-    else
-      return parsedAmountIn / (BigInt(10) ** BigInt(6 - decimals))
+      return parsedAmountIn * BigInt(10) ** BigInt(decimals - 6);
+    else return parsedAmountIn / BigInt(10) ** BigInt(6 - decimals);
   }
 
   return (
@@ -85,20 +96,23 @@ const Swap = () => {
                 placeholder="0"
                 value={amountIn}
                 onChange={(e) => {
-                  setAmountIn(e.target.value)
+                  setAmountIn(e.target.value);
                 }}
               />
+
               <button
-                className="flex flex-row items-center justify-center gap-1 px-4 py-1 text-white rounded-full cursor-pointer bg-slate-600"
+                className="flex flex-row items-center justify-center gap-1.5 px-4 py-1 text-white rounded-full cursor-pointer bg-slate-600"
                 onClick={() => setIsOpen(true)}
               >
                 <Image
-                  src={"/tokens/eth.png"}
-                  width="20"
-                  height="20"
+                  src={tokenIn.image || "/tokens/eth.png"}
+                  width="22"
+                  height="22"
                   alt="ETH"
                 />
-                <h3 className="font-semibold w-24 truncate">{tokenIn ? tokenIn.ticker : "Select Token"}</h3>
+                <h3 className="font-semibold">
+                  {tokenIn ? tokenIn.ticker : "Select Token"}
+                </h3>
                 <span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -120,7 +134,7 @@ const Swap = () => {
               <div className="text-sm">Balance: 10.00</div>
             </div> */}
           </div>
-          <div className="border">
+          <div className="border-swap">
             <div className="flex items-center justify-center h-full">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -144,16 +158,16 @@ const Swap = () => {
                 className="w-full text-3xl bg-transparent focus:outline-none"
                 type="text"
                 placeholder="0"
-                onChange={() => {
-
-                }}
+                onChange={() => {}}
                 value={amountOut}
               />
               <button
                 className="flex flex-row items-center justify-center gap-1 px-4 py-1 text-white rounded-full cursor-pointer bg-accent"
                 onClick={() => setIsOpenOut(true)}
               >
-                <h3 className="font-semibold w-24 truncate">{tokenOut ? tokenOut.ticker : "Select token"}</h3>
+                <h3 className="font-semibold w-24 truncate">
+                  {tokenOut ? tokenOut.ticker : "Select token"}
+                </h3>
                 <span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -188,12 +202,11 @@ const Swap = () => {
           )}
         </div>
       </div>
-      <Dialog open={isOpen}>
+      <Dialog open={isOpen} onOpenChange={() => setIsOpen(false)}>
         <DialogContent className="flex flex-col w-full max-w-md text-white bg-primary rounded-3xl border-[1px] border-opacity-25 border-offwhite shadow-md overflow-clip">
-          <div className="flex flex-col gap-4 px-4 pb-6 pt-0">
+          <div className="flex flex-col gap-4 px-4 pb-3 pt-0">
             <div className="flex flex-row items-center justify-between">
               <DialogTitle>Select a Token</DialogTitle>
-              <DialogClose onClick={() => setIsOpen(false)} >x</DialogClose>
             </div>
             <div className="relative">
               <input
@@ -250,11 +263,9 @@ const Swap = () => {
         </DialogContent>
       </Dialog>
 
-
-
-      <Dialog open={isOpenOut}>
+      <Dialog open={isOpenOut} onOpenChange={() => setIsOpenOut(false)}>
         <DialogContent className="flex flex-col w-full max-w-md text-white bg-primary rounded-3xl border-[1px] border-opacity-25 border-offwhite shadow-md overflow-clip">
-          <div className="flex flex-col gap-4 px-4 pb-6 pt-0">
+          <div className="flex flex-col gap-4 px-4 pb-3 pt-0">
             <div className="flex flex-row items-center justify-between">
               <DialogTitle>Select a Token</DialogTitle>
             </div>

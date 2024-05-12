@@ -13,6 +13,7 @@ const config: Config = {
       offwhite: "#98A1C0",
       offblack: "#293249",
       accent: "#4C82FB",
+      white: "#FFF",
       transparent: "transparent",
     },
     extend: {
