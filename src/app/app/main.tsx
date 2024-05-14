@@ -122,10 +122,6 @@ const Swap = () => {
   }, [data]);
 
   useEffect(() => {
-    console.log(error);
-  }, [error]);
-
-  useEffect(() => {
     if (tokenBalance && tokenBalance.length > 0) {
       for (let i = 0; i < tokenBalance.length; i++) {
         const results = tokenBalance[i].result;
@@ -181,14 +177,12 @@ const Swap = () => {
   }
 
   function getTokenSwapButtonText() {
-    console.log("chainid: ", chainId);
     if (approveStatus === "pending") {
       return {
         enabled: false,
         text: "Calling Approve",
       };
     }
-    console.log("approveResult: ", approveResult);
     if (approveResult.isLoading) {
       return {
         enabled: false,

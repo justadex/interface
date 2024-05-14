@@ -10,7 +10,6 @@ export default function WalletOptions() {
 
   useEffect(() => {
     const chain = watchChainId;
-    console.log(chain);
   }, [account.address]);
   return <ConnectButton />;
 }
