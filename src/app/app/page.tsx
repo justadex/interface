@@ -1,14 +1,16 @@
 "use client";
-import { useReadContract, useWriteContract, useAccount } from "wagmi";
+import { useReadContract, useWriteContract, useAccount, useSwitchChain } from "wagmi";
 import { YakRouterABI } from "./abi/YakRouterABI";
 import { formatEther } from "viem";
 import Main from "./main";
 import { useEffect } from "react";
 
 export default function Page() {
+  const { chains, switchChain } = useSwitchChain()
 
 
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, chainId } = useAccount();
+
   const { data: hash, isError: isSwapError, error: swapError, writeContract } = useWriteContract();
   const result = useReadContract({
     abi: YakRouterABI,
@@ -60,8 +62,12 @@ export default function Page() {
   }, [swapError])
 
 
-
-
+  useEffect(() => {
+    console.log(chainId)
+    if (chainId != 34443) {
+      switchChain({ chainId: 34443 })
+    }
+  }, [chainId])
 
 
 
