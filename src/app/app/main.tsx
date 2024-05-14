@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useRef, useState } from "react";
 
-import { useAccount, useBalance, useReadContract } from "wagmi";
+import { useAccount, useBalance, useReadContract, useReadContracts } from "wagmi";
 
 import Image from "next/image";
 
@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { YakRouterABI } from "./abi/YakRouterABI";
-import { formatEther, formatUnits, Address } from "viem";
+import { formatEther, formatUnits, Address, erc20Abi } from "viem";
 import { mode } from "viem/chains";
 
 export interface Token {
@@ -24,7 +24,10 @@ export interface Token {
   image: string;
   decimal: string;
   featured: boolean;
+  balance?: string;
 }
+
+let _tokens: Token[] = Tokens;
 
 const Swap = () => {
   const EMPTY_ADDRESS = "0x0000000000000000000000000000000000000000"
@@ -34,7 +37,7 @@ const Swap = () => {
   const { address, isConnected, chainId } = useAccount();
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenOut, setIsOpenOut] = useState(false);
-  const [tokenIn, setTokenIn] = useState<Token | undefined>(Tokens[0]);
+  const [tokenIn, setTokenIn] = useState<Token | undefined>(_tokens[0]);
   const [tokenOut, setTokenOut] = useState<Token | undefined>();
   const [amountIn, setAmountIn] = useState("0");
   const [amountOut, setAmountOut] = useState("0");
@@ -46,11 +49,17 @@ const Swap = () => {
     chainId: mode.id
   })
 
+  const {
+    data: tokenBalance,
+    error: tokenBalanceError,
+    isPending: tokenbalancePending
+  } = useReadContracts({
+    contracts: buildBalanceCheckParams()
+  });
 
 
   const {
     data,
-    refetch: getQuote,
     error,
     isLoading
   } = useReadContract({
@@ -70,13 +79,13 @@ const Swap = () => {
 
   useEffect(() => {
     if (data) {
-      console.log(data);
       if (data?.amounts.length > 0 && tokenOut) {
         setAmountOut(formatUnits(data?.amounts[1], parseInt(tokenOut.decimal)));
       } else {
-        // no path found
         setAmountOut("0");
       }
+    } else {
+      setAmountOut("0")
     }
   }, [data]);
 
@@ -85,13 +94,36 @@ const Swap = () => {
     console.log(error);
   }, [error]);
 
+  useEffect(() => {
+    if (tokenBalance && tokenBalance.length > 0) {
+      for (let i = 0; i < tokenBalance.length; i++) {
+        const results = tokenBalance[i].result;
+        if (results !== undefined) {
+          _tokens[i].balance = formatUnits(BigInt(results), parseInt(_tokens[i].decimal));
+        }
+      }
+      _tokens = _tokens.sort((a, b) => (b.balance ? parseInt(b.balance) : 0) - (a.balance ? parseInt(a.balance) : 0));
+    }
+  }, [tokenBalance])
+
   function convertToBigInt(amount: number, decimals: number) {
-    console.log(amount);
     const parsedAmountIn = BigInt(amount * Math.pow(10, 6));
-    console.log(parsedAmountIn);
     if (decimals >= 6)
       return parsedAmountIn * BigInt(10) ** BigInt(decimals - 6);
     else return parsedAmountIn / BigInt(10) ** BigInt(6 - decimals);
+  }
+
+  function buildBalanceCheckParams() {
+    let readContractArray = [];
+    for (let i = 0; i < _tokens.length; i++) {
+      readContractArray.push({
+        address: _tokens[i].address as `0x{string}`,
+        abi: erc20Abi,
+        functionName: 'balanceOf',
+        args: [address!],
+      })
+    }
+    return readContractArray;
   }
 
   function getTokenSwapButtonText() {
@@ -189,7 +221,11 @@ const Swap = () => {
             </div>
             <div className="flex flex-row items-center justify-between">
               <div className="text-sm"></div>
-              <div className="text-sm">Balance: {tokenAUserbalance.isLoading ? ".." : tokenAUserbalance.data && tokenIn && formatUnits(tokenAUserbalance.data!.value, parseInt(tokenIn.decimal))}</div>
+              <div onClick={() => {
+                if (!tokenAUserbalance.isLoading && tokenAUserbalance.data && tokenIn) {
+                  setAmountIn(formatUnits(tokenAUserbalance.data!.value, parseInt(tokenIn.decimal)).toString())
+                }
+              }} className="text-sm cursor-pointer">Balance: {tokenAUserbalance.isLoading ? ".." : tokenAUserbalance.data && tokenIn && formatUnits(tokenAUserbalance.data!.value, parseInt(tokenIn.decimal))}</div>
             </div>
           </div>
           <div className="border-swap" onClick={() => {
@@ -286,7 +322,7 @@ const Swap = () => {
           </div>
           <div className="h-[1px] w-full border-[1px] border-offwhite border-opacity-25"></div>
           <div className="flex flex-col items-start justify-start gap-4 py-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-96">
-            {Tokens.map((token, i) => {
+            {_tokens.map((token, i) => {
               return (
                 <div
                   onClick={() => {
@@ -314,7 +350,7 @@ const Swap = () => {
                       <h5 className="text-sm text-offwhite">{token.ticker}</h5>
                     </div>
                   </div>
-                  <div>0</div>
+                  <div>{token.balance}</div>
                 </div>
               );
             })}
@@ -347,7 +383,7 @@ const Swap = () => {
               </svg>
             </div>
             {/* <div className="flex flex-row flex-wrap items-start justify-start gap-4">
-              {Tokens.map(
+              {_tokens.map(
                 (token, i) =>
                   token.featured === true && (
                     <div
@@ -373,7 +409,7 @@ const Swap = () => {
           </div>
           <div className="h-[1px] w-full border-[1px] border-offwhite border-opacity-25"></div>
           <div className="flex flex-col items-start justify-start gap-4 py-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-96">
-            {Tokens.map((token, i) => {
+            {_tokens.map((token, i) => {
               return (
                 <div
                   onClick={() => {
@@ -401,7 +437,7 @@ const Swap = () => {
                       <h5 className="text-sm text-offwhite">{token.ticker}</h5>
                     </div>
                   </div>
-                  <div>0</div>
+                  <div>{token.balance}</div>
                 </div>
               );
             })}

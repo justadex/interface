@@ -41,7 +41,7 @@ export default function WagmiProviderWrapper({
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
+        <RainbowKitProvider coolMode>
           {children}
         </RainbowKitProvider>
       </QueryClientProvider>
