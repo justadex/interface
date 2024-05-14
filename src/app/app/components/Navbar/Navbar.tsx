@@ -16,8 +16,8 @@ const Navbar = () => {
           <Image
             src={"/logo/icon-white.svg"}
             alt="Just a DEX Logo"
-            height={50}
-            width={50}
+            height={45}
+            width={45}
             priority
           />
         </Link>

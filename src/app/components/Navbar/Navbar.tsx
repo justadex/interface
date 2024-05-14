@@ -3,8 +3,8 @@ import Link from "next/link";
 
 export default function Navbar() {
   return (
-    <nav className="fixed z-20 flex flex-row items-center justify-between w-full px-8 py-6 lg:px-24">
-      <div className="flex flex-row items-center justify-between w-full">
+    <nav className="absolute z-20 flex flex-row items-center justify-between w-full px-8 py-6 lg:px-24">
+      <div className="grid grid-cols-3 w-full">
         <Link href={"/"}>
           <Image
             src={"/logo/logo-white.svg"}
@@ -14,7 +14,12 @@ export default function Navbar() {
             priority
           />
         </Link>
-        <ul className="flex flex-row items-center justify-center gap-12">
+        <ul className="flex flex-row justify-center items-center">
+          <li>
+            <Link href={"/#integrations"}>Integrations</Link>
+          </li>
+        </ul>
+        <ul className="flex flex-row items-center justify-end gap-12">
           <li>
             <Link
               href={"/app"}
