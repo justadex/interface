@@ -7,6 +7,8 @@ import {
   useBalance,
   useReadContract,
   useReadContracts,
+  useWriteContract,
+  useWaitForTransactionReceipt,
 } from "wagmi";
 
 import Image from "next/image";
@@ -26,8 +28,16 @@ export interface Token {
   featured: boolean;
   balance?: string;
 }
+export interface TradeInfo {
+  amountIn: bigint;
+  amountOut: bigint;
+  path: readonly `0x${string}`[];
+  adapters: readonly `0x${string}`[];
+}
 
 let _tokens: Token[] = Tokens;
+
+const YakRouterAddress = "0x64f1Cd91F37553E5A8718f7D235e5078C962b7e7";
 
 const Swap = () => {
   const { address, isConnected, chainId } = useAccount();
@@ -37,6 +47,30 @@ const Swap = () => {
   const [tokenOut, setTokenOut] = useState<Token | undefined>();
   const [amountIn, setAmountIn] = useState("0");
   const [amountOut, setAmountOut] = useState("0");
+  const [tradeInfo, setTradeInfo] = useState<TradeInfo | undefined>();
+  const [swapStart, setSwapStart] = useState(false);
+
+  const {
+    writeContract,
+    status: swapStatus,
+    error: swapError,
+    data: swapData,
+  } = useWriteContract();
+  const {
+    writeContract: callApprove,
+    status: approveStatus,
+    // isLoading: approveLoading,
+    error: approveError,
+    data: approveData,
+  } = useWriteContract();
+
+  const approveResult = useWaitForTransactionReceipt({
+    hash: approveData,
+  });
+
+  const swapResult = useWaitForTransactionReceipt({
+    hash: swapData,
+  });
 
   const tokenAUserbalance = useBalance({
     token: tokenIn?.address as `0x{string}`,
@@ -47,14 +81,14 @@ const Swap = () => {
   const {
     data: tokenBalance,
     error: tokenBalanceError,
-    isPending: tokenbalancePending,
+    isLoading: tokenbalancePending,
   } = useReadContracts({
     contracts: buildBalanceCheckParams(),
   });
 
   const { data, error, isLoading } = useReadContract({
     abi: YakRouterABI,
-    address: "0x64f1Cd91F37553E5A8718f7D235e5078C962b7e7",
+    address: YakRouterAddress,
     functionName: "findBestPathWithGas",
     args: [
       amountIn && tokenIn && parseFloat(amountIn)
@@ -71,6 +105,14 @@ const Swap = () => {
     if (data) {
       if (data?.amounts.length > 0 && tokenOut) {
         setAmountOut(formatUnits(data?.amounts[1], parseInt(tokenOut.decimal)));
+
+        const trade = {
+          amountIn: data.amounts[0],
+          amountOut: data.amounts[1],
+          path: data.path,
+          adapters: data.adapters,
+        };
+        setTradeInfo(trade);
       } else {
         setAmountOut("0");
       }
@@ -102,6 +144,22 @@ const Swap = () => {
     }
   }, [tokenBalance]);
 
+  useEffect(() => {
+    if (!swapStart) return;
+    if (!approveResult.isSuccess) return;
+
+    if (swapStatus === "pending" || swapResult.isLoading) return;
+    if (tradeInfo == undefined || address == undefined) return;
+
+    writeContract({
+      abi: YakRouterABI,
+      address: YakRouterAddress,
+      functionName: "swapNoSplit",
+      args: [tradeInfo, address, BigInt(0)],
+    });
+    setSwapStart(false);
+  }, [approveResult]);
+
   function convertToBigInt(amount: number, decimals: number) {
     const parsedAmountIn = BigInt(amount * Math.pow(10, 6));
     if (decimals >= 6)
@@ -123,17 +181,45 @@ const Swap = () => {
   }
 
   function getTokenSwapButtonText() {
+    console.log("chainid: ", chainId);
+    if (approveStatus === "pending") {
+      return {
+        enabled: false,
+        text: "Calling Approve",
+      };
+    }
+    console.log("approveResult: ", approveResult);
+    if (approveResult.isLoading) {
+      return {
+        enabled: false,
+        text: "Approving",
+      };
+    }
+    if (swapStatus === "pending") {
+      return {
+        enabled: false,
+        text: "Calling swap",
+      };
+    }
+    if (swapResult.isLoading) {
+      return {
+        enabled: false,
+        text: "Swapping",
+      };
+    }
     if (!isConnected) {
       return {
         text: "Connect wallet",
         enabled: false,
       };
-    } else if (chainId != 34443) {
-      return {
-        text: "Wrong network",
-        enabled: false,
-      };
-    } else if (!tokenIn || !tokenOut) {
+    }
+    // else if (chainId != 1337) {
+    //   return {
+    //     text: "Wrong network",
+    //     enabled: false,
+    //   };
+    // }
+    else if (!tokenIn || !tokenOut) {
       return {
         text: "Select a token",
         enabled: false,
@@ -311,12 +397,34 @@ const Swap = () => {
             className="w-full px-8 py-4 text-lg font-semibold rounded-3xl bg-accent/40 text-accent hover:bg-accent/20"
             disabled={!getTokenSwapButtonText().enabled}
             onClick={() => {
-              //swap
-              alert("Swap called");
+              if (
+                tokenIn !== undefined &&
+                tradeInfo != undefined &&
+                address != undefined
+              ) {
+                callApprove({
+                  abi: erc20Abi,
+                  address: tokenIn.address as `0x${string}`,
+                  functionName: "approve",
+                  args: [YakRouterAddress, BigInt(tradeInfo.amountIn)],
+                });
+                setSwapStart(true);
+              }
             }}
           >
             {getTokenSwapButtonText().text}
           </button>
+          <div className="w-full flex justify-center">
+            {swapResult.isSuccess ? (
+              <div>Swapped Successfully!</div>
+            ) : swapStatus === "error" ? (
+              <div>{swapError.message}</div>
+            ) : swapResult.isError ? (
+              <div>{swapResult.error.message}</div>
+            ) : (
+              <div />
+            )}
+          </div>
         </div>
       </div>
       <Dialog open={isOpen} onOpenChange={() => setIsOpen(false)}>
