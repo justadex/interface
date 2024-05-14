@@ -1,18 +1,18 @@
 "use client";
 
-import { Fragment, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
-import { useAccount, useBalance, useReadContract, useReadContracts } from "wagmi";
+import {
+  useAccount,
+  useBalance,
+  useReadContract,
+  useReadContracts,
+} from "wagmi";
 
 import Image from "next/image";
 
 import Tokens from "@/app/app/data/tokens.json";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { YakRouterABI } from "./abi/YakRouterABI";
 import { formatEther, formatUnits, Address, erc20Abi } from "viem";
 import { mode } from "viem/chains";
@@ -30,10 +30,6 @@ export interface Token {
 let _tokens: Token[] = Tokens;
 
 const Swap = () => {
-  const EMPTY_ADDRESS = "0x0000000000000000000000000000000000000000"
-
-
-  // const [enabled, setEnabled] = useState(false);
   const { address, isConnected, chainId } = useAccount();
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenOut, setIsOpenOut] = useState(false);
@@ -41,28 +37,22 @@ const Swap = () => {
   const [tokenOut, setTokenOut] = useState<Token | undefined>();
   const [amountIn, setAmountIn] = useState("0");
   const [amountOut, setAmountOut] = useState("0");
-  const [quote, setQuote] = useState<any>();
 
   const tokenAUserbalance = useBalance({
     token: tokenIn?.address as `0x{string}`,
     address: address,
-    chainId: mode.id
-  })
+    chainId: mode.id,
+  });
 
   const {
     data: tokenBalance,
     error: tokenBalanceError,
-    isPending: tokenbalancePending
+    isPending: tokenbalancePending,
   } = useReadContracts({
-    contracts: buildBalanceCheckParams()
+    contracts: buildBalanceCheckParams(),
   });
 
-
-  const {
-    data,
-    error,
-    isLoading
-  } = useReadContract({
+  const { data, error, isLoading } = useReadContract({
     abi: YakRouterABI,
     address: "0x64f1Cd91F37553E5A8718f7D235e5078C962b7e7",
     functionName: "findBestPathWithGas",
@@ -85,10 +75,9 @@ const Swap = () => {
         setAmountOut("0");
       }
     } else {
-      setAmountOut("0")
+      setAmountOut("0");
     }
   }, [data]);
-
 
   useEffect(() => {
     console.log(error);
@@ -99,12 +88,19 @@ const Swap = () => {
       for (let i = 0; i < tokenBalance.length; i++) {
         const results = tokenBalance[i].result;
         if (results !== undefined) {
-          _tokens[i].balance = formatUnits(BigInt(results), parseInt(_tokens[i].decimal));
+          _tokens[i].balance = formatUnits(
+            BigInt(results),
+            parseInt(_tokens[i].decimal)
+          );
         }
       }
-      _tokens = _tokens.sort((a, b) => (b.balance ? parseInt(b.balance) : 0) - (a.balance ? parseInt(a.balance) : 0));
+      _tokens = _tokens.sort(
+        (a, b) =>
+          (b.balance ? parseInt(b.balance) : 0) -
+          (a.balance ? parseInt(a.balance) : 0)
+      );
     }
-  }, [tokenBalance])
+  }, [tokenBalance]);
 
   function convertToBigInt(amount: number, decimals: number) {
     const parsedAmountIn = BigInt(amount * Math.pow(10, 6));
@@ -119,9 +115,9 @@ const Swap = () => {
       readContractArray.push({
         address: _tokens[i].address as `0x{string}`,
         abi: erc20Abi,
-        functionName: 'balanceOf',
+        functionName: "balanceOf",
         args: [address!],
-      })
+      });
     }
     return readContractArray;
   }
@@ -130,43 +126,43 @@ const Swap = () => {
     if (!isConnected) {
       return {
         text: "Connect wallet",
-        enabled: false
-      }
+        enabled: false,
+      };
     } else if (chainId != 34443) {
       return {
         text: "Wrong network",
-        enabled: false
-      }
+        enabled: false,
+      };
     } else if (!tokenIn || !tokenOut) {
       return {
         text: "Select a token",
-        enabled: false
-      }
+        enabled: false,
+      };
     } else if (parseFloat(amountIn) <= 0 && parseFloat(amountOut) <= 0) {
       return {
         text: "Enter amount to swap",
-        enabled: false
-      }
+        enabled: false,
+      };
     } else if (parseFloat(amountIn) > 0 && parseFloat(amountOut) <= 0) {
       return {
         text: "Insufficient liquidity",
-        enabled: false
-      }
+        enabled: false,
+      };
     } else if (amountOut) {
       return {
         text: "Swap",
-        enabled: true
-      }
+        enabled: true,
+      };
     } else if (isLoading) {
       return {
         text: "Loading...",
-        enabled: false
-      }
+        enabled: false,
+      };
     } else {
       return {
         text: "Loading...",
-        enabled: false
-      }
+        enabled: false,
+      };
     }
   }
 
@@ -221,19 +217,44 @@ const Swap = () => {
             </div>
             <div className="flex flex-row items-center justify-between">
               <div className="text-sm"></div>
-              <div onClick={() => {
-                if (!tokenAUserbalance.isLoading && tokenAUserbalance.data && tokenIn) {
-                  setAmountIn(formatUnits(tokenAUserbalance.data!.value, parseInt(tokenIn.decimal)).toString())
-                }
-              }} className="text-sm cursor-pointer">Balance: {tokenAUserbalance.isLoading ? ".." : tokenAUserbalance.data && tokenIn && formatUnits(tokenAUserbalance.data!.value, parseInt(tokenIn.decimal))}</div>
+              <div
+                onClick={() => {
+                  if (
+                    !tokenAUserbalance.isLoading &&
+                    tokenAUserbalance.data &&
+                    tokenIn
+                  ) {
+                    setAmountIn(
+                      formatUnits(
+                        tokenAUserbalance.data!.value,
+                        parseInt(tokenIn.decimal)
+                      ).toString()
+                    );
+                  }
+                }}
+                className="text-sm cursor-pointer"
+              >
+                Balance:{" "}
+                {tokenAUserbalance.isLoading
+                  ? ".."
+                  : tokenAUserbalance.data &&
+                    tokenIn &&
+                    formatUnits(
+                      tokenAUserbalance.data!.value,
+                      parseInt(tokenIn.decimal)
+                    )}
+              </div>
             </div>
           </div>
-          <div className="border-swap" onClick={() => {
-            let _tokenOut = tokenOut;
-            let _tokenIn = tokenIn;
-            setTokenIn(_tokenOut!);
-            setTokenOut(_tokenIn!)
-          }}>
+          <div
+            className="border-swap"
+            onClick={() => {
+              let _tokenOut = tokenOut;
+              let _tokenIn = tokenIn;
+              setTokenIn(_tokenOut!);
+              setTokenOut(_tokenIn!);
+            }}
+          >
             <div className="flex items-center justify-center h-full">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -257,7 +278,7 @@ const Swap = () => {
                 className="w-full text-3xl bg-transparent focus:outline-none"
                 type="text"
                 placeholder="0"
-                onChange={() => { }}
+                onChange={() => {}}
                 value={amountOut}
               />
               <button
@@ -283,14 +304,17 @@ const Swap = () => {
                 </span>
               </button>
             </div>
-
           </div>
         </div>
         <div>
-          <button className="w-full px-8 py-4 text-lg font-semibold rounded-3xl bg-accent/40 text-accent hover:bg-accent/20" disabled={!getTokenSwapButtonText().enabled} onClick={() => {
-            //swap
-            alert("Swap called")
-          }}>
+          <button
+            className="w-full px-8 py-4 text-lg font-semibold rounded-3xl bg-accent/40 text-accent hover:bg-accent/20"
+            disabled={!getTokenSwapButtonText().enabled}
+            onClick={() => {
+              //swap
+              alert("Swap called");
+            }}
+          >
             {getTokenSwapButtonText().text}
           </button>
         </div>
