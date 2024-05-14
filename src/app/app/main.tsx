@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useRef, useState } from "react";
 
-import { useAccount, useConnect, useReadContract } from "wagmi";
+import { useAccount, useBalance, useReadContract } from "wagmi";
 
 import Image from "next/image";
 
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { YakRouterABI } from "./abi/YakRouterABI";
 import { formatEther, formatUnits, Address } from "viem";
+import { mode } from "viem/chains";
 
 export interface Token {
   name: string;
@@ -26,29 +27,41 @@ export interface Token {
 }
 
 const Swap = () => {
+  const EMPTY_ADDRESS = "0x0000000000000000000000000000000000000000"
+
+
   // const [enabled, setEnabled] = useState(false);
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, chainId } = useAccount();
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenOut, setIsOpenOut] = useState(false);
-  const [tokenIn, setTokenIn] = useState<Token>(Tokens[0]);
-  const [tokenOut, setTokenOut] = useState<Token>();
+  const [tokenIn, setTokenIn] = useState<Token | undefined>(Tokens[0]);
+  const [tokenOut, setTokenOut] = useState<Token | undefined>();
   const [amountIn, setAmountIn] = useState("0");
   const [amountOut, setAmountOut] = useState("0");
   const [quote, setQuote] = useState<any>();
+
+  const tokenAUserbalance = useBalance({
+    token: tokenIn?.address as `0x{string}`,
+    address: address,
+    chainId: mode.id
+  })
+
+
 
   const {
     data,
     refetch: getQuote,
     error,
+    isLoading
   } = useReadContract({
     abi: YakRouterABI,
     address: "0x64f1Cd91F37553E5A8718f7D235e5078C962b7e7",
     functionName: "findBestPathWithGas",
     args: [
-      amountIn && parseFloat(amountIn)
-        ? convertToBigInt(parseFloat(amountIn), parseInt(tokenIn.decimal))
+      amountIn && tokenIn && parseFloat(amountIn)
+        ? convertToBigInt(parseFloat(amountIn), parseInt(tokenIn?.decimal))
         : BigInt(0),
-      tokenIn.address as Address,
+      tokenIn?.address as Address,
       tokenOut?.address as Address,
       BigInt("4"),
       BigInt("0"),
@@ -67,14 +80,6 @@ const Swap = () => {
     }
   }, [data]);
 
-  //1000000000000000000n
-  useEffect(() => {
-    console.log(
-      amountIn && parseFloat(amountIn)
-        ? convertToBigInt(parseFloat(amountIn), parseInt(tokenIn.decimal))
-        : 0
-    );
-  }, [amountIn]);
 
   useEffect(() => {
     console.log(error);
@@ -87,6 +92,50 @@ const Swap = () => {
     if (decimals >= 6)
       return parsedAmountIn * BigInt(10) ** BigInt(decimals - 6);
     else return parsedAmountIn / BigInt(10) ** BigInt(6 - decimals);
+  }
+
+  function getTokenSwapButtonText() {
+    if (!isConnected) {
+      return {
+        text: "Connect wallet",
+        enabled: false
+      }
+    } else if (chainId != 34443) {
+      return {
+        text: "Wrong network",
+        enabled: false
+      }
+    } else if (!tokenIn || !tokenOut) {
+      return {
+        text: "Select a token",
+        enabled: false
+      }
+    } else if (parseFloat(amountIn) <= 0 && parseFloat(amountOut) <= 0) {
+      return {
+        text: "Enter amount to swap",
+        enabled: false
+      }
+    } else if (parseFloat(amountIn) > 0 && parseFloat(amountOut) <= 0) {
+      return {
+        text: "Insufficient liquidity",
+        enabled: false
+      }
+    } else if (amountOut) {
+      return {
+        text: "Swap",
+        enabled: true
+      }
+    } else if (isLoading) {
+      return {
+        text: "Loading...",
+        enabled: false
+      }
+    } else {
+      return {
+        text: "Loading...",
+        enabled: false
+      }
+    }
   }
 
   return (
@@ -114,13 +163,13 @@ const Swap = () => {
                 onClick={() => setIsOpen(true)}
               >
                 <Image
-                  src={tokenIn.image || "/tokens/eth.png"}
+                  src={tokenIn?.image || "/tokens/eth.png"}
                   width="22"
                   height="22"
                   alt="ETH"
                 />
                 <h3 className="font-semibold">
-                  {tokenIn ? tokenIn.ticker : "Select Token"}
+                  {tokenIn ? tokenIn?.ticker : "Select Token"}
                 </h3>
                 <span>
                   <svg
@@ -138,12 +187,17 @@ const Swap = () => {
                 </span>
               </button>
             </div>
-            {/* <div className="flex flex-row items-center justify-between">
-              <div className="text-sm">$1,886.28</div>
-              <div className="text-sm">Balance: 10.00</div>
-            </div> */}
+            <div className="flex flex-row items-center justify-between">
+              <div className="text-sm"></div>
+              <div className="text-sm">Balance: {tokenAUserbalance.isLoading ? ".." : tokenAUserbalance.data && tokenIn && formatUnits(tokenAUserbalance.data!.value, parseInt(tokenIn.decimal))}</div>
+            </div>
           </div>
-          <div className="border-swap">
+          <div className="border-swap" onClick={() => {
+            let _tokenOut = tokenOut;
+            let _tokenIn = tokenIn;
+            setTokenIn(_tokenOut!);
+            setTokenOut(_tokenIn!)
+          }}>
             <div className="flex items-center justify-center h-full">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -167,7 +221,7 @@ const Swap = () => {
                 className="w-full text-3xl bg-transparent focus:outline-none"
                 type="text"
                 placeholder="0"
-                onChange={() => {}}
+                onChange={() => { }}
                 value={amountOut}
               />
               <button
@@ -193,22 +247,16 @@ const Swap = () => {
                 </span>
               </button>
             </div>
-            <div className="flex flex-row items-center justify-between">
-              <div className="text-sm">$1,886.28</div>
-              <div className="text-sm">Balance: 10.00</div>
-            </div>
+
           </div>
         </div>
         <div>
-          {isConnected ? (
-            <button className="w-full px-8 py-4 text-lg font-semibold rounded-3xl bg-accent/40 text-accent hover:bg-accent/20">
-              Select a Token
-            </button>
-          ) : (
-            <button className="w-full px-8 py-4 text-lg font-semibold rounded-3xl bg-accent/40 text-accent hover:bg-accent/20">
-              Connect Wallet
-            </button>
-          )}
+          <button className="w-full px-8 py-4 text-lg font-semibold rounded-3xl bg-accent/40 text-accent hover:bg-accent/20" disabled={!getTokenSwapButtonText().enabled} onClick={() => {
+            //swap
+            alert("Swap called")
+          }}>
+            {getTokenSwapButtonText().text}
+          </button>
         </div>
       </div>
       <Dialog open={isOpen} onOpenChange={() => setIsOpen(false)}>
@@ -242,7 +290,9 @@ const Swap = () => {
               return (
                 <div
                   onClick={() => {
-                    console.log("cvalled");
+                    if (tokenOut && token.address === tokenOut?.address) {
+                      setTokenOut(undefined);
+                    }
                     setTokenIn(token);
                     setIsOpen(false);
                   }}
@@ -327,6 +377,9 @@ const Swap = () => {
               return (
                 <div
                   onClick={() => {
+                    if (tokenIn && token.address === tokenIn?.address) {
+                      setTokenIn(undefined);
+                    }
                     setTokenOut(token);
                     setIsOpenOut(false);
                   }}
