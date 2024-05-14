@@ -5,32 +5,12 @@
         "logo": "/chains/mode.png",
         "dexs": [
             {
-                "name": "KIM Exchange",
+                "name": "Kim Exchange",
                 "logo": "/supported/kim.svg",
                 "link": "https://www.kim.exchange/"
             },
             {
-                "name": "izumi",
-                "logo": "/supported/izumi.png",
-                "link": "https://izumi.finance/"
-            },
-            {
-                "name": "Supswap",
-                "logo": "/supported/supswap.svg",
-                "link": "https://supswap.xyz/"
-            },
-            {
-                "name": "Swapmode",
-                "logo": "/supported/swapmode.webp",
-                "link": "https://swapmode.fi/"
-            },
-            {
-                "name": "KIM Exchange",
-                "logo": "/supported/kim.svg",
-                "link": "https://www.kim.exchange/"
-            },
-            {
-                "name": "izumi",
+                "name": "Izumi Finance",
                 "logo": "/supported/izumi.png",
                 "link": "https://izumi.finance/"
             },
@@ -52,53 +32,9 @@
         "logo": "/chains/mode.png",
         "dexs": [
             {
-                "name": "Supswap",
-                "logo": "/supported/supswap.svg",
-                "link": "https://supswap.xyz/"
-            },
-            {
-                "name": "Swapmode",
-                "logo": "/supported/swapmode.webp",
-                "link": "https://swapmode.fi/"
-            }
-        ]
-    },
-    {
-        "name": "Mode",
-        "chainID": 34443,
-        "logo": "/chains/mode.png",
-        "dexs": [
-            {
-                "name": "KIM Exchange",
+                "name": "Kim Exchange",
                 "logo": "/supported/kim.svg",
                 "link": "https://www.kim.exchange/"
-            },
-            {
-                "name": "Supswap",
-                "logo": "/supported/supswap.svg",
-                "link": "https://supswap.xyz/"
-            },
-            {
-                "name": "Swapmode",
-                "logo": "/supported/swapmode.webp",
-                "link": "https://swapmode.fi/"
-            }
-        ]
-    },
-    {
-        "name": "Mode",
-        "chainID": 34443,
-        "logo": "/chains/mode.png",
-        "dexs": [
-            {
-                "name": "KIM Exchange",
-                "logo": "/supported/kim.svg",
-                "link": "https://www.kim.exchange/"
-            },
-            {
-                "name": "izumi",
-                "logo": "/supported/izumi.png",
-                "link": "https://izumi.finance/"
             },
             {
                 "name": "Supswap",

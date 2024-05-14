@@ -16,7 +16,7 @@ export default function Navbar() {
         </Link>
         <ul className="flex flex-row justify-center items-center">
           <li>
-            <Link href={"/#integrations"}>Integrations</Link>
+            <Link href={"#integrations"}>Integrations</Link>
           </li>
         </ul>
         <ul className="flex flex-row items-center justify-end gap-12">
