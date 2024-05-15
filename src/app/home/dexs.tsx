@@ -88,15 +88,17 @@ export default function Dexs() {
                   height="50"
                   alt={dex.name}
                 />
-                <h3 className="font-semibold">{dex.name}</h3>
-                <div className="text-sm flex flex-row justify-center items-center gap-4">
-                  {dex.adapters.map((adapter, a) => {
-                    return (
-                      <div className="bg-primary px-2 py-1 rounded" key={a}>
-                        {adapter.name}
-                      </div>
-                    );
-                  })}
+                <div className="flex flex-col gap-2 justify-center items-center">
+                  <h3 className="font-bold text-xl">{dex.name}</h3>
+                  <div className="text-xs flex flex-row justify-center items-center gap-4">
+                    {dex.adapters.map((adapter, a) => {
+                      return (
+                        <div className="bg-primary px-2 py-1 rounded" key={a}>
+                          {adapter.name}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
                 <Link
                   className="flex flex-row justify-center items-center gap-2 text-sm"
