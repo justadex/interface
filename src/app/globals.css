@@ -48,3 +48,15 @@ body {
   width: 4px;
   height: 4px;
 }
+
+.blob {
+  background: url("/patterns/blob.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.home {
+  background: url("/triangle.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+}

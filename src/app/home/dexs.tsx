@@ -69,11 +69,11 @@ export default function Dexs() {
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 gap-6">
             {DexsData[selectedDex].dexs.map((dex: DEXS, d) => {
               return (
                 <div
-                  className="flex-col gap-4 border-2 border-secondary rounded flex justify-center py-4 items-center w-full"
+                  className="flex-col gap-4 border-2 border-secondary rounded flex justify-center py-6 items-center w-full blob"
                   key={d}
                 >
                   <Image

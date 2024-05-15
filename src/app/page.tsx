@@ -9,7 +9,7 @@ export default function Home() {
     <>
       <Navbar />
       <div className="px-8 md:px-24">
-        <section className="min-h-[90vh] home flex flex-col justify-center text-center gap-6 items-center">
+        <section className="min-h-screen home flex flex-col justify-center text-center gap-6 items-center">
           <h1 className="text-5xl font-bold max-w-4xl leading-snug">
             Your Ultimate DEX Aggregator on Mode Blockchain
           </h1>
