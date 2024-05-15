@@ -177,6 +177,13 @@ const Swap = () => {
   }
 
   function getTokenSwapButtonText() {
+    if (isLoading && tokenIn && tokenOut) {
+      return {
+        enabled: false,
+        text: "Loading...",
+      };
+    }
+
     if (approveStatus === "pending") {
       return {
         enabled: false,
@@ -228,7 +235,7 @@ const Swap = () => {
         text: "Insufficient liquidity",
         enabled: false,
       };
-    } else if (amountOut) {
+    } else if (parseInt(amountOut)) {
       return {
         text: "Swap",
         enabled: true,
@@ -414,7 +421,7 @@ const Swap = () => {
         </div>
         <div>
           <button
-            className="w-full px-8 py-4 text-lg font-semibold rounded-3xl bg-accent/40 text-accent hover:bg-accent/20"
+            className="w-full px-8 py-4 text-lg font-semibold rounded-3xl bg-accent/40 text-accent hover:bg-accent/20 disabled:cursor-not-allowed"
             disabled={!getTokenSwapButtonText().enabled}
             onClick={() => {
               if (
