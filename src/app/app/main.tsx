@@ -183,6 +183,15 @@ const Swap = () => {
         text: "Loading...",
       };
     }
+    // console.log(tokenAUserbalance.data?.value);
+    // if (tokenAUserbalance.data !== undefined) {
+    //   if (BigInt(formatUnits(amountIn,parseInt(tokenIn?.decimal))) > BigInt(tokenAUserbalance.data?.value)) {
+    //     return {
+    //       enabled: false,
+    //       text: "Low Balance",
+    //     };
+    //   }
+    // }
 
     if (approveStatus === "pending") {
       return {
