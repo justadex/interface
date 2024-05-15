@@ -8,7 +8,7 @@ import {
   useReadContract,
   useReadContracts,
   useWriteContract,
-  useWaitForTransactionReceipt,
+  useWaitForTransactionReceipt
 } from "wagmi";
 
 import Image from "next/image";
@@ -18,6 +18,8 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { YakRouterABI } from "./abi/YakRouterABI";
 import { formatEther, formatUnits, Address, erc20Abi } from "viem";
 import { mode } from "viem/chains";
+import { truncate } from "fs";
+import Truncate from "../utils/truncate";
 
 export interface Token {
   name: string;
@@ -34,6 +36,11 @@ export interface TradeInfo {
   path: readonly `0x${string}`[];
   pathTokens: Token[];
   adapters: readonly `0x${string}`[];
+}
+
+export interface ButtonState {
+  enabled: boolean;
+  text: string;
 }
 
 let _tokens: Token[] = Tokens;
@@ -73,11 +80,9 @@ const Swap = () => {
     hash: swapData,
   });
 
-  const tokenAUserbalance = useBalance({
-    token: tokenIn?.address as `0x{string}`,
+  const ethBalance = useBalance({
     address: address,
-    chainId: mode.id,
-  });
+  })
 
   const {
     data: tokenBalance,
@@ -90,15 +95,14 @@ const Swap = () => {
   const { data, error, isLoading } = useReadContract({
     abi: YakRouterABI,
     address: YakRouterAddress,
-    functionName: "findBestPathWithGas",
+    functionName: "findBestPath",
     args: [
       amountIn && tokenIn && parseFloat(amountIn)
         ? convertToBigInt(parseFloat(amountIn), parseInt(tokenIn?.decimal))
         : BigInt(0),
-      tokenIn?.address as Address,
-      tokenOut?.address as Address,
-      BigInt("4"),
-      BigInt("0"),
+      tokenIn?.address === "" ? "0x4200000000000000000000000000000000000006" : tokenIn?.address as Address,
+      tokenOut?.address === "" ? "0x4200000000000000000000000000000000000006" : tokenOut?.address as Address,
+      BigInt("3")
     ],
   });
 
@@ -123,6 +127,7 @@ const Swap = () => {
           adapters: data.adapters,
         };
         setTradeInfo(trade);
+        console.log(data)
       } else {
         setAmountOut("0");
       }
@@ -136,17 +141,19 @@ const Swap = () => {
       for (let i = 0; i < tokenBalance.length; i++) {
         const results = tokenBalance[i].result;
         if (results !== undefined) {
-          _tokens[i].balance = formatUnits(
+          _tokens[i + 1].balance = formatUnits(
             BigInt(results),
-            parseInt(_tokens[i].decimal)
+            parseInt(_tokens[i + 1].decimal)
           );
         }
       }
-      _tokens = _tokens.sort(
-        (a, b) =>
+      _tokens = [
+        _tokens[0],
+        ..._tokens.slice(1).sort((a, b) =>
           (b.balance ? parseInt(b.balance) : 0) -
           (a.balance ? parseInt(a.balance) : 0)
-      );
+        )
+      ];
     }
   }, [tokenBalance]);
 
@@ -157,17 +164,43 @@ const Swap = () => {
     if (swapStatus === "pending" || swapResult.isLoading) return;
     if (tradeInfo == undefined || address == undefined) return;
 
-    writeContract({
-      abi: YakRouterABI,
-      address: YakRouterAddress,
-      functionName: "swapNoSplit",
-      args: [tradeInfo, address, BigInt(0)],
-    });
+    if (tokenOut?.address === "") {
+      writeContract({
+        abi: YakRouterABI,
+        address: YakRouterAddress,
+        functionName: "swapNoSplitToAVAX",
+        args: [{
+          adapters: tradeInfo.adapters,
+          amountIn: tradeInfo.amountIn,
+          amountOut: tradeInfo.amountOut,
+          path: tradeInfo.path
+        }, address, BigInt(0)]
+      })
+    } else {
+      writeContract({
+        abi: YakRouterABI,
+        address: YakRouterAddress,
+        functionName: "swapNoSplit",
+        args: [{
+          adapters: tradeInfo.adapters,
+          amountIn: tradeInfo.amountIn,
+          amountOut: tradeInfo.amountOut,
+          path: tradeInfo.path
+        }, address, BigInt(0)],
+      });
+    }
+
     setSwapStart(false);
   }, [approveResult]);
 
+  useEffect(() => {
+    if (ethBalance && ethBalance.status === "success") {
+      _tokens[0].balance = formatEther(ethBalance.data.value);
+    }
+  }, [ethBalance])
+
   function convertToBigInt(amount: number, decimals: number) {
-    const parsedAmountIn = BigInt(amount * Math.pow(10, 6));
+    const parsedAmountIn = BigInt(Math.floor(amount * Math.pow(10, 6)));
     if (decimals >= 6)
       return parsedAmountIn * BigInt(10) ** BigInt(decimals - 6);
     else return parsedAmountIn / BigInt(10) ** BigInt(6 - decimals);
@@ -176,101 +209,83 @@ const Swap = () => {
   function buildBalanceCheckParams() {
     let readContractArray = [];
     for (let i = 0; i < _tokens.length; i++) {
-      readContractArray.push({
-        address: _tokens[i].address as `0x{string}`,
-        abi: erc20Abi,
-        functionName: "balanceOf",
-        args: [address!],
-      });
+      if (_tokens[i].address) {
+        readContractArray.push({
+          address: _tokens[i].address as `0x{string}`,
+          abi: erc20Abi,
+          functionName: "balanceOf",
+          args: [address!],
+        });
+      }
+
     }
     return readContractArray;
   }
 
-  function getTokenSwapButtonText() {
-    // if (isLoading && tokenIn && tokenOut) {
-    //   return {
-    //     enabled: false,
-    //     text: "Loading...",
-    //   };
-    // }
-    // console.log(tokenAUserbalance.data?.value);
-    // if (tokenAUserbalance.data !== undefined) {
-    //   if (BigInt(formatUnits(amountIn,parseInt(tokenIn?.decimal))) > BigInt(tokenAUserbalance.data?.value)) {
-    //     return {
-    //       enabled: false,
-    //       text: "Low Balance",
-    //     };
-    //   }
-    // }
-    console.log(parseFloat(amountOut));
-
+  function getTokenSwapButtonText(): ButtonState {
     if (approveStatus === "pending") {
-      return {
-        enabled: false,
-        text: "Calling Approve",
-      };
+      return { enabled: false, text: "Calling Approve" };
     }
     if (approveResult.isLoading) {
-      return {
-        enabled: false,
-        text: "Approving",
-      };
+      return { enabled: false, text: "Approving" };
     }
     if (swapStatus === "pending") {
-      return {
-        enabled: false,
-        text: "Calling swap",
-      };
+      return { enabled: false, text: "Calling swap" };
     }
     if (swapResult.isLoading) {
-      return {
-        enabled: false,
-        text: "Swapping",
-      };
+      return { enabled: false, text: "Swapping" };
     }
     if (!isConnected) {
-      return {
-        text: "Connect wallet",
-        enabled: false,
-      };
+      return { enabled: false, text: "Connect wallet" };
     }
-    // else if (chainId != 1337) {
-    //   return {
-    //     text: "Wrong network",
-    //     enabled: false,
-    //   };
-    // }
-    else if (!tokenIn || !tokenOut) {
-      return {
-        text: "Select a token",
-        enabled: false,
-      };
-    } else if (parseFloat(amountIn) <= 0 && parseFloat(amountOut) <= 0) {
-      return {
-        text: "Enter amount to swap",
-        enabled: false,
-      };
-    } else if (parseFloat(amountIn) > 0 && parseFloat(amountOut) <= 0) {
-      return {
-        text: "Insufficient liquidity",
-        enabled: false,
-      };
-    } else if (parseFloat(amountOut)) {
-      return {
-        text: "Swap",
-        enabled: true,
-      };
-    } else if (isLoading) {
-      return {
-        text: "Loading...",
-        enabled: false,
-      };
-    } else {
-      return {
-        text: "Loading...Lasdst",
-        enabled: false,
-      };
+
+    if (!tokenIn || !tokenOut) {
+      return { enabled: false, text: "Select a token" };
     }
+
+    const amountInValue = parseFloat(amountIn);
+    const amountOutValue = parseFloat(amountOut);
+
+    if (amountInValue <= 0 && amountOutValue <= 0) {
+      return { enabled: false, text: "Enter amount to swap" };
+    }
+
+    if (amountInValue > 0 && amountOutValue <= 0) {
+      return { enabled: false, text: "Insufficient liquidity" };
+    }
+
+    if (isLoading) {
+      return { enabled: false, text: "Loading..." };
+    }
+
+    if (amountOutValue > 0) {
+      return { enabled: true, text: "Swap" };
+    }
+
+    return { enabled: false, text: "Loading...Lasdst" };
+  }
+
+  function formatFloat(value: number) {
+    if (!value) {
+      return value;
+    }
+    if (typeof value !== 'number') {
+      return value;
+    }
+
+    const valueString = value.toString();
+    const decimalIndex = valueString.indexOf('.');
+
+    if (decimalIndex === -1) {
+      return value;
+    }
+
+    const decimalPart = valueString.slice(decimalIndex + 1);
+    if (decimalPart.length > 6) {
+      return parseFloat(value.toFixed(6));
+    }
+
+    return value;
   }
 
   return (
@@ -322,42 +337,27 @@ const Swap = () => {
                 </span>
               </button>
             </div>
-            {tokenAUserbalance.data?.value &&
-              tokenIn &&
-              parseInt(
-                formatUnits(
-                  tokenAUserbalance.data?.value,
-                  parseInt(tokenIn?.decimal)
-                )
+            {
+              tokenIn && tokenIn.balance &&
+              parseFloat(
+                tokenIn.balance
               ) > 0 && (
                 <div className="flex flex-row items-center justify-between">
                   <div className="text-sm"></div>
                   <div
                     onClick={() => {
                       if (
-                        !tokenAUserbalance.isLoading &&
-                        tokenAUserbalance.data &&
-                        tokenIn
+                        tokenIn && tokenIn.balance
                       ) {
                         setAmountIn(
-                          formatUnits(
-                            tokenAUserbalance.data!.value,
-                            parseInt(tokenIn.decimal)
-                          ).toString()
+                          tokenIn.balance
                         );
                       }
                     }}
                     className="text-sm cursor-pointer"
                   >
                     Balance:{" "}
-                    {tokenAUserbalance.isLoading
-                      ? ".."
-                      : tokenAUserbalance.data &&
-                        tokenIn &&
-                        formatUnits(
-                          tokenAUserbalance.data!.value,
-                          parseInt(tokenIn.decimal)
-                        )}
+                    {tokenIn && tokenIn.balance ? formatFloat(parseFloat(tokenIn.balance)) : ".."}
                   </div>
                 </div>
               )}
@@ -394,7 +394,7 @@ const Swap = () => {
                 className="w-full text-3xl bg-transparent focus:outline-none"
                 type="text"
                 placeholder="0"
-                onChange={() => {}}
+                onChange={() => { }}
                 value={amountOut}
               />
               <button
@@ -432,12 +432,28 @@ const Swap = () => {
                 tradeInfo != undefined &&
                 address != undefined
               ) {
-                callApprove({
-                  abi: erc20Abi,
-                  address: tokenIn.address as `0x${string}`,
-                  functionName: "approve",
-                  args: [YakRouterAddress, BigInt(tradeInfo.amountIn)],
-                });
+                if (tokenIn.address === "") {
+                  writeContract({
+                    abi: YakRouterABI,
+                    address: YakRouterAddress,
+                    functionName: "swapNoSplitFromAVAX",
+                    args: [{
+                      adapters: tradeInfo.adapters,
+                      amountIn: tradeInfo.amountIn,
+                      amountOut: tradeInfo.amountOut,
+                      path: tradeInfo.path
+                    }, address, BigInt(0)],
+                    value: tradeInfo.amountIn
+                  })
+                } else {
+                  callApprove({
+                    abi: erc20Abi,
+                    address: tokenIn.address as `0x${string}`,
+                    functionName: "approve",
+                    args: [YakRouterAddress, BigInt(tradeInfo.amountIn)],
+                  });
+                }
+
                 setSwapStart(true);
               }
             }}
@@ -445,6 +461,7 @@ const Swap = () => {
             {getTokenSwapButtonText().text}
           </button>
           <div className="w-full flex justify-center">
+            {console.log(swapError)}
             {swapResult.isSuccess ? (
               <div>Swapped Successfully!</div>
             ) : swapStatus === "error" ? (
@@ -549,7 +566,7 @@ const Swap = () => {
                       <h5 className="text-sm text-offwhite">{token.ticker}</h5>
                     </div>
                   </div>
-                  <div>{token.balance}</div>
+                  <div>{token.balance ? formatFloat(parseFloat(token.balance)) : 0}</div>
                 </div>
               );
             })}
@@ -636,7 +653,7 @@ const Swap = () => {
                       <h5 className="text-sm text-offwhite">{token.ticker}</h5>
                     </div>
                   </div>
-                  <div>{token.balance}</div>
+                  <div>{token.balance ? formatFloat(parseFloat(token.balance)) : 0}</div>
                 </div>
               );
             })}
