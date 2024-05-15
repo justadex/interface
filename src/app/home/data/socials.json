@@ -1,0 +1,17 @@
+[
+    {
+        "name": "X",
+        "icon": "/assets/socials/x.svg",
+        "link": ""
+    },
+    {
+        "name": "Discord",
+        "icon": "/assets/socials/discord.svg",
+        "link": ""
+    },
+    {
+        "name": "Telegram",
+        "icon": "/assets/socials/telegram.svg",
+        "link": ""
+    }
+]

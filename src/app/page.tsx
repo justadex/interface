@@ -3,12 +3,13 @@ import Image from "next/image";
 import Navbar from "./components/Navbar/Navbar";
 import Dexs from "./home/dexs";
 import Footer from "./components/Footer";
+import Socails from "./home/socials";
 
 export default function Home() {
   return (
     <>
       <Navbar />
-      <div className="px-8 md:px-24">
+      <div className="px-8 md:px-24 noise">
         <section className="min-h-screen home flex flex-col justify-center text-center gap-6 items-center">
           <h1 className="text-5xl font-bold max-w-4xl leading-snug">
             Your Ultimate DEX Aggregator on Mode Blockchain
@@ -25,6 +26,7 @@ export default function Home() {
           </Link>
         </section>
         <Dexs />
+        <Socails />
         <Footer />
       </div>
     </>

@@ -14,9 +14,12 @@ export default function Navbar() {
             priority
           />
         </Link>
-        <ul className="flex flex-row justify-center items-center">
+        <ul className="flex flex-row gap-6 font-semibold text-lg justify-center items-center">
           <li>
-            <Link href={"#integrations"}>Integrations</Link>
+            <Link href={"#integrations"}>Chains & DEXs</Link>
+          </li>
+          <li>
+            <Link href={"#socials"}>Community</Link>
           </li>
         </ul>
         <ul className="flex flex-row items-center justify-end gap-12">

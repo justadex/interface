@@ -246,8 +246,31 @@ const Swap = () => {
     }
   }
 
+  const FlowData = [
+    {
+      name: "ETH",
+      icon: "/tokens/eth.png",
+    },
+    {
+      name: "ETH",
+      icon: "/tokens/eth.png",
+    },
+    {
+      name: "1Inch",
+      icon: "/tokens/1Inch.png",
+    },
+    {
+      name: "APE",
+      icon: "/tokens/apecoin.png",
+    },
+    {
+      name: "busd",
+      icon: "/tokens/busd.png",
+    },
+  ];
+
   return (
-    <section className="flex items-center justify-center min-h-screen">
+    <section className="flex flex-col gap-6 items-center justify-center min-h-screen">
       <div className="w-full max-w-lg p-4 rounded-2xl shadow-sm bg-primary border-[1px] border-white/20 text-offwhite">
         <div className="flex flex-row items-center justify-between gap-4">
           <h2 className="text-lg font-bold">Swap</h2>
@@ -295,36 +318,39 @@ const Swap = () => {
                 </span>
               </button>
             </div>
-            <div className="flex flex-row items-center justify-between">
-              <div className="text-sm"></div>
-              <div
-                onClick={() => {
-                  if (
-                    !tokenAUserbalance.isLoading &&
-                    tokenAUserbalance.data &&
-                    tokenIn
-                  ) {
-                    setAmountIn(
-                      formatUnits(
-                        tokenAUserbalance.data!.value,
-                        parseInt(tokenIn.decimal)
-                      ).toString()
-                    );
-                  }
-                }}
-                className="text-sm cursor-pointer"
-              >
-                Balance:{" "}
-                {tokenAUserbalance.isLoading
-                  ? ".."
-                  : tokenAUserbalance.data &&
-                    tokenIn &&
-                    formatUnits(
-                      tokenAUserbalance.data!.value,
-                      parseInt(tokenIn.decimal)
-                    )}
-              </div>
-            </div>
+            {tokenAUserbalance.data?.formatted &&
+              parseInt(tokenAUserbalance.data?.formatted) > 0 && (
+                <div className="flex flex-row items-center justify-between">
+                  <div className="text-sm"></div>
+                  <div
+                    onClick={() => {
+                      if (
+                        !tokenAUserbalance.isLoading &&
+                        tokenAUserbalance.data &&
+                        tokenIn
+                      ) {
+                        setAmountIn(
+                          formatUnits(
+                            tokenAUserbalance.data!.value,
+                            parseInt(tokenIn.decimal)
+                          ).toString()
+                        );
+                      }
+                    }}
+                    className="text-sm cursor-pointer"
+                  >
+                    Balance:{" "}
+                    {tokenAUserbalance.isLoading
+                      ? ".."
+                      : tokenAUserbalance.data &&
+                        tokenIn &&
+                        formatUnits(
+                          tokenAUserbalance.data!.value,
+                          parseInt(tokenIn.decimal)
+                        )}
+                  </div>
+                </div>
+              )}
           </div>
           <div
             className="border-swap"
@@ -419,6 +445,31 @@ const Swap = () => {
               <div />
             )}
           </div>
+        </div>
+      </div>
+      <div className="w-full max-w-lg p-4 rounded-2xl shadow-sm bg-primary border-[1px] border-white/20 text-offwhite">
+        <div className="flex flex-row justify-between items-center flex-wrap gap-4">
+          {FlowData.map((flow, f) => {
+            return (
+              <div
+                className="flex flex-row justify-center items-center gap-4"
+                key={f}
+              >
+                <div className="flex flex-col gap-1 justify-center items-center">
+                  <Image src={flow.icon} width={"25"} height={"25"} alt="ETH" />
+                  <h4 className=" font-bold uppercase">{flow.name}</h4>
+                </div>
+                <div className={FlowData.length === f + 1 ? "hidden" : ""}>
+                  <Image
+                    src={"/assets/icons/arrow-right-white.svg"}
+                    width={"20"}
+                    height={"10"}
+                    alt="Arrow Right"
+                  />
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
       <Dialog open={isOpen} onOpenChange={() => setIsOpen(false)}>
