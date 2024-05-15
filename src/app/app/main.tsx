@@ -32,6 +32,7 @@ export interface TradeInfo {
   amountIn: bigint;
   amountOut: bigint;
   path: readonly `0x${string}`[];
+  pathTokens: Token[];
   adapters: readonly `0x${string}`[];
 }
 
@@ -104,12 +105,14 @@ const Swap = () => {
   useEffect(() => {
     if (data) {
       if (data?.amounts.length > 0 && tokenOut) {
-        setAmountOut(formatUnits(data?.amounts[1], parseInt(tokenOut.decimal)));
+        setAmountOut(formatUnits(data?.amounts[data.amounts.length - 1], parseInt(tokenOut.decimal)));
 
         const trade = {
           amountIn: data.amounts[0],
-          amountOut: data.amounts[1],
+          amountOut: data.amounts[data.amounts.length - 1],
+          amounts: data.amounts,
           path: data.path,
+          pathTokens: _tokens.filter(token => data.path.includes(token.address as `0x{String}`)),
           adapters: data.adapters,
         };
         setTradeInfo(trade);
@@ -177,12 +180,12 @@ const Swap = () => {
   }
 
   function getTokenSwapButtonText() {
-    if (isLoading && tokenIn && tokenOut) {
-      return {
-        enabled: false,
-        text: "Loading...",
-      };
-    }
+    // if (isLoading && tokenIn && tokenOut) {
+    //   return {
+    //     enabled: false,
+    //     text: "Loading...",
+    //   };
+    // }
     // console.log(tokenAUserbalance.data?.value);
     // if (tokenAUserbalance.data !== undefined) {
     //   if (BigInt(formatUnits(amountIn,parseInt(tokenIn?.decimal))) > BigInt(tokenAUserbalance.data?.value)) {
@@ -192,6 +195,7 @@ const Swap = () => {
     //     };
     //   }
     // }
+    console.log(parseFloat(amountOut))
 
     if (approveStatus === "pending") {
       return {
@@ -244,7 +248,7 @@ const Swap = () => {
         text: "Insufficient liquidity",
         enabled: false,
       };
-    } else if (parseInt(amountOut)) {
+    } else if (parseFloat(amountOut)) {
       return {
         text: "Swap",
         enabled: true,
@@ -256,34 +260,12 @@ const Swap = () => {
       };
     } else {
       return {
-        text: "Loading...",
+        text: "Loading...Lasdst",
         enabled: false,
       };
     }
   }
 
-  const FlowData = [
-    {
-      name: "ETH",
-      icon: "/tokens/eth.png",
-    },
-    {
-      name: "ETH",
-      icon: "/tokens/eth.png",
-    },
-    {
-      name: "1Inch",
-      icon: "/tokens/1Inch.png",
-    },
-    {
-      name: "APE",
-      icon: "/tokens/apecoin.png",
-    },
-    {
-      name: "busd",
-      icon: "/tokens/busd.png",
-    },
-  ];
 
   return (
     <section className="flex flex-col gap-6 items-center justify-center min-h-screen">
@@ -334,8 +316,8 @@ const Swap = () => {
                 </span>
               </button>
             </div>
-            {tokenAUserbalance.data?.formatted &&
-              parseInt(tokenAUserbalance.data?.formatted) > 0 && (
+            {tokenAUserbalance.data?.value && tokenIn &&
+              parseInt(formatUnits(tokenAUserbalance.data?.value, parseInt(tokenIn?.decimal))) > 0 && (
                 <div className="flex flex-row items-center justify-between">
                   <div className="text-sm"></div>
                   <div
@@ -359,11 +341,11 @@ const Swap = () => {
                     {tokenAUserbalance.isLoading
                       ? ".."
                       : tokenAUserbalance.data &&
-                        tokenIn &&
-                        formatUnits(
-                          tokenAUserbalance.data!.value,
-                          parseInt(tokenIn.decimal)
-                        )}
+                      tokenIn &&
+                      formatUnits(
+                        tokenAUserbalance.data!.value,
+                        parseInt(tokenIn.decimal)
+                      )}
                   </div>
                 </div>
               )}
@@ -400,7 +382,7 @@ const Swap = () => {
                 className="w-full text-3xl bg-transparent focus:outline-none"
                 type="text"
                 placeholder="0"
-                onChange={() => {}}
+                onChange={() => { }}
                 value={amountOut}
               />
               <button
@@ -463,19 +445,19 @@ const Swap = () => {
           </div>
         </div>
       </div>
-      <div className="w-full max-w-lg p-4 rounded-2xl shadow-sm bg-primary border-[1px] border-white/20 text-offwhite">
+      {tradeInfo && <div className="w-full max-w-lg p-4 rounded-2xl shadow-sm bg-primary border-[1px] border-white/20 text-offwhite">
         <div className="flex flex-row justify-between items-center flex-wrap gap-4">
-          {FlowData.map((flow, f) => {
+          {tradeInfo && tradeInfo.pathTokens.map((flow: Token, f: number) => {
             return (
               <div
                 className="flex flex-row justify-center items-center gap-4"
                 key={f}
               >
                 <div className="flex flex-col gap-1 justify-center items-center">
-                  <Image src={flow.icon} width={"25"} height={"25"} alt="ETH" />
-                  <h4 className=" font-bold uppercase">{flow.name}</h4>
+                  <Image src={flow.image} width={"25"} height={"25"} alt="ETH" />
+                  <h4 className=" font-bold uppercase">{flow.ticker}</h4>
                 </div>
-                <div className={FlowData.length === f + 1 ? "hidden" : ""}>
+                <div className={tradeInfo.pathTokens.length === f + 1 ? "hidden" : ""}>
                   <Image
                     src={"/assets/icons/arrow-right-white.svg"}
                     width={"20"}
@@ -487,7 +469,7 @@ const Swap = () => {
             );
           })}
         </div>
-      </div>
+      </div>}
       <Dialog open={isOpen} onOpenChange={() => setIsOpen(false)}>
         <DialogContent className="flex flex-col w-full max-w-md text-white bg-primary rounded-3xl border-[1px] border-opacity-25 border-offwhite shadow-md overflow-clip">
           <div className="flex flex-col gap-4 px-4 pb-3 pt-0">
