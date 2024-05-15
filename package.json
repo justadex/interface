@@ -25,6 +25,7 @@
     "react-dom": "^18",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
+    "typewriter-effect": "^2.21.0",
     "viem": "2.x",
     "wagmi": "^2.8.5"
   },

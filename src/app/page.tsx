@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar/Navbar";
 import Dexs from "./home/dexs";
 import Footer from "./components/Footer";
 import Socails from "./home/socials";
+import TypeEffect from "./home/typeeffect";
 
 export default function Home() {
   return (
@@ -12,7 +13,7 @@ export default function Home() {
       <div className="px-8 md:px-24 noise">
         <section className="min-h-screen home flex flex-col justify-center text-center gap-6 items-center">
           <h1 className="text-5xl font-bold max-w-4xl leading-snug">
-            Your Ultimate DEX Aggregator on Mode Blockchain
+            <TypeEffect />
           </h1>
           <p className="text-xl max-w-2xl font-light">
             Enjoy seamless trading with the best rates and liquidity, all in one
