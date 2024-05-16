@@ -1,7 +1,4 @@
 "use client";
-// import { WagmiProvider } from "wagmi";
-// import { config } from "./config";
-// import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import "@rainbow-me/rainbowkit/styles.css";
 
@@ -27,7 +24,7 @@ export default function WagmiProviderWrapper({
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider coolMode>{children}</RainbowKitProvider>
+        <RainbowKitProvider>{children}</RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

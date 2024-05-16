@@ -17,7 +17,8 @@ import Tokens from "@/app/app/data/tokens.json";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { YakRouterABI } from "./abi/YakRouterABI";
 import { formatEther, formatUnits, Address, erc20Abi } from "viem";
-import { mode } from "viem/chains";
+import { useWatchBlocks } from "wagmi";
+import toast from "react-hot-toast";
 
 export interface Token {
   name: string;
@@ -32,12 +33,19 @@ export interface TradeInfo {
   amountIn: bigint;
   amountOut: bigint;
   path: readonly `0x${string}`[];
+  pathTokens: Token[];
   adapters: readonly `0x${string}`[];
+}
+
+export interface ButtonState {
+  enabled: boolean;
+  text: string;
 }
 
 let _tokens: Token[] = Tokens;
 
 const YakRouterAddress = "0x64f1Cd91F37553E5A8718f7D235e5078C962b7e7";
+const WETH_ADDRESS: Address = "0x4200000000000000000000000000000000000006";
 
 const Swap = () => {
   const { address, isConnected, chainId } = useAccount();
@@ -49,6 +57,14 @@ const Swap = () => {
   const [amountOut, setAmountOut] = useState("0");
   const [tradeInfo, setTradeInfo] = useState<TradeInfo | undefined>();
   const [swapStart, setSwapStart] = useState(false);
+
+  const [block, setBlock] = useState<string>("");
+  useWatchBlocks({
+    blockTag: "latest",
+    onBlock(block) {
+      setBlock(block.number.toString());
+    },
+  });
 
   const {
     writeContract,
@@ -72,16 +88,15 @@ const Swap = () => {
     hash: swapData,
   });
 
-  const tokenAUserbalance = useBalance({
-    token: tokenIn?.address as `0x{string}`,
+  const ethBalance = useBalance({
     address: address,
-    chainId: mode.id,
   });
 
   const {
     data: tokenBalance,
     error: tokenBalanceError,
     isLoading: tokenbalancePending,
+    refetch: refreshBalance,
   } = useReadContracts({
     contracts: buildBalanceCheckParams(),
   });
@@ -89,27 +104,42 @@ const Swap = () => {
   const { data, error, isLoading } = useReadContract({
     abi: YakRouterABI,
     address: YakRouterAddress,
-    functionName: "findBestPathWithGas",
+    functionName: "findBestPath",
     args: [
       amountIn && tokenIn && parseFloat(amountIn)
         ? convertToBigInt(parseFloat(amountIn), parseInt(tokenIn?.decimal))
         : BigInt(0),
-      tokenIn?.address as Address,
-      tokenOut?.address as Address,
-      BigInt("4"),
-      BigInt("0"),
+      tokenIn?.address === ""
+        ? "0x4200000000000000000000000000000000000006"
+        : (tokenIn?.address as Address),
+      tokenOut?.address === ""
+        ? "0x4200000000000000000000000000000000000006"
+        : (tokenOut?.address as Address),
+      BigInt("3"),
     ],
   });
 
   useEffect(() => {
     if (data) {
       if (data?.amounts.length > 0 && tokenOut) {
-        setAmountOut(formatUnits(data?.amounts[1], parseInt(tokenOut.decimal)));
+        setAmountOut(
+          formatUnits(
+            data?.amounts[data.amounts.length - 1],
+            parseInt(tokenOut.decimal)
+          )
+        );
 
         const trade = {
           amountIn: data.amounts[0],
-          amountOut: data.amounts[1],
+          amountOut: data.amounts[data.amounts.length - 1],
+          amounts: data.amounts,
           path: data.path,
+          pathTokens: data.path.map((pathAddress, index) => {
+            return (
+              _tokens.find((token) => token.address == pathAddress) ||
+              _tokens[0]
+            );
+          }),
           adapters: data.adapters,
         };
         setTradeInfo(trade);
@@ -119,28 +149,29 @@ const Swap = () => {
     } else {
       setAmountOut("0");
     }
-  }, [data]);
-
-  useEffect(() => {
-    console.log(error);
-  }, [error]);
+  }, [data, tokenOut]);
 
   useEffect(() => {
     if (tokenBalance && tokenBalance.length > 0) {
       for (let i = 0; i < tokenBalance.length; i++) {
         const results = tokenBalance[i].result;
         if (results !== undefined) {
-          _tokens[i].balance = formatUnits(
+          _tokens[i + 1].balance = formatUnits(
             BigInt(results),
-            parseInt(_tokens[i].decimal)
+            parseInt(_tokens[i + 1].decimal)
           );
         }
       }
-      _tokens = _tokens.sort(
-        (a, b) =>
-          (b.balance ? parseInt(b.balance) : 0) -
-          (a.balance ? parseInt(a.balance) : 0)
-      );
+      _tokens = [
+        _tokens[0],
+        ..._tokens
+          .slice(1)
+          .sort(
+            (a, b) =>
+              (b.balance ? parseInt(b.balance) : 0) -
+              (a.balance ? parseInt(a.balance) : 0)
+          ),
+      ];
     }
   }, [tokenBalance]);
 
@@ -151,17 +182,60 @@ const Swap = () => {
     if (swapStatus === "pending" || swapResult.isLoading) return;
     if (tradeInfo == undefined || address == undefined) return;
 
-    writeContract({
-      abi: YakRouterABI,
-      address: YakRouterAddress,
-      functionName: "swapNoSplit",
-      args: [tradeInfo, address, BigInt(0)],
-    });
+    if (tokenOut?.address === "") {
+      writeContract({
+        abi: YakRouterABI,
+        address: YakRouterAddress,
+        functionName: "swapNoSplitToAVAX",
+        args: [
+          {
+            adapters: tradeInfo.adapters,
+            amountIn: tradeInfo.amountIn,
+            amountOut: tradeInfo.amountOut,
+            path: tradeInfo.path,
+          },
+          address,
+          BigInt(0),
+        ],
+      });
+    } else {
+      writeContract({
+        abi: YakRouterABI,
+        address: YakRouterAddress,
+        functionName: "swapNoSplit",
+        args: [
+          {
+            adapters: tradeInfo.adapters,
+            amountIn: tradeInfo.amountIn,
+            amountOut: tradeInfo.amountOut,
+            path: tradeInfo.path,
+          },
+          address,
+          BigInt(0),
+        ],
+      });
+    }
+
     setSwapStart(false);
-  }, [approveResult]);
+  }, [
+    address,
+    approveResult,
+    swapResult.isLoading,
+    swapStart,
+    swapStatus,
+    tokenOut?.address,
+    tradeInfo,
+    writeContract,
+  ]);
+
+  useEffect(() => {
+    if (ethBalance && ethBalance.status === "success") {
+      _tokens[0].balance = formatEther(ethBalance.data.value);
+    }
+  }, [ethBalance]);
 
   function convertToBigInt(amount: number, decimals: number) {
-    const parsedAmountIn = BigInt(amount * Math.pow(10, 6));
+    const parsedAmountIn = BigInt(Math.floor(amount * Math.pow(10, 6)));
     if (decimals >= 6)
       return parsedAmountIn * BigInt(10) ** BigInt(decimals - 6);
     else return parsedAmountIn / BigInt(10) ** BigInt(6 - decimals);
@@ -170,90 +244,110 @@ const Swap = () => {
   function buildBalanceCheckParams() {
     let readContractArray = [];
     for (let i = 0; i < _tokens.length; i++) {
-      readContractArray.push({
-        address: _tokens[i].address as `0x{string}`,
-        abi: erc20Abi,
-        functionName: "balanceOf",
-        args: [address!],
-      });
+      if (_tokens[i].address) {
+        readContractArray.push({
+          address: _tokens[i].address as `0x{string}`,
+          abi: erc20Abi,
+          functionName: "balanceOf",
+          args: [address!],
+        });
+      }
     }
     return readContractArray;
   }
 
-  function getTokenSwapButtonText() {
-    console.log("chainid: ", chainId);
-    if (approveStatus === "pending") {
-      return {
-        enabled: false,
-        text: "Calling Approve",
-      };
+  function getTokenSwapButtonText(): ButtonState {
+    // Balance Check
+    if (tokenIn?.balance) {
+      if (parseFloat(tokenIn.balance) < parseFloat(amountIn)) {
+        return { enabled: false, text: "Insufficient Balance" };
+      }
     }
-    console.log("approveResult: ", approveResult);
+    if (approveStatus === "pending") {
+      return { enabled: false, text: "Calling Approve" };
+    }
     if (approveResult.isLoading) {
-      return {
-        enabled: false,
-        text: "Approving",
-      };
+      return { enabled: false, text: "Approving" };
     }
     if (swapStatus === "pending") {
-      return {
-        enabled: false,
-        text: "Calling swap",
-      };
+      return { enabled: false, text: "Calling swap" };
     }
     if (swapResult.isLoading) {
-      return {
-        enabled: false,
-        text: "Swapping",
-      };
+      return { enabled: false, text: "Swapping" };
     }
     if (!isConnected) {
-      return {
-        text: "Connect wallet",
-        enabled: false,
-      };
+      return { enabled: false, text: "Connect wallet" };
     }
-    // else if (chainId != 1337) {
-    //   return {
-    //     text: "Wrong network",
-    //     enabled: false,
-    //   };
-    // }
-    else if (!tokenIn || !tokenOut) {
-      return {
-        text: "Select a token",
-        enabled: false,
-      };
-    } else if (parseFloat(amountIn) <= 0 && parseFloat(amountOut) <= 0) {
-      return {
-        text: "Enter amount to swap",
-        enabled: false,
-      };
-    } else if (parseFloat(amountIn) > 0 && parseFloat(amountOut) <= 0) {
-      return {
-        text: "Insufficient liquidity",
-        enabled: false,
-      };
-    } else if (amountOut) {
-      return {
-        text: "Swap",
-        enabled: true,
-      };
-    } else if (isLoading) {
-      return {
-        text: "Loading...",
-        enabled: false,
-      };
-    } else {
-      return {
-        text: "Loading...",
-        enabled: false,
-      };
+
+    if (!tokenIn || !tokenOut) {
+      return { enabled: false, text: "Select a token" };
     }
+
+    const amountInValue = parseFloat(amountIn);
+    const amountOutValue = parseFloat(amountOut);
+
+    if ((amountInValue <= 0 && amountOutValue <= 0) || !amountInValue) {
+      return { enabled: false, text: "Enter amount to swap" };
+    }
+
+    if (amountInValue > 0 && amountOutValue <= 0) {
+      return { enabled: false, text: "Insufficient liquidity" };
+    }
+
+    if (isLoading) {
+      return { enabled: false, text: "Loading..." };
+    }
+
+    if (amountOutValue > 0) {
+      return { enabled: true, text: "Swap" };
+    }
+
+    return { enabled: false, text: "Loading..." };
   }
 
+  function formatFloat(value: number) {
+    if (!value) {
+      return value;
+    }
+    if (typeof value !== "number") {
+      return value;
+    }
+
+    const valueString = value.toString();
+    const decimalIndex = valueString.indexOf(".");
+
+    if (decimalIndex === -1) {
+      return value;
+    }
+
+    const decimalPart = valueString.slice(decimalIndex + 1);
+    if (decimalPart.length > 6) {
+      return parseFloat(value.toFixed(6));
+    }
+
+    return value;
+  }
+
+  useEffect(() => {
+    if (swapStatus && (swapStatus === "success" || swapStatus === "error")) {
+      toast(
+        swapStatus === "success"
+          ? "Token Swaped Succussfully"
+          : "Transaction Failed",
+        {
+          icon: swapStatus ? "👏" : "❌",
+          style: {
+            borderRadius: "10px",
+            background: "#333",
+            color: "#fff",
+          },
+        }
+      );
+    }
+  }, [swapStatus]);
+
   return (
-    <section className="flex items-center justify-center min-h-screen">
+    <section className="flex flex-col gap-6 items-center justify-center min-h-screen relative">
       <div className="w-full max-w-lg p-4 rounded-2xl shadow-sm bg-primary border-[1px] border-white/20 text-offwhite">
         <div className="flex flex-row items-center justify-between gap-4">
           <h2 className="text-lg font-bold">Swap</h2>
@@ -264,25 +358,31 @@ const Swap = () => {
             <div className="flex flex-row items-center justify-between">
               <input
                 className="w-full text-3xl bg-transparent focus:outline-none"
-                type="text"
+                type="number"
                 placeholder="0"
-                value={amountIn}
+                min={0}
+                value={formatFloat(parseFloat(amountIn))}
                 onChange={(e) => {
                   setAmountIn(e.target.value);
                 }}
               />
 
               <button
-                className="flex flex-row items-center justify-center gap-1.5 px-4 py-1 text-white rounded-full cursor-pointer bg-slate-600"
+                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
+                  tokenIn ? "bg-gray-600" : "bg-accent"
+                }`}
                 onClick={() => setIsOpen(true)}
               >
-                <Image
-                  src={tokenIn?.image || "/tokens/eth.png"}
-                  width="22"
-                  height="22"
-                  alt="ETH"
-                />
-                <h3 className="font-semibold">
+                {tokenIn && (
+                  <Image
+                    src={tokenIn?.image}
+                    width="22"
+                    height="22"
+                    alt={tokenIn.name}
+                  />
+                )}
+
+                <h3 className="font-semibold w-max">
                   {tokenIn ? tokenIn?.ticker : "Select Token"}
                 </h3>
                 <span>
@@ -301,36 +401,24 @@ const Swap = () => {
                 </span>
               </button>
             </div>
-            <div className="flex flex-row items-center justify-between">
-              <div className="text-sm"></div>
-              <div
-                onClick={() => {
-                  if (
-                    !tokenAUserbalance.isLoading &&
-                    tokenAUserbalance.data &&
-                    tokenIn
-                  ) {
-                    setAmountIn(
-                      formatUnits(
-                        tokenAUserbalance.data!.value,
-                        parseInt(tokenIn.decimal)
-                      ).toString()
-                    );
-                  }
-                }}
-                className="text-sm cursor-pointer"
-              >
-                Balance:{" "}
-                {tokenAUserbalance.isLoading
-                  ? ".."
-                  : tokenAUserbalance.data &&
-                    tokenIn &&
-                    formatUnits(
-                      tokenAUserbalance.data!.value,
-                      parseInt(tokenIn.decimal)
-                    )}
+            {tokenIn && tokenIn.balance && parseFloat(tokenIn.balance) > 0 && (
+              <div className="flex flex-row items-center justify-between">
+                <div className="text-sm"></div>
+                <div
+                  onClick={() => {
+                    if (tokenIn && tokenIn.balance) {
+                      setAmountIn(tokenIn.balance);
+                    }
+                  }}
+                  className="text-sm cursor-pointer"
+                >
+                  Balance:{" "}
+                  {tokenIn && tokenIn.balance
+                    ? formatFloat(parseFloat(tokenIn.balance))
+                    : ".."}
+                </div>
               </div>
-            </div>
+            )}
           </div>
           <div
             className="border-swap"
@@ -362,16 +450,28 @@ const Swap = () => {
             <div className="flex flex-row items-center justify-between">
               <input
                 className="w-full text-3xl bg-transparent focus:outline-none"
-                type="text"
+                type="number"
                 placeholder="0"
+                min={0}
                 onChange={() => {}}
-                value={amountOut}
+                value={formatFloat(parseFloat(amountOut))}
               />
               <button
-                className="flex flex-row items-center justify-center gap-1 px-4 py-1 text-white rounded-full cursor-pointer bg-accent"
+                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
+                  !tokenOut ? "bg-accent" : "bg-gray-600"
+                }`}
                 onClick={() => setIsOpenOut(true)}
               >
-                <h3 className="font-semibold w-24 truncate">
+                {tokenOut && (
+                  <Image
+                    src={tokenOut?.image || ""}
+                    alt={tokenOut?.name || ""}
+                    width={"22"}
+                    height={"22"}
+                  />
+                )}
+
+                <h3 className="font-semibold w-max">
                   {tokenOut ? tokenOut.ticker : "Select token"}
                 </h3>
                 <span>
@@ -394,7 +494,7 @@ const Swap = () => {
         </div>
         <div>
           <button
-            className="w-full px-8 py-4 text-lg font-semibold rounded-3xl bg-accent/40 text-accent hover:bg-accent/20"
+            className="w-full px-8 py-4 text-lg font-semibold rounded-3xl bg-accent/40 text-accent hover:bg-accent/20 disabled:cursor-not-allowed"
             disabled={!getTokenSwapButtonText().enabled}
             onClick={() => {
               if (
@@ -402,38 +502,101 @@ const Swap = () => {
                 tradeInfo != undefined &&
                 address != undefined
               ) {
-                callApprove({
-                  abi: erc20Abi,
-                  address: tokenIn.address as `0x${string}`,
-                  functionName: "approve",
-                  args: [YakRouterAddress, BigInt(tradeInfo.amountIn)],
-                });
+                if (tokenIn.address === "") {
+                  writeContract({
+                    abi: YakRouterABI,
+                    address: YakRouterAddress,
+                    functionName: "swapNoSplitFromAVAX",
+                    args: [
+                      {
+                        adapters: tradeInfo.adapters,
+                        amountIn: tradeInfo.amountIn,
+                        amountOut: tradeInfo.amountOut,
+                        path: tradeInfo.path,
+                      },
+                      address,
+                      BigInt(0),
+                    ],
+                    value: tradeInfo.amountIn,
+                  });
+                } else {
+                  callApprove({
+                    abi: erc20Abi,
+                    address: tokenIn.address as `0x${string}`,
+                    functionName: "approve",
+                    args: [YakRouterAddress, BigInt(tradeInfo.amountIn)],
+                  });
+                }
+
                 setSwapStart(true);
               }
             }}
           >
             {getTokenSwapButtonText().text}
           </button>
-          <div className="w-full flex justify-center">
-            {swapResult.isSuccess ? (
-              <div>Swapped Successfully!</div>
-            ) : swapStatus === "error" ? (
-              <div>{swapError.message}</div>
-            ) : swapResult.isError ? (
-              <div>{swapResult.error.message}</div>
-            ) : (
-              <div />
-            )}
-          </div>
         </div>
       </div>
+      {tradeInfo && amountIn && (
+        <div className="w-full max-w-lg p-4 rounded-2xl shadow-sm bg-primary border-[1px] border-white/20 text-offwhite">
+          <div className="flex flex-row justify-center items-center flex-wrap gap-4">
+            {tradeInfo &&
+              tradeInfo.pathTokens.map((flow: Token, f: number) => {
+                if (
+                  tokenIn &&
+                  f == 0 &&
+                  tradeInfo.path[f] === WETH_ADDRESS &&
+                  tokenIn.address === ""
+                ) {
+                  flow = _tokens[0];
+                }
+                if (
+                  tokenOut &&
+                  f == tradeInfo.path.length - 1 &&
+                  tradeInfo.path[f] === WETH_ADDRESS &&
+                  tokenOut.address === ""
+                ) {
+                  flow = _tokens[0];
+                }
+                return (
+                  <div
+                    className="flex flex-row justify-center items-center gap-4"
+                    key={f}
+                  >
+                    <div className="flex flex-col gap-1 justify-center items-center">
+                      <Image
+                        className=" aspect-square"
+                        src={flow.image}
+                        width={"25"}
+                        height={"25"}
+                        alt="ETH"
+                      />
+                      <h4 className=" font-bold uppercase">{flow.ticker}</h4>
+                    </div>
+                    <div
+                      className={
+                        tradeInfo.pathTokens.length === f + 1 ? "hidden" : ""
+                      }
+                    >
+                      <Image
+                        src={"/assets/icons/arrow-right-white.svg"}
+                        width={"20"}
+                        height={"10"}
+                        alt="Arrow Right"
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+      )}
       <Dialog open={isOpen} onOpenChange={() => setIsOpen(false)}>
         <DialogContent className="flex flex-col w-full max-w-md text-white bg-primary rounded-3xl border-[1px] border-opacity-25 border-offwhite shadow-md overflow-clip">
           <div className="flex flex-col gap-4 px-4 pb-3 pt-0">
             <div className="flex flex-row items-center justify-between">
               <DialogTitle>Select a Token</DialogTitle>
             </div>
-            <div className="relative">
+            {/* <div className="relative">
               <input
                 className="w-full px-12 py-2 bg-secondary rounded-2xl focus:outline-none focus:bg-primary border-[1px] border-opacity-25 border-offwhite"
                 placeholder="Search a name or paste address"
@@ -450,7 +613,7 @@ const Swap = () => {
                   clipRule="evenodd"
                 />
               </svg>
-            </div>
+            </div> */}
           </div>
           <div className="h-[1px] w-full border-[1px] border-offwhite border-opacity-25"></div>
           <div className="flex flex-col items-start justify-start gap-4 py-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-96">
@@ -482,7 +645,9 @@ const Swap = () => {
                       <h5 className="text-sm text-offwhite">{token.ticker}</h5>
                     </div>
                   </div>
-                  <div>{token.balance}</div>
+                  <div>
+                    {token.balance ? formatFloat(parseFloat(token.balance)) : 0}
+                  </div>
                 </div>
               );
             })}
@@ -496,7 +661,7 @@ const Swap = () => {
             <div className="flex flex-row items-center justify-between">
               <DialogTitle>Select a Token</DialogTitle>
             </div>
-            <div className="relative">
+            {/* <div className="relative">
               <input
                 className="w-full px-12 py-2 bg-secondary rounded-2xl focus:outline-none focus:bg-primary border-[1px] border-opacity-25 border-offwhite"
                 placeholder="Search a name or paste address"
@@ -513,7 +678,7 @@ const Swap = () => {
                   clipRule="evenodd"
                 />
               </svg>
-            </div>
+            </div> */}
             {/* <div className="flex flex-row flex-wrap items-start justify-start gap-4">
               {_tokens.map(
                 (token, i) =>
@@ -569,13 +734,21 @@ const Swap = () => {
                       <h5 className="text-sm text-offwhite">{token.ticker}</h5>
                     </div>
                   </div>
-                  <div>{token.balance}</div>
+                  <div>
+                    {token.balance ? formatFloat(parseFloat(token.balance)) : 0}
+                  </div>
                 </div>
               );
             })}
           </div>
         </DialogContent>
       </Dialog>
+      {block && (
+        <div className="fixed bottom-4 right-4 text-xs text-green flex flex-row justify-center items-center gap-1">
+          <div className="h-2.5 w-2.5 bg-green rounded-full animate-pulse"></div>
+          <div>{block}</div>
+        </div>
+      )}
     </section>
   );
 };

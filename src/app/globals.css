@@ -2,10 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
+/* :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+} */
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 0, 0, 0;
+  --background-end-rgb: 0, 0, 0;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -14,6 +19,9 @@
     --background-start-rgb: 0, 0, 0;
     --background-end-rgb: 0, 0, 0;
   }
+}
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -44,4 +52,35 @@ body {
 .scrollbar-thin::-webkit-scrollbar {
   width: 4px;
   height: 4px;
+}
+
+.blob {
+  background: url("/patterns/blob.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.home {
+  background: url("/patterns/triangle.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.noise {
+  background: url("/patterns/noise.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
 }
