@@ -27,9 +27,16 @@
                     {
                         "name": "V2",
                         "address": ""
-                    },
+                    }
+                ]
+            },
+            {
+                "name": "SwapMode",
+                "logo": "/supported/swapmode.webp",
+                "link": "https://swapmode.fi/",
+                "adapters": [
                     {
-                        "name": "V3",
+                        "name": "V2",
                         "address": ""
                     }
                 ]

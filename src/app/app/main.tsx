@@ -534,6 +534,7 @@ const Swap = () => {
                   >
                     <div className="flex flex-col gap-1 justify-center items-center">
                       <Image
+                        className=" aspect-square"
                         src={flow.image}
                         width={"25"}
                         height={"25"}
@@ -565,7 +566,7 @@ const Swap = () => {
             <div className="flex flex-row items-center justify-between">
               <DialogTitle>Select a Token</DialogTitle>
             </div>
-            <div className="relative">
+            {/* <div className="relative">
               <input
                 className="w-full px-12 py-2 bg-secondary rounded-2xl focus:outline-none focus:bg-primary border-[1px] border-opacity-25 border-offwhite"
                 placeholder="Search a name or paste address"
@@ -582,7 +583,7 @@ const Swap = () => {
                   clipRule="evenodd"
                 />
               </svg>
-            </div>
+            </div> */}
           </div>
           <div className="h-[1px] w-full border-[1px] border-offwhite border-opacity-25"></div>
           <div className="flex flex-col items-start justify-start gap-4 py-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-96">
@@ -630,7 +631,7 @@ const Swap = () => {
             <div className="flex flex-row items-center justify-between">
               <DialogTitle>Select a Token</DialogTitle>
             </div>
-            <div className="relative">
+            {/* <div className="relative">
               <input
                 className="w-full px-12 py-2 bg-secondary rounded-2xl focus:outline-none focus:bg-primary border-[1px] border-opacity-25 border-offwhite"
                 placeholder="Search a name or paste address"
@@ -647,7 +648,7 @@ const Swap = () => {
                   clipRule="evenodd"
                 />
               </svg>
-            </div>
+            </div> */}
             {/* <div className="flex flex-row flex-wrap items-start justify-start gap-4">
               {_tokens.map(
                 (token, i) =>
