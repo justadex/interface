@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { YakRouterABI } from "./abi/YakRouterABI";
 import { formatEther, formatUnits, Address, erc20Abi } from "viem";
 import { useWatchBlocks } from "wagmi";
+import toast from "react-hot-toast";
 
 export interface Token {
   name: string;
@@ -95,6 +96,7 @@ const Swap = () => {
     data: tokenBalance,
     error: tokenBalanceError,
     isLoading: tokenbalancePending,
+    refetch: refreshBalance,
   } = useReadContracts({
     contracts: buildBalanceCheckParams(),
   });
@@ -141,14 +143,13 @@ const Swap = () => {
           adapters: data.adapters,
         };
         setTradeInfo(trade);
-        console.log(data);
       } else {
         setAmountOut("0");
       }
     } else {
       setAmountOut("0");
     }
-  }, [data]);
+  }, [data, tokenOut]);
 
   useEffect(() => {
     if (tokenBalance && tokenBalance.length > 0) {
@@ -216,7 +217,16 @@ const Swap = () => {
     }
 
     setSwapStart(false);
-  }, [approveResult]);
+  }, [
+    address,
+    approveResult,
+    swapResult.isLoading,
+    swapStart,
+    swapStatus,
+    tokenOut?.address,
+    tradeInfo,
+    writeContract,
+  ]);
 
   useEffect(() => {
     if (ethBalance && ethBalance.status === "success") {
@@ -248,11 +258,11 @@ const Swap = () => {
 
   function getTokenSwapButtonText(): ButtonState {
     // Balance Check
-    // if (tokenIn?.balance) {
-    //   if (formatFloat(parseFloat(tokenIn.balance)) <= 0) {
-    //     return { enabled: false, text: "Insufficient Balance" };
-    //   }
-    // }
+    if (tokenIn?.balance) {
+      if (parseFloat(tokenIn.balance) < parseFloat(amountIn)) {
+        return { enabled: false, text: "Insufficient Balance" };
+      }
+    }
     if (approveStatus === "pending") {
       return { enabled: false, text: "Calling Approve" };
     }
@@ -318,10 +328,23 @@ const Swap = () => {
     return value;
   }
 
-  const selectTrue =
-    "flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer bg-accent";
-  const selectFalse =
-    "flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer bg-slate-600";
+  useEffect(() => {
+    if (swapStatus && (swapStatus === "success" || swapStatus === "error")) {
+      toast(
+        swapStatus === "success"
+          ? "Token Swaped Succussfully"
+          : "Transaction Failed",
+        {
+          icon: swapStatus ? "👏" : "❌",
+          style: {
+            borderRadius: "10px",
+            background: "#333",
+            color: "#fff",
+          },
+        }
+      );
+    }
+  }, [swapStatus]);
 
   return (
     <section className="flex flex-col gap-6 items-center justify-center min-h-screen relative">
@@ -340,7 +363,6 @@ const Swap = () => {
                 min={0}
                 value={formatFloat(parseFloat(amountIn))}
                 onChange={(e) => {
-                  console.log(e);
                   setAmountIn(e.target.value);
                 }}
               />
@@ -512,17 +534,6 @@ const Swap = () => {
           >
             {getTokenSwapButtonText().text}
           </button>
-          <div className="w-full flex justify-center">
-            {swapResult.isSuccess ? (
-              <div>Swapped Successfully!</div>
-            ) : swapStatus === "error" ? (
-              <div className="text-red">{swapError?.details}</div>
-            ) : swapResult.isError ? (
-              <div>{swapResult.error.message}</div>
-            ) : (
-              <div />
-            )}
-          </div>
         </div>
       </div>
       {tradeInfo && amountIn && (
