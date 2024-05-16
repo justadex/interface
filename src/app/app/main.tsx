@@ -44,6 +44,7 @@ export interface ButtonState {
 let _tokens: Token[] = Tokens;
 
 const YakRouterAddress = "0x64f1Cd91F37553E5A8718f7D235e5078C962b7e7";
+const WETH_ADDRESS: Address = "0x4200000000000000000000000000000000000006";
 
 const Swap = () => {
   const { address, isConnected, chainId } = useAccount();
@@ -131,9 +132,12 @@ const Swap = () => {
           amountOut: data.amounts[data.amounts.length - 1],
           amounts: data.amounts,
           path: data.path,
-          pathTokens: _tokens.filter((token) =>
-            data.path.includes(token.address as `0x{String}`)
-          ),
+          pathTokens: data.path.map((pathAddress, index) => {
+            return (
+              _tokens.find((token) => token.address == pathAddress) ||
+              _tokens[0]
+            );
+          }),
           adapters: data.adapters,
         };
         setTradeInfo(trade);
@@ -509,11 +513,10 @@ const Swap = () => {
             {getTokenSwapButtonText().text}
           </button>
           <div className="w-full flex justify-center">
-            {/* {console.log(swapError)} */}
             {swapResult.isSuccess ? (
               <div>Swapped Successfully!</div>
             ) : swapStatus === "error" ? (
-              <div>{swapError.message}</div>
+              <div className="text-red">{swapError?.details}</div>
             ) : swapResult.isError ? (
               <div>{swapResult.error.message}</div>
             ) : (
@@ -527,6 +530,22 @@ const Swap = () => {
           <div className="flex flex-row justify-center items-center flex-wrap gap-4">
             {tradeInfo &&
               tradeInfo.pathTokens.map((flow: Token, f: number) => {
+                if (
+                  tokenIn &&
+                  f == 0 &&
+                  tradeInfo.path[f] === WETH_ADDRESS &&
+                  tokenIn.address === ""
+                ) {
+                  flow = _tokens[0];
+                }
+                if (
+                  tokenOut &&
+                  f == tradeInfo.path.length - 1 &&
+                  tradeInfo.path[f] === WETH_ADDRESS &&
+                  tokenOut.address === ""
+                ) {
+                  flow = _tokens[0];
+                }
                 return (
                   <div
                     className="flex flex-row justify-center items-center gap-4"
