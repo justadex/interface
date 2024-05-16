@@ -65,7 +65,7 @@ export default function WalletConnect() {
                     {chain.name}
                   </button>
                   <button
-                    className="px-6 py-2 text-white rounded-md shadow-sm cursor-pointer bg-accent font-semibold"
+                    className="px-6 py-2 text-white rounded-md shadow-sm cursor-pointer bg-secondary font-semibold"
                     onClick={openAccountModal}
                     type="button"
                   >
