@@ -56,15 +56,9 @@ const Swap = () => {
     contracts: buildBalanceCheckParams(_tokens, address!),
   });
 
-  useWatchBlocks({
-    blockTag: "latest",
-    onBlock(block) {
-      setBlock(block.number.toString());
-      refreshBalance();
-    },
-  });
 
-  const { data, isLoading: quoteLoading } = useReadContract({
+
+  const { data, isLoading: quoteLoading, refetch: quoteRefresh } = useReadContract({
     abi: YakRouterABI,
     address: YakRouterAddress,
     functionName: "findBestPath",
@@ -80,6 +74,15 @@ const Swap = () => {
         : (tokenOut?.address as Address),
       BigInt("3"),
     ],
+  });
+
+  useWatchBlocks({
+    blockTag: "latest",
+    onBlock(block) {
+      setBlock(block.number.toString());
+      // refreshBalance();
+      quoteRefresh();
+    },
   });
 
   useEffect(() => {
