@@ -1,5 +1,6 @@
 import SocialsData from "./data/socials.json";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Socails() {
   return (
@@ -11,14 +12,14 @@ export default function Socails() {
         <div className="flex flex-row gap-16 items-center justify-center">
           {SocialsData.map((social, s) => {
             return (
-              <div key={s}>
+              <Link target="_blank" href={social.link} key={s}>
                 <Image
                   src={social.icon}
                   alt={social.name}
                   height={"50"}
                   width={"50"}
                 />
-              </div>
+              </Link>
             );
           })}
         </div>

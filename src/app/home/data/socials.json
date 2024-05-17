@@ -2,16 +2,21 @@
     {
         "name": "X",
         "icon": "/assets/socials/x.svg",
-        "link": ""
+        "link": "https://x.com/intent/user?screen_name=justadexx"
     },
     {
         "name": "Discord",
         "icon": "/assets/socials/discord.svg",
-        "link": ""
+        "link": "https://discord.gg/TWCdsjWe"
     },
     {
         "name": "Telegram",
         "icon": "/assets/socials/telegram.svg",
-        "link": ""
+        "link": "https://t.me/+AnF6lHXbH9Y3MmY1"
+    },
+    {
+        "name": "Github",
+        "icon": "/assets/socials/github.svg",
+        "link": "https://github.com/justadex"
     }
 ]
