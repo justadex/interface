@@ -74,7 +74,7 @@ export default function Dexs() {
             </SelectContent>
           </Select>
         </div>
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 gap-6">
           {DexsData[selectedDex].dexs.map((dex: DEXS, d) => {
             return (
               <div
