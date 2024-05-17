@@ -263,15 +263,15 @@ const Swap = () => {
         return { enabled: false, text: "Insufficient Balance" };
       }
     }
-    if (approveStatus === "pending") {
+    if (swapStatus === "pending") {
       return { enabled: false, text: "Calling Approve" };
     }
     if (approveResult.isLoading) {
       return { enabled: false, text: "Approving" };
     }
-    if (swapStatus === "pending") {
-      return { enabled: false, text: "Calling swap" };
-    }
+    // if (swapStatus === "pending") {
+    //   return { enabled: false, text: "Calling swap" };
+    // }
     if (swapResult.isLoading) {
       return { enabled: false, text: "Swapping" };
     }
@@ -298,8 +298,12 @@ const Swap = () => {
       return { enabled: false, text: "Loading..." };
     }
 
-    if (amountOutValue > 0) {
+    if (amountOutValue > 0 && approveResult.isSuccess) {
       return { enabled: true, text: "Swap" };
+    }
+
+    if (amountOutValue > 0 && approveResult.isPending) {
+      return { enabled: true, text: "Approve" }
     }
 
     return { enabled: false, text: "Loading..." };
@@ -329,13 +333,13 @@ const Swap = () => {
   }
 
   useEffect(() => {
-    if (swapStatus && (swapStatus === "success" || swapStatus === "error")) {
+    if (swapResult && (swapResult.isSuccess || swapResult.isError)) {
       toast(
-        swapStatus === "success"
+        swapResult.isSuccess
           ? "Token Swaped Succussfully"
           : "Transaction Failed",
         {
-          icon: swapStatus ? "👏" : "❌",
+          icon: swapResult.isSuccess ? "👏" : "❌",
           style: {
             borderRadius: "10px",
             background: "#333",
@@ -343,8 +347,9 @@ const Swap = () => {
           },
         }
       );
+      refreshBalance();
     }
-  }, [swapStatus]);
+  }, [swapResult]);
 
   return (
     <section className="flex flex-col gap-6 items-center justify-center min-h-screen relative">
@@ -368,9 +373,8 @@ const Swap = () => {
               />
 
               <button
-                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
-                  tokenIn ? "bg-gray-600" : "bg-accent"
-                }`}
+                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${tokenIn ? "bg-gray-600" : "bg-accent"
+                  }`}
                 onClick={() => setIsOpen(true)}
               >
                 {tokenIn && (
@@ -453,13 +457,12 @@ const Swap = () => {
                 type="number"
                 placeholder="0"
                 min={0}
-                onChange={() => {}}
+                onChange={() => { }}
                 value={formatFloat(parseFloat(amountOut))}
               />
               <button
-                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
-                  !tokenOut ? "bg-accent" : "bg-gray-600"
-                }`}
+                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${!tokenOut ? "bg-accent" : "bg-gray-600"
+                  }`}
                 onClick={() => setIsOpenOut(true)}
               >
                 {tokenOut && (
