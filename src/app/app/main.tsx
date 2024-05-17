@@ -5,7 +5,7 @@ import {
   useAccount,
   useBalance,
   useReadContract,
-  useReadContracts
+  useReadContracts,
 } from "wagmi";
 import Image from "next/image";
 import Tokens from "@/app/app/data/tokens.json";
@@ -13,17 +13,20 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { YakRouterABI } from "./abi/YakRouterABI";
 import { formatEther, formatUnits, Address, erc20Abi } from "viem";
 import { useWatchBlocks } from "wagmi";
-import { ButtonState, SwapStatus, Token, TradeInfo } from "./interface";
+import { ButtonState, SwapStatus, Token, TradeInfo } from "./types/interface";
 import { swapTokens } from "./contractCalls";
 import { Toast } from "./components/Toast/Toast";
-import { buildBalanceCheckParams, convertToBigInt, formatFloat } from "../utils/utils";
-
+import {
+  buildBalanceCheckParams,
+  convertToBigInt,
+  formatFloat,
+} from "../utils/utils";
 
 let _tokens: Token[] = Tokens;
 
 const YakRouterAddress = "0x64f1Cd91F37553E5A8718f7D235e5078C962b7e7";
 const WETH_ADDRESS: Address = "0x4200000000000000000000000000000000000006";
-const EMPTY_ADDRESS: Address = "0x0000000000000000000000000000000000000000"
+const EMPTY_ADDRESS: Address = "0x0000000000000000000000000000000000000000";
 
 const Swap = () => {
   const { address, isConnected, chainId } = useAccount();
@@ -34,7 +37,7 @@ const Swap = () => {
   const [amountIn, setAmountIn] = useState("0");
   const [amountOut, setAmountOut] = useState("0");
   const [tradeInfo, setTradeInfo] = useState<TradeInfo | undefined>();
-  const [swapStatus, setSwapStatus] = useState<SwapStatus>('IDLE');
+  const [swapStatus, setSwapStatus] = useState<SwapStatus>("IDLE");
 
   const [block, setBlock] = useState<string>("");
 
@@ -138,7 +141,6 @@ const Swap = () => {
     }
   }, [ethBalance]);
 
-
   function getTokenSwapButtonText(): ButtonState {
     if (!isConnected) {
       return { enabled: false, text: "Connect wallet" };
@@ -158,8 +160,6 @@ const Swap = () => {
     }
     return { enabled: true, text: "Swap" };
   }
-
-
 
   return (
     <section className="flex flex-col gap-6 items-center justify-center min-h-screen relative">
@@ -183,8 +183,9 @@ const Swap = () => {
               />
 
               <button
-                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${tokenIn ? "bg-gray-600" : "bg-accent"
-                  }`}
+                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
+                  tokenIn ? "bg-gray-600" : "bg-accent"
+                }`}
                 onClick={() => setIsOpen(true)}
               >
                 {tokenIn && (
@@ -267,12 +268,13 @@ const Swap = () => {
                 type="number"
                 placeholder="0"
                 min={0}
-                onChange={() => { }}
+                onChange={() => {}}
                 value={formatFloat(parseFloat(amountOut))}
               />
               <button
-                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${!tokenOut ? "bg-accent" : "bg-gray-600"
-                  }`}
+                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
+                  !tokenOut ? "bg-accent" : "bg-gray-600"
+                }`}
                 onClick={() => setIsOpenOut(true)}
               >
                 {tokenOut && (
@@ -312,18 +314,25 @@ const Swap = () => {
             onClick={async () => {
               if (tradeInfo && address && tokenIn && tokenOut) {
                 try {
-                  await swapTokens((_swapStatus: SwapStatus) => {
-                    setSwapStatus(_swapStatus);
-                  }, tokenIn?.address as `0x{string}`, tokenOut?.address as `0x{string}`, address!, tradeInfo!);
+                  await swapTokens(
+                    (_swapStatus: SwapStatus) => {
+                      setSwapStatus(_swapStatus);
+                    },
+                    tokenIn?.address as `0x{string}`,
+                    tokenOut?.address as `0x{string}`,
+                    address!,
+                    tradeInfo!
+                  );
                   setTimeout(() => {
-                    setSwapStatus('IDLE');
-                  }, (1000))
+                    setSwapStatus("IDLE");
+                  }, 1000);
 
                   refreshBalance();
                 } catch (e) {
+                  setSwapStatus("FAILED");
                   setTimeout(() => {
-                    setSwapStatus('IDLE');
-                  }, (1000))
+                    setSwapStatus("IDLE");
+                  }, 3000);
                 }
               }
             }}
@@ -386,7 +395,7 @@ const Swap = () => {
           </div>
         </div>
       )}
-      {swapStatus !== 'IDLE' && <Toast text={swapStatus} />}
+      {swapStatus !== "IDLE" && <Toast text={swapStatus} />}
 
       <Dialog open={isOpen} onOpenChange={() => setIsOpen(false)}>
         <DialogContent className="flex flex-col w-full max-w-md text-white bg-primary rounded-3xl border-[1px] border-opacity-25 border-offwhite shadow-md overflow-clip">
