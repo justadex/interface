@@ -6,15 +6,10 @@ import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
 import { mode, hardhat } from "wagmi/chains";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { config } from "./config";
 
 const queryClient = new QueryClient();
 const localHardhat = { ...hardhat, id: 1337 };
-const config = getDefaultConfig({
-  appName: "Just a Dex",
-  projectId: "YOUR_PROJECT_ID",
-  chains: [mode],
-  ssr: true, // If your dApp uses server side rendering (SSR)
-});
 
 export default function WagmiProviderWrapper({
   children,

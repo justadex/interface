@@ -1,51 +1,32 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
 import {
   useAccount,
   useBalance,
   useReadContract,
   useReadContracts,
-  useWriteContract,
-  useWaitForTransactionReceipt,
 } from "wagmi";
-
 import Image from "next/image";
-
 import Tokens from "@/app/app/data/tokens.json";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { YakRouterABI } from "./abi/YakRouterABI";
 import { formatEther, formatUnits, Address, erc20Abi } from "viem";
 import { useWatchBlocks } from "wagmi";
-import toast from "react-hot-toast";
-
-export interface Token {
-  name: string;
-  ticker: string;
-  address: string;
-  image: string;
-  decimal: string;
-  featured: boolean;
-  balance?: string;
-}
-export interface TradeInfo {
-  amountIn: bigint;
-  amountOut: bigint;
-  path: readonly `0x${string}`[];
-  pathTokens: Token[];
-  adapters: readonly `0x${string}`[];
-}
-
-export interface ButtonState {
-  enabled: boolean;
-  text: string;
-}
+import { ButtonState, SwapStatus, Token, TradeInfo } from "./types/interface";
+import { swapTokens } from "./contractCalls";
+import { Toast } from "./components/Toast/Toast";
+import {
+  buildBalanceCheckParams,
+  convertToBigInt,
+  formatFloat,
+} from "../utils/utils";
 
 let _tokens: Token[] = Tokens;
 
 const YakRouterAddress = "0x64f1Cd91F37553E5A8718f7D235e5078C962b7e7";
 const WETH_ADDRESS: Address = "0x4200000000000000000000000000000000000006";
+const EMPTY_ADDRESS: Address = "0x0000000000000000000000000000000000000000";
 
 const Swap = () => {
   const { address, isConnected, chainId } = useAccount();
@@ -56,36 +37,15 @@ const Swap = () => {
   const [amountIn, setAmountIn] = useState("0");
   const [amountOut, setAmountOut] = useState("0");
   const [tradeInfo, setTradeInfo] = useState<TradeInfo | undefined>();
-  const [swapStart, setSwapStart] = useState(false);
+  const [swapStatus, setSwapStatus] = useState<SwapStatus>("IDLE");
 
   const [block, setBlock] = useState<string>("");
+
   useWatchBlocks({
     blockTag: "latest",
     onBlock(block) {
       setBlock(block.number.toString());
     },
-  });
-
-  const {
-    writeContract,
-    status: swapStatus,
-    error: swapError,
-    data: swapData,
-  } = useWriteContract();
-  const {
-    writeContract: callApprove,
-    status: approveStatus,
-    // isLoading: approveLoading,
-    error: approveError,
-    data: approveData,
-  } = useWriteContract();
-
-  const approveResult = useWaitForTransactionReceipt({
-    hash: approveData,
-  });
-
-  const swapResult = useWaitForTransactionReceipt({
-    hash: swapData,
   });
 
   const ethBalance = useBalance({
@@ -98,10 +58,10 @@ const Swap = () => {
     isLoading: tokenbalancePending,
     refetch: refreshBalance,
   } = useReadContracts({
-    contracts: buildBalanceCheckParams(),
+    contracts: buildBalanceCheckParams(_tokens, address!),
   });
 
-  const { data, error, isLoading } = useReadContract({
+  const { data, isLoading: quoteLoading } = useReadContract({
     abi: YakRouterABI,
     address: YakRouterAddress,
     functionName: "findBestPath",
@@ -109,11 +69,11 @@ const Swap = () => {
       amountIn && tokenIn && parseFloat(amountIn)
         ? convertToBigInt(parseFloat(amountIn), parseInt(tokenIn?.decimal))
         : BigInt(0),
-      tokenIn?.address === ""
-        ? "0x4200000000000000000000000000000000000006"
+      tokenIn?.address === EMPTY_ADDRESS
+        ? WETH_ADDRESS
         : (tokenIn?.address as Address),
-      tokenOut?.address === ""
-        ? "0x4200000000000000000000000000000000000006"
+      tokenOut?.address === EMPTY_ADDRESS
+        ? WETH_ADDRESS
         : (tokenOut?.address as Address),
       BigInt("3"),
     ],
@@ -153,12 +113,12 @@ const Swap = () => {
 
   useEffect(() => {
     if (tokenBalance && tokenBalance.length > 0) {
-      for (let i = 0; i < tokenBalance.length; i++) {
+      for (let i = 1; i < tokenBalance.length; i++) {
         const results = tokenBalance[i].result;
         if (results !== undefined) {
-          _tokens[i + 1].balance = formatUnits(
+          _tokens[i].balance = formatUnits(
             BigInt(results),
-            parseInt(_tokens[i + 1].decimal)
+            parseInt(_tokens[i].decimal)
           );
         }
       }
@@ -176,175 +136,30 @@ const Swap = () => {
   }, [tokenBalance]);
 
   useEffect(() => {
-    if (!swapStart) return;
-    if (!approveResult.isSuccess) return;
-
-    if (swapStatus === "pending" || swapResult.isLoading) return;
-    if (tradeInfo == undefined || address == undefined) return;
-
-    if (tokenOut?.address === "") {
-      writeContract({
-        abi: YakRouterABI,
-        address: YakRouterAddress,
-        functionName: "swapNoSplitToAVAX",
-        args: [
-          {
-            adapters: tradeInfo.adapters,
-            amountIn: tradeInfo.amountIn,
-            amountOut: tradeInfo.amountOut,
-            path: tradeInfo.path,
-          },
-          address,
-          BigInt(0),
-        ],
-      });
-    } else {
-      writeContract({
-        abi: YakRouterABI,
-        address: YakRouterAddress,
-        functionName: "swapNoSplit",
-        args: [
-          {
-            adapters: tradeInfo.adapters,
-            amountIn: tradeInfo.amountIn,
-            amountOut: tradeInfo.amountOut,
-            path: tradeInfo.path,
-          },
-          address,
-          BigInt(0),
-        ],
-      });
-    }
-
-    setSwapStart(false);
-  }, [
-    address,
-    approveResult,
-    swapResult.isLoading,
-    swapStart,
-    swapStatus,
-    tokenOut?.address,
-    tradeInfo,
-    writeContract,
-  ]);
-
-  useEffect(() => {
     if (ethBalance && ethBalance.status === "success") {
       _tokens[0].balance = formatEther(ethBalance.data.value);
     }
   }, [ethBalance]);
 
-  function convertToBigInt(amount: number, decimals: number) {
-    const parsedAmountIn = BigInt(Math.floor(amount * Math.pow(10, 6)));
-    if (decimals >= 6)
-      return parsedAmountIn * BigInt(10) ** BigInt(decimals - 6);
-    else return parsedAmountIn / BigInt(10) ** BigInt(6 - decimals);
-  }
-
-  function buildBalanceCheckParams() {
-    let readContractArray = [];
-    for (let i = 0; i < _tokens.length; i++) {
-      if (_tokens[i].address) {
-        readContractArray.push({
-          address: _tokens[i].address as `0x{string}`,
-          abi: erc20Abi,
-          functionName: "balanceOf",
-          args: [address!],
-        });
-      }
-    }
-    return readContractArray;
-  }
-
   function getTokenSwapButtonText(): ButtonState {
-    // Balance Check
-    if (tokenIn?.balance) {
-      if (parseFloat(tokenIn.balance) < parseFloat(amountIn)) {
-        return { enabled: false, text: "Insufficient Balance" };
-      }
-    }
-    if (approveStatus === "pending") {
-      return { enabled: false, text: "Calling Approve" };
-    }
-    if (approveResult.isLoading) {
-      return { enabled: false, text: "Approving" };
-    }
-    if (swapStatus === "pending") {
-      return { enabled: false, text: "Calling swap" };
-    }
-    if (swapResult.isLoading) {
-      return { enabled: false, text: "Swapping" };
-    }
     if (!isConnected) {
       return { enabled: false, text: "Connect wallet" };
     }
-
     if (!tokenIn || !tokenOut) {
       return { enabled: false, text: "Select a token" };
     }
-
     const amountInValue = parseFloat(amountIn);
     const amountOutValue = parseFloat(amountOut);
-
     if ((amountInValue <= 0 && amountOutValue <= 0) || !amountInValue) {
       return { enabled: false, text: "Enter amount to swap" };
     }
-
-    if (amountInValue > 0 && amountOutValue <= 0) {
-      return { enabled: false, text: "Insufficient liquidity" };
+    if (amountInValue && tokenIn?.balance) {
+      if (parseFloat(tokenIn.balance) < amountInValue) {
+        return { enabled: false, text: "Insufficient Balance" };
+      }
     }
-
-    if (isLoading) {
-      return { enabled: false, text: "Loading..." };
-    }
-
-    if (amountOutValue > 0) {
-      return { enabled: true, text: "Swap" };
-    }
-
-    return { enabled: false, text: "Loading..." };
+    return { enabled: true, text: "Swap" };
   }
-
-  function formatFloat(value: number) {
-    if (!value) {
-      return value;
-    }
-    if (typeof value !== "number") {
-      return value;
-    }
-
-    const valueString = value.toString();
-    const decimalIndex = valueString.indexOf(".");
-
-    if (decimalIndex === -1) {
-      return value;
-    }
-
-    const decimalPart = valueString.slice(decimalIndex + 1);
-    if (decimalPart.length > 6) {
-      return parseFloat(value.toFixed(6));
-    }
-
-    return value;
-  }
-
-  useEffect(() => {
-    if (swapStatus && (swapStatus === "success" || swapStatus === "error")) {
-      toast(
-        swapStatus === "success"
-          ? "Token Swaped Succussfully"
-          : "Transaction Failed",
-        {
-          icon: swapStatus ? "👏" : "❌",
-          style: {
-            borderRadius: "10px",
-            background: "#333",
-            color: "#fff",
-          },
-        }
-      );
-    }
-  }, [swapStatus]);
 
   return (
     <section className="flex flex-col gap-6 items-center justify-center min-h-screen relative">
@@ -496,39 +311,29 @@ const Swap = () => {
           <button
             className="w-full px-8 py-4 text-lg font-semibold rounded-3xl bg-accent/40 text-accent hover:bg-accent/20 disabled:cursor-not-allowed"
             disabled={!getTokenSwapButtonText().enabled}
-            onClick={() => {
-              if (
-                tokenIn !== undefined &&
-                tradeInfo != undefined &&
-                address != undefined
-              ) {
-                if (tokenIn.address === "") {
-                  writeContract({
-                    abi: YakRouterABI,
-                    address: YakRouterAddress,
-                    functionName: "swapNoSplitFromAVAX",
-                    args: [
-                      {
-                        adapters: tradeInfo.adapters,
-                        amountIn: tradeInfo.amountIn,
-                        amountOut: tradeInfo.amountOut,
-                        path: tradeInfo.path,
-                      },
-                      address,
-                      BigInt(0),
-                    ],
-                    value: tradeInfo.amountIn,
-                  });
-                } else {
-                  callApprove({
-                    abi: erc20Abi,
-                    address: tokenIn.address as `0x${string}`,
-                    functionName: "approve",
-                    args: [YakRouterAddress, BigInt(tradeInfo.amountIn)],
-                  });
-                }
+            onClick={async () => {
+              if (tradeInfo && address && tokenIn && tokenOut) {
+                try {
+                  await swapTokens(
+                    (_swapStatus: SwapStatus) => {
+                      setSwapStatus(_swapStatus);
+                    },
+                    tokenIn?.address as `0x{string}`,
+                    tokenOut?.address as `0x{string}`,
+                    address!,
+                    tradeInfo!
+                  );
+                  setTimeout(() => {
+                    setSwapStatus("IDLE");
+                  }, 1000);
 
-                setSwapStart(true);
+                  refreshBalance();
+                } catch (e) {
+                  setSwapStatus("FAILED");
+                  setTimeout(() => {
+                    setSwapStatus("IDLE");
+                  }, 3000);
+                }
               }
             }}
           >
@@ -545,7 +350,7 @@ const Swap = () => {
                   tokenIn &&
                   f == 0 &&
                   tradeInfo.path[f] === WETH_ADDRESS &&
-                  tokenIn.address === ""
+                  tokenIn.address === EMPTY_ADDRESS
                 ) {
                   flow = _tokens[0];
                 }
@@ -553,7 +358,7 @@ const Swap = () => {
                   tokenOut &&
                   f == tradeInfo.path.length - 1 &&
                   tradeInfo.path[f] === WETH_ADDRESS &&
-                  tokenOut.address === ""
+                  tokenOut.address === EMPTY_ADDRESS
                 ) {
                   flow = _tokens[0];
                 }
@@ -590,6 +395,8 @@ const Swap = () => {
           </div>
         </div>
       )}
+      {swapStatus !== "IDLE" && <Toast text={swapStatus} />}
+
       <Dialog open={isOpen} onOpenChange={() => setIsOpen(false)}>
         <DialogContent className="flex flex-col w-full max-w-md text-white bg-primary rounded-3xl border-[1px] border-opacity-25 border-offwhite shadow-md overflow-clip">
           <div className="flex flex-col gap-4 px-4 pb-3 pt-0">

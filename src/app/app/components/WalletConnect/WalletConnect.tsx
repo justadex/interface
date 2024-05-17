@@ -59,10 +59,15 @@ export default function WalletConnect() {
                 <div className="flex flex-row justify-center items-center gap-4">
                   <button
                     onClick={openChainModal}
-                    className="flex flex-row justify-center items-center gap-2 bg-[#DFFE00] text-primary font-semibold px-4 py-2 rounded"
+                    className="flex flex-row justify-center items-center gap-2 bg-[#DFFE00] text-primary font-semibold px-4 py-1.5 rounded"
                     type="button"
                   >
-                    {chain.name}
+                    <Image
+                      src={"/chains/mode.png"}
+                      width={"25"}
+                      height={"25"}
+                      alt="Mode Icon"
+                    />
                   </button>
                   <button
                     className="px-6 py-2 text-white rounded-md shadow-sm cursor-pointer bg-secondary font-semibold"
