@@ -4,12 +4,12 @@ import Link from "next/link";
 
 export default function Socails() {
   return (
-    <section className="py-36" id="socials">
-      <div className="flex flex-col gap-12 border-2 border-secondary rounded justify-start py-24 items-center w-full px-8 noise">
-        <h3 className=" text-center shadow-md text-3xl font-medium border-b-2 border-accent">
+    <section className="py-12 xl:py-36" id="socials">
+      <div className="flex flex-col gap-12 border-2 border-secondary rounded justify-start py-12 xl:py-24 items-center w-full px-8 noise">
+        <h3 className=" text-center shadow-md text-2xl xl:text-3xl font-medium border-b-2 border-accent">
           Join the community
         </h3>
-        <div className="flex flex-row gap-16 items-center justify-center">
+        <div className="grid grid-cols-2 xl:flex flex-row gap-16 items-center justify-center">
           {SocialsData.map((social, s) => {
             return (
               <Link target="_blank" href={social.link} key={s}>

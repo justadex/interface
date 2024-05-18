@@ -33,17 +33,17 @@ interface Adapters {
 export default function Dexs() {
   const [selectedDex, setSelectedDex] = useState(0);
   return (
-    <section className="py-24" id="integrations">
+    <section className="py-12 xl:py-24" id="integrations">
       <div className="grid grid-cols-1 gap-8">
-        <div className="flex flex-row justify-between items-center">
-          <h3 className=" text-center shadow-md text-2xl font-medium border-b-2 border-accent">
+        <div className="grid grid-cols-2 xl:flex flex-row gap-8 justify-between items-center">
+          <h3 className=" text-left shadow-md text-xl xl:text-2xl font-medium border-b-2 border-accent">
             Chains & DEXs
           </h3>
           <Select
             defaultValue={selectedDex.toString()}
             onValueChange={(e) => setSelectedDex(parseInt(e))}
           >
-            <SelectTrigger className="w-[180px] bg-primary border-secondary">
+            <SelectTrigger className="xl:w-[180px] bg-primary border-secondary">
               <div className="flex flex-row justify-start items-center gap-2">
                 <Image
                   src={DexsData[selectedDex].logo || ""}

@@ -10,12 +10,12 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <div className="px-8 md:px-24 noise">
+      <div className="px-8 xl:px-24 noise">
         <section className="min-h-screen home flex flex-col justify-center text-center gap-6 items-center">
-          <h1 className="text-5xl font-bold max-w-4xl leading-snug">
+          <h1 className="text-4xl xl:text-5xl font-bold max-w-4xl leading-snug">
             <TypeEffect />
           </h1>
-          <p className="text-xl max-w-2xl font-light">
+          <p className="text-lg xl:text-xl max-w-2xl font-light">
             Enjoy seamless trading with the best rates and liquidity, all in one
             place. Start trading your favorite tokens today!
           </p>
