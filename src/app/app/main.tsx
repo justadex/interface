@@ -321,6 +321,19 @@ const Swap = () => {
                 </span>
               </button>
             </div>
+            {tokenOut &&
+              tokenOut.balance &&
+              parseFloat(tokenOut.balance) > 0 && (
+                <div className="flex flex-row items-center justify-between ">
+                  <div className="text-sm"></div>
+                  <div className="text-sm">
+                    Balance:{" "}
+                    {tokenOut && tokenOut.balance
+                      ? formatFloat(parseFloat(tokenOut.balance))
+                      : ".."}
+                  </div>
+                </div>
+              )}
           </div>
         </div>
         <div>
