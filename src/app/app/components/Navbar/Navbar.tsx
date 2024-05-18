@@ -21,8 +21,8 @@ const Navbar = () => {
             priority
           />
         </Link>
-        <ul className="flex flex-row items-center justify-center gap-12">
-          {/* {AppLinks.map((link, i) => {
+        {/* <ul className="hidden :flex flex-row items-center justify-center gap-12">
+          {AppLinks.map((link, i) => {
             return (
               <li
                 className="flex flex-col items-center justify-center gap-1"
@@ -43,9 +43,9 @@ const Navbar = () => {
                 )}
               </li>
             );
-          })} */}
-        </ul>
-        <div className="flex justify-end">
+          })}
+        </ul> */}
+        <div className="flex justify-end col-span-2">
           {/* <ConnectButton showBalance={false} /> */}
           <WalletOptions />
         </div>

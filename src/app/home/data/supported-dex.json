@@ -40,6 +40,17 @@
                         "address": ""
                     }
                 ]
+            },
+            {
+                "name": "Velodrome",
+                "logo": "/supported/velodrome.svg",
+                "link": "https://velodrome.finance/",
+                "adapters": [
+                    {
+                        "name": "Coming soon",
+                        "address": ""
+                    }
+                ]
             }
         ]
     }

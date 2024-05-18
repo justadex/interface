@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function Navbar() {
   return (
     <nav className="absolute z-20 flex flex-row items-center justify-between w-full px-8 py-6 lg:px-24">
-      <div className="grid grid-cols-3 w-full">
+      <div className="grid grid-cols-2 xl:grid-cols-3 w-full">
         <Link href={"/"}>
           <Image
             src={"/logo/logo-white.svg"}
@@ -14,7 +14,7 @@ export default function Navbar() {
             priority
           />
         </Link>
-        <ul className="flex flex-row gap-12 font-semibold text-lg justify-center items-center">
+        <ul className="hidden xl:flex flex-row gap-12 font-semibold text-lg justify-center items-center">
           <li>
             <Link href={"#integrations"}>Chains & DEXs</Link>
           </li>
