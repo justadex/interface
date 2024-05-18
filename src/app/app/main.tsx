@@ -167,6 +167,22 @@ const Swap = () => {
     return { enabled: true, text: "Swap" };
   }
 
+  const [searchInput, setSearchInput] = useState("");
+  const [filteredTokens, setFilteredTokens] = useState(_tokens);
+
+  const handleSearchChange = (e: string) => {
+    const value = e.toLowerCase();
+    setSearchInput(value);
+    setFilteredTokens(
+      _tokens.filter(
+        (token) =>
+          token.name.toLowerCase().includes(value) ||
+          token.ticker.toLowerCase().includes(value) ||
+          token.address.toLowerCase().includes(value)
+      )
+    );
+  };
+
   return (
     <section className="flex flex-col gap-6 items-center justify-center min-h-screen relative px-8">
       <div className="w-full max-w-lg p-4 rounded-2xl shadow-sm bg-primary border-[1px] border-white/20 text-offwhite">
@@ -309,6 +325,19 @@ const Swap = () => {
                 </span>
               </button>
             </div>
+            {tokenOut &&
+              tokenOut.balance &&
+              parseFloat(tokenOut.balance) > 0 && (
+                <div className="flex flex-row items-center justify-between ">
+                  <div className="text-sm"></div>
+                  <div className="text-sm">
+                    Balance:{" "}
+                    {tokenOut && tokenOut.balance
+                      ? formatFloat(parseFloat(tokenOut.balance))
+                      : ".."}
+                  </div>
+                </div>
+              )}
           </div>
         </div>
         <div>
@@ -402,15 +431,17 @@ const Swap = () => {
       {swapStatus !== "IDLE" && <Toast text={swapStatus} />}
 
       <Dialog open={isOpen} onOpenChange={() => setIsOpen(false)}>
-        <DialogContent className="flex flex-col w-full max-w-md text-white bg-primary rounded-3xl border-[1px] border-opacity-25 border-offwhite shadow-md overflow-clip">
-          <div className="flex flex-col gap-4 px-4 pb-3 pt-0">
+        <DialogContent className="flex flex-col w-full max-w-lg text-white bg-primary rounded-3xl border-[1px] border-opacity-25 border-offwhite shadow-md overflow-clip">
+          <div className="flex flex-col gap-4 px-4 pb-2 pt-0">
             <div className="flex flex-row items-center justify-between">
               <DialogTitle>Select a Token</DialogTitle>
             </div>
-            {/* <div className="relative">
+            <div className="relative">
               <input
                 className="w-full px-12 py-2 bg-secondary rounded-2xl focus:outline-none focus:bg-primary border-[1px] border-opacity-25 border-offwhite"
                 placeholder="Search a name or paste address"
+                value={searchInput}
+                onChange={(e) => handleSearchChange(e.target.value)}
               />
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -424,11 +455,41 @@ const Swap = () => {
                   clipRule="evenodd"
                 />
               </svg>
-            </div> */}
+            </div>
+            <div className="flex flex-row flex-wrap justify-start items-center gap-2.5">
+              {_tokens.map((pop, p) => {
+                if (pop.featured) {
+                  return (
+                    <div
+                      className="flex flex-row justify-center items-center gap-2 border-2 border-secondary px-2 py-1 rounded-full cursor-pointer"
+                      key={p}
+                      onClick={() => {
+                        if (tokenOut && pop.address === tokenOut?.address) {
+                          setTokenOut(undefined);
+                        }
+                        setTokenIn(pop);
+                        setIsOpen(false);
+                      }}
+                    >
+                      <Image
+                        src={pop.image}
+                        alt={pop.name}
+                        height={"20"}
+                        width={"20"}
+                      />
+                      <p>{pop.ticker}</p>
+                    </div>
+                  );
+                }
+              })}
+            </div>
           </div>
-          <div className="h-[1px] w-full border-[1px] border-offwhite border-opacity-25"></div>
+
+          <div className="mx-4">
+            <div className="h-[1px] w-full border-[1px] border-offwhite border-opacity-25"></div>
+          </div>
           <div className="flex flex-col items-start justify-start gap-4 py-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-96">
-            {_tokens.map((token, i) => {
+            {filteredTokens.map((token, i) => {
               return (
                 <div
                   onClick={() => {
@@ -467,15 +528,17 @@ const Swap = () => {
       </Dialog>
 
       <Dialog open={isOpenOut} onOpenChange={() => setIsOpenOut(false)}>
-        <DialogContent className="flex flex-col w-full max-w-md text-white bg-primary rounded-3xl border-[1px] border-opacity-25 border-offwhite shadow-md overflow-clip">
-          <div className="flex flex-col gap-4 px-4 pb-3 pt-0">
+        <DialogContent className="flex flex-col w-full max-w-lg text-white bg-primary rounded-3xl border-[1px] border-opacity-25 border-offwhite shadow-md overflow-clip">
+          <div className="flex flex-col gap-4 px-4 pb-2 pt-0">
             <div className="flex flex-row items-center justify-between">
               <DialogTitle>Select a Token</DialogTitle>
             </div>
-            {/* <div className="relative">
+            <div className="relative">
               <input
                 className="w-full px-12 py-2 bg-secondary rounded-2xl focus:outline-none focus:bg-primary border-[1px] border-opacity-25 border-offwhite"
                 placeholder="Search a name or paste address"
+                value={searchInput}
+                onChange={(e) => handleSearchChange(e.target.value)}
               />
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -489,35 +552,40 @@ const Swap = () => {
                   clipRule="evenodd"
                 />
               </svg>
-            </div> */}
-            {/* <div className="flex flex-row flex-wrap items-start justify-start gap-4">
-              {_tokens.map(
-                (token, i) =>
-                  token.featured === true && (
+            </div>
+            <div className="flex flex-row flex-wrap justify-start items-center gap-2.5">
+              {_tokens.map((pop, p) => {
+                if (pop.featured) {
+                  return (
                     <div
+                      className="flex flex-row justify-center items-center gap-2 border-2 border-secondary px-2 py-1 rounded-full cursor-pointer"
+                      key={p}
                       onClick={() => {
-                        setTokenOut(token.address);
+                        if (tokenIn && pop.address === tokenIn?.address) {
+                          setTokenIn(undefined);
+                        }
+                        setTokenOut(pop);
                         setIsOpenOut(false);
                       }}
-                      className="flex flex-row items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-full bg-secondary border-[1px] border-opacity-25 border-offwhite hover:bg-primary cursor-pointer"
-                      key={i}
                     >
                       <Image
-                        className="rounded-full"
-                        src={token.image}
-                        alt={token.name}
-                        height="25"
-                        width="25"
+                        src={pop.image}
+                        alt={pop.name}
+                        height={"20"}
+                        width={"20"}
                       />
-                      <h4 className="text-base">{token.ticker}</h4>
+                      <p>{pop.ticker}</p>
                     </div>
-                  )
-              )}
-            </div> */}
+                  );
+                }
+              })}
+            </div>
           </div>
-          <div className="h-[1px] w-full border-[1px] border-offwhite border-opacity-25"></div>
+          <div className="mx-4">
+            <div className="h-[1px] w-full border-[1px] border-offwhite border-opacity-25"></div>
+          </div>
           <div className="flex flex-col items-start justify-start gap-4 py-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-96">
-            {_tokens.map((token, i) => {
+            {filteredTokens.map((token, i) => {
               return (
                 <div
                   onClick={() => {
