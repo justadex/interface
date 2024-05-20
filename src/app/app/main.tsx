@@ -240,18 +240,23 @@ const Swap = () => {
             {tokenIn && tokenIn.balance && parseFloat(tokenIn.balance) > 0 && (
               <div className="flex flex-row items-center justify-between">
                 <div className="text-sm"></div>
-                <div
-                  onClick={() => {
-                    if (tokenIn && tokenIn.balance) {
-                      setAmountIn(tokenIn.balance);
-                    }
-                  }}
-                  className="text-sm cursor-pointer"
-                >
+                <div className="text-sm cursor-pointer">
                   Balance:{" "}
                   {tokenIn && tokenIn.balance
                     ? formatFloat(parseFloat(tokenIn.balance))
                     : ".."}
+                  {amountIn !== tokenIn.balance && (
+                    <span
+                      className="text-accent font-bold ml-1"
+                      onClick={() => {
+                        if (tokenIn && tokenIn.balance) {
+                          setAmountIn(tokenIn.balance);
+                        }
+                      }}
+                    >
+                      Max
+                    </span>
+                  )}
                 </div>
               </div>
             )}
