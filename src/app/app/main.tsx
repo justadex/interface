@@ -22,6 +22,8 @@ import {
   formatFloat,
 } from "../utils/utils";
 
+import Adapters from "@/app/app/data/adapters.json";
+
 let _tokens: Token[] = Tokens;
 
 const YakRouterAddress = "0x64f1Cd91F37553E5A8718f7D235e5078C962b7e7";
@@ -182,6 +184,22 @@ const Swap = () => {
       )
     );
   };
+
+  function getTokenInfoByAddress(address: string): { name: string; icon: string } | undefined {
+    if (!address) {
+      return undefined;
+    }
+    const token = Adapters.find(token => token.address.toLowerCase() === address.toLowerCase());
+    if (token) {
+      return {
+        name: token.name,
+        icon: token.icon
+      };
+    } else {
+      return undefined;
+    }
+  }
+
 
   return (
     <section className="flex flex-col gap-6 items-center justify-center min-h-screen relative px-8">
@@ -420,12 +438,23 @@ const Swap = () => {
                         tradeInfo.pathTokens.length === f + 1 ? "hidden" : ""
                       }
                     >
-                      <Image
-                        src={"/assets/icons/arrow-right-white.svg"}
-                        width={"20"}
-                        height={"10"}
-                        alt="Arrow Right"
-                      />
+                      <div className="flex flex-col gap-3">
+                        <Image
+                          src={"/assets/icons/arrow-right-white.svg"}
+                          width={"20"}
+                          height={"10"}
+                          alt="Arrow Right"
+                        />
+                        {tradeInfo.adapters[f] &&
+                          <Image
+                            src={getTokenInfoByAddress(tradeInfo.adapters[f])?.icon!}
+                            width={"15"}
+                            height={"15"}
+                            alt="Arrow Right"
+                          />
+                        }
+
+                      </div>
                     </div>
                   </div>
                 );
