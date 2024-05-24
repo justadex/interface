@@ -240,7 +240,7 @@ const Swap = () => {
                   />
                 )}
 
-                <h3 className="font-semibold w-max">
+                <h3 className="font-semibold min-w-max">
                   {tokenIn ? tokenIn?.ticker : "Select Token"}
                 </h3>
                 <span>
@@ -334,7 +334,7 @@ const Swap = () => {
                   />
                 )}
 
-                <h3 className="font-semibold w-max">
+                <h3 className="font-semibold min-w-max">
                   {tokenOut ? tokenOut.ticker : "Select token"}
                 </h3>
                 <span>
@@ -436,7 +436,7 @@ const Swap = () => {
                         height={"25"}
                         alt="ETH"
                       />
-                      <h4 className=" font-bold uppercase">{flow.ticker}</h4>
+                      <h4 className=" font-bold">{flow.ticker}</h4>
                     </div>
                     <div
                       className={
@@ -457,8 +457,8 @@ const Swap = () => {
                                 getTokenInfoByAddress(tradeInfo.adapters[f])
                                   ?.icon!
                               }
-                              width={"15"}
-                              height={"15"}
+                              width={"18"}
+                              height={"18"}
                               alt={
                                 getTokenInfoByAddress(tradeInfo.adapters[f])
                                   ?.name!
