@@ -22,6 +22,8 @@ import {
   formatFloat,
 } from "../utils/utils";
 
+import Adapters from "@/app/app/data/adapters.json";
+
 let _tokens: Token[] = Tokens;
 
 const YakRouterAddress = "0x64f1Cd91F37553E5A8718f7D235e5078C962b7e7";
@@ -41,8 +43,6 @@ const Swap = () => {
 
   const [block, setBlock] = useState<string>("");
 
-
-
   const ethBalance = useBalance({
     address: address,
   });
@@ -56,9 +56,11 @@ const Swap = () => {
     contracts: buildBalanceCheckParams(_tokens, address!),
   });
 
-
-
-  const { data, isLoading: quoteLoading, refetch: quoteRefresh } = useReadContract({
+  const {
+    data,
+    isLoading: quoteLoading,
+    refetch: quoteRefresh,
+  } = useReadContract({
     abi: YakRouterABI,
     address: YakRouterAddress,
     functionName: "findBestPath",
@@ -183,6 +185,25 @@ const Swap = () => {
     );
   };
 
+  function getTokenInfoByAddress(
+    address: string
+  ): { name: string; icon: string } | undefined {
+    if (!address) {
+      return undefined;
+    }
+    const token = Adapters.find(
+      (token) => token.address.toLowerCase() === address.toLowerCase()
+    );
+    if (token) {
+      return {
+        name: token.name,
+        icon: token.icon,
+      };
+    } else {
+      return undefined;
+    }
+  }
+
   return (
     <section className="flex flex-col gap-6 items-center justify-center min-h-screen relative px-8">
       <div className="w-full max-w-lg p-4 rounded-2xl shadow-sm bg-primary border-[1px] border-white/20 text-offwhite">
@@ -205,8 +226,9 @@ const Swap = () => {
               />
 
               <button
-                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${tokenIn ? "bg-gray-600" : "bg-accent"
-                  }`}
+                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
+                  tokenIn ? "bg-gray-600" : "bg-accent"
+                }`}
                 onClick={() => setIsOpen(true)}
               >
                 {tokenIn && (
@@ -294,12 +316,13 @@ const Swap = () => {
                 type="number"
                 placeholder="0"
                 min={0}
-                onChange={() => { }}
+                onChange={() => {}}
                 value={formatFloat(parseFloat(amountOut))}
               />
               <button
-                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${!tokenOut ? "bg-accent" : "bg-gray-600"
-                  }`}
+                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
+                  !tokenOut ? "bg-accent" : "bg-gray-600"
+                }`}
                 onClick={() => setIsOpenOut(true)}
               >
                 {tokenOut && (
@@ -381,7 +404,7 @@ const Swap = () => {
       </div>
       {tradeInfo && amountIn && (
         <div className="w-full max-w-lg p-4 rounded-2xl shadow-sm bg-primary border-[1px] border-white/20 text-offwhite">
-          <div className="flex flex-row justify-center items-center flex-wrap gap-4">
+          <div className="flex flex-row justify-center items-center flex-wrap gap-6">
             {tradeInfo &&
               tradeInfo.pathTokens.map((flow: Token, f: number) => {
                 if (
@@ -402,10 +425,10 @@ const Swap = () => {
                 }
                 return (
                   <div
-                    className="flex flex-row justify-center items-center gap-4"
+                    className="flex flex-row justify-center items-center gap-6"
                     key={f}
                   >
-                    <div className="flex flex-col gap-1 justify-center items-center">
+                    <div className="flex flex-col gap-2 justify-center items-center">
                       <Image
                         className=" aspect-square"
                         src={flow.image}
@@ -420,12 +443,36 @@ const Swap = () => {
                         tradeInfo.pathTokens.length === f + 1 ? "hidden" : ""
                       }
                     >
-                      <Image
-                        src={"/assets/icons/arrow-right-white.svg"}
-                        width={"20"}
-                        height={"10"}
-                        alt="Arrow Right"
-                      />
+                      <div className="flex flex-col justify-center items-center gap-2">
+                        <Image
+                          src={"/assets/icons/arrow-right-white.svg"}
+                          width={"15"}
+                          height={"15"}
+                          alt="Arrow Right"
+                        />
+                        {tradeInfo.adapters[f] && (
+                          <>
+                            <Image
+                              src={
+                                getTokenInfoByAddress(tradeInfo.adapters[f])
+                                  ?.icon!
+                              }
+                              width={"15"}
+                              height={"15"}
+                              alt={
+                                getTokenInfoByAddress(tradeInfo.adapters[f])
+                                  ?.name!
+                              }
+                            />
+                            {/* <span className="text-xs">
+                              {
+                                getTokenInfoByAddress(tradeInfo.adapters[f])
+                                  ?.name!
+                              }
+                            </span> */}
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );

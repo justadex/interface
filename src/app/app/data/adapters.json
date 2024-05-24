@@ -1,0 +1,22 @@
+[
+    {
+        "name": "KIMv2",
+        "address": "0xF0398C975581D8B74CF8C6196BE3c5AB33799a86",
+        "icon": "/supported/kim.svg"
+    },
+    {
+        "name": "KIMv4",
+        "address": "0x3E9B1780851811ba219e10a96D3a966a4C04d68f",
+        "icon": "/supported/kim.svg"
+    },
+    {
+        "name": "Supswapv2",
+        "address": "0xf6c89146381ccCF667bce14B446D76f4a6Fb92b0",
+        "icon": "/supported/supswap.svg"
+    },
+    {
+        "name": "SwapMode",
+        "address": "0xC971175Eb30a59F1a6699DCA5ED4833BAa556e48",
+        "icon": "/supported/swapmode.webp"
+    }
+]
