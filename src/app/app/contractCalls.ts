@@ -8,7 +8,7 @@ import { config } from "./components/Wagmi/config";
 import { YakRouterABI } from "./abi/JadRouterABI";
 import { SwapStatus, TradeInfo } from "./types/interface";
 
-const YakRouterAddress = "0x64f1Cd91F37553E5A8718f7D235e5078C962b7e7";
+const YakRouterAddress = process.env.NEXT_PUBLIC_ROUTER as `0x{string}`;
 const WETH_ADDRESS: Address = "0x4200000000000000000000000000000000000006";
 const EMPTY_ADDRESS: Address = "0x0000000000000000000000000000000000000000";
 

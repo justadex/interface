@@ -26,7 +26,7 @@ import Adapters from "@/app/app/data/adapters.json";
 
 let _tokens: Token[] = Tokens;
 
-const YakRouterAddress = "0x5CC40d204f47c193fC87E7AFc3d8cCe2eD702427";
+const YakRouterAddress = process.env.NEXT_PUBLIC_ROUTER as `0x{string}`;
 const WETH_ADDRESS: Address = "0x4200000000000000000000000000000000000006";
 const EMPTY_ADDRESS: Address = "0x0000000000000000000000000000000000000000";
 
