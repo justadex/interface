@@ -5,7 +5,7 @@ import {
   waitForTransactionReceipt,
 } from "@wagmi/core";
 import { config } from "./components/Wagmi/config";
-import { YakRouterABI } from "./abi/YakRouterABI";
+import { YakRouterABI } from "./abi/JadRouterABI";
 import { SwapStatus, TradeInfo } from "./types/interface";
 
 const YakRouterAddress = "0x64f1Cd91F37553E5A8718f7D235e5078C962b7e7";
@@ -52,7 +52,7 @@ const swapFromEth = async (tradeInfo: TradeInfo, userAddress: Address) => {
     let result = await writeContract(config, {
       abi: YakRouterABI,
       address: YakRouterAddress,
-      functionName: "swapNoSplitFromAVAX",
+      functionName: "swapNoSplitFromETH",
       args: [
         {
           adapters: tradeInfo.adapters,
@@ -80,7 +80,7 @@ const swapToEth = async (tradeInfo: TradeInfo, userAddress: Address) => {
     let result = await writeContract(config, {
       abi: YakRouterABI,
       address: YakRouterAddress,
-      functionName: "swapNoSplitToAVAX",
+      functionName: "swapNoSplitToETH",
       args: [
         {
           adapters: tradeInfo.adapters,
