@@ -10,7 +10,7 @@ import {
 import Image from "next/image";
 import Tokens from "@/app/app/data/tokens.json";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { YakRouterABI } from "./abi/YakRouterABI";
+import { JadRouterABI } from "./abi/JadRouterABI";
 import { formatEther, formatUnits, Address, erc20Abi } from "viem";
 import { useWatchBlocks } from "wagmi";
 import { ButtonState, SwapStatus, Token, TradeInfo } from "./types/interface";
@@ -26,7 +26,7 @@ import Adapters from "@/app/app/data/adapters.json";
 
 let _tokens: Token[] = Tokens;
 
-const YakRouterAddress = "0x64f1Cd91F37553E5A8718f7D235e5078C962b7e7";
+const JadRouterAddress = process.env.NEXT_PUBLIC_ROUTER as `0x{string}`;
 const WETH_ADDRESS: Address = "0x4200000000000000000000000000000000000006";
 const EMPTY_ADDRESS: Address = "0x0000000000000000000000000000000000000000";
 
@@ -61,8 +61,8 @@ const Swap = () => {
     isLoading: quoteLoading,
     refetch: quoteRefresh,
   } = useReadContract({
-    abi: YakRouterABI,
-    address: YakRouterAddress,
+    abi: JadRouterABI,
+    address: JadRouterAddress,
     functionName: "findBestPath",
     args: [
       amountIn && tokenIn && parseFloat(amountIn)
@@ -226,9 +226,8 @@ const Swap = () => {
               />
 
               <button
-                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
-                  tokenIn ? "bg-gray-600" : "bg-accent"
-                }`}
+                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${tokenIn ? "bg-gray-600" : "bg-accent"
+                  }`}
                 onClick={() => setIsOpen(true)}
               >
                 {tokenIn && (
@@ -316,13 +315,12 @@ const Swap = () => {
                 type="number"
                 placeholder="0"
                 min={0}
-                onChange={() => {}}
+                onChange={() => { }}
                 value={formatFloat(parseFloat(amountOut))}
               />
               <button
-                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
-                  !tokenOut ? "bg-accent" : "bg-gray-600"
-                }`}
+                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${!tokenOut ? "bg-accent" : "bg-gray-600"
+                  }`}
                 onClick={() => setIsOpenOut(true)}
               >
                 {tokenOut && (

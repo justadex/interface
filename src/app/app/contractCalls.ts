@@ -5,10 +5,10 @@ import {
   waitForTransactionReceipt,
 } from "@wagmi/core";
 import { config } from "./components/Wagmi/config";
-import { YakRouterABI } from "./abi/YakRouterABI";
+import { JadRouterABI } from "./abi/JadRouterABI";
 import { SwapStatus, TradeInfo } from "./types/interface";
 
-const YakRouterAddress = "0x64f1Cd91F37553E5A8718f7D235e5078C962b7e7";
+const JadRouterAddress = process.env.NEXT_PUBLIC_ROUTER as `0x{string}`;
 const WETH_ADDRESS: Address = "0x4200000000000000000000000000000000000006";
 const EMPTY_ADDRESS: Address = "0x0000000000000000000000000000000000000000";
 
@@ -18,7 +18,7 @@ const checkAllowance = async (tokenInAddress: string, userAddress: Address) => {
       abi: erc20Abi,
       address: tokenInAddress as Address,
       functionName: "allowance",
-      args: [userAddress, YakRouterAddress],
+      args: [userAddress, JadRouterAddress],
     });
     return {
       success: true,
@@ -35,7 +35,7 @@ const callApprove = async (tokenInAddress: string, amountIn: bigint) => {
       abi: erc20Abi,
       address: tokenInAddress as Address,
       functionName: "approve",
-      args: [YakRouterAddress, amountIn],
+      args: [JadRouterAddress, amountIn],
     });
     await waitForTransaction(result);
     return {
@@ -50,9 +50,9 @@ const callApprove = async (tokenInAddress: string, amountIn: bigint) => {
 const swapFromEth = async (tradeInfo: TradeInfo, userAddress: Address) => {
   try {
     let result = await writeContract(config, {
-      abi: YakRouterABI,
-      address: YakRouterAddress,
-      functionName: "swapNoSplitFromAVAX",
+      abi: JadRouterABI,
+      address: JadRouterAddress,
+      functionName: "swapNoSplitFromETH",
       args: [
         {
           adapters: tradeInfo.adapters,
@@ -78,9 +78,9 @@ const swapFromEth = async (tradeInfo: TradeInfo, userAddress: Address) => {
 const swapToEth = async (tradeInfo: TradeInfo, userAddress: Address) => {
   try {
     let result = await writeContract(config, {
-      abi: YakRouterABI,
-      address: YakRouterAddress,
-      functionName: "swapNoSplitToAVAX",
+      abi: JadRouterABI,
+      address: JadRouterAddress,
+      functionName: "swapNoSplitToETH",
       args: [
         {
           adapters: tradeInfo.adapters,
@@ -105,8 +105,8 @@ const swapToEth = async (tradeInfo: TradeInfo, userAddress: Address) => {
 const swap = async (tradeInfo: TradeInfo, userAddress: Address) => {
   try {
     let result = await writeContract(config, {
-      abi: YakRouterABI,
-      address: YakRouterAddress,
+      abi: JadRouterABI,
+      address: JadRouterAddress,
       functionName: "swapNoSplit",
       args: [
         {

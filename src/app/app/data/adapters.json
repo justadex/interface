@@ -18,5 +18,10 @@
         "name": "SwapMode",
         "address": "0xC971175Eb30a59F1a6699DCA5ED4833BAa556e48",
         "icon": "/supported/swapmode.webp"
+    },
+    {
+        "name": "velodrome",
+        "address": "0xc2a5265eec804217a883ca699d30dda62c30b3de",
+        "icon": "/supported/velodrome.svg"
     }
 ]
