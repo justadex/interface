@@ -76,8 +76,7 @@ export default function WalletConnect() {
                   >
                     {account.ensName ? account.ensName : account.displayName}
                     {account.displayBalance ? (
-                      <span className="hidden xl:block">
-                        {" "}
+                      <span className="hidden xl:block ml-1">
                         ({account.displayBalance})
                       </span>
                     ) : (
