@@ -1,4 +1,4 @@
-export const YakRouterABI = [
+export const JadRouterABI = [
   {
     "inputs": [
       {

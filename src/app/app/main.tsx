@@ -10,7 +10,7 @@ import {
 import Image from "next/image";
 import Tokens from "@/app/app/data/tokens.json";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { YakRouterABI } from "./abi/JadRouterABI";
+import { JadRouterABI } from "./abi/JadRouterABI";
 import { formatEther, formatUnits, Address, erc20Abi } from "viem";
 import { useWatchBlocks } from "wagmi";
 import { ButtonState, SwapStatus, Token, TradeInfo } from "./types/interface";
@@ -26,7 +26,7 @@ import Adapters from "@/app/app/data/adapters.json";
 
 let _tokens: Token[] = Tokens;
 
-const YakRouterAddress = process.env.NEXT_PUBLIC_ROUTER as `0x{string}`;
+const JadRouterAddress = process.env.NEXT_PUBLIC_ROUTER as `0x{string}`;
 const WETH_ADDRESS: Address = "0x4200000000000000000000000000000000000006";
 const EMPTY_ADDRESS: Address = "0x0000000000000000000000000000000000000000";
 
@@ -61,8 +61,8 @@ const Swap = () => {
     isLoading: quoteLoading,
     refetch: quoteRefresh,
   } = useReadContract({
-    abi: YakRouterABI,
-    address: YakRouterAddress,
+    abi: JadRouterABI,
+    address: JadRouterAddress,
     functionName: "findBestPath",
     args: [
       amountIn && tokenIn && parseFloat(amountIn)
