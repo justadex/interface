@@ -226,12 +226,14 @@ const Swap = () => {
               />
 
               <button
-                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${tokenIn ? "bg-gray-600" : "bg-accent"
-                  }`}
+                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
+                  tokenIn ? "bg-gray-600" : "bg-accent"
+                }`}
                 onClick={() => setIsOpen(true)}
               >
                 {tokenIn && (
                   <Image
+                    className=" rounded-full"
                     src={tokenIn?.image}
                     width="22"
                     height="22"
@@ -315,16 +317,18 @@ const Swap = () => {
                 type="number"
                 placeholder="0"
                 min={0}
-                onChange={() => { }}
+                onChange={() => {}}
                 value={formatFloat(parseFloat(amountOut))}
               />
               <button
-                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${!tokenOut ? "bg-accent" : "bg-gray-600"
-                  }`}
+                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
+                  !tokenOut ? "bg-accent" : "bg-gray-600"
+                }`}
                 onClick={() => setIsOpenOut(true)}
               >
                 {tokenOut && (
                   <Image
+                    className=" rounded-full"
                     src={tokenOut?.image || ""}
                     alt={tokenOut?.name || ""}
                     width={"22"}
@@ -426,7 +430,7 @@ const Swap = () => {
                     className="flex flex-row justify-center items-center gap-6"
                     key={f}
                   >
-                    <div className="flex flex-col gap-2 justify-center items-center">
+                    <div className="flex flex-col gap-2 justify-center items-center w-14">
                       <Image
                         className=" aspect-square"
                         src={flow.image}
@@ -434,7 +438,9 @@ const Swap = () => {
                         height={"25"}
                         alt="ETH"
                       />
-                      <h4 className=" font-bold">{flow.ticker}</h4>
+                      <h4 className=" font-bold truncate w-full text-center">
+                        {flow.ticker}
+                      </h4>
                     </div>
                     <div
                       className={
@@ -482,7 +488,7 @@ const Swap = () => {
 
       <Dialog open={isOpen} onOpenChange={() => setIsOpen(false)}>
         <DialogContent className="flex flex-col w-full max-w-lg text-white bg-primary rounded-3xl border-[1px] border-opacity-25 border-offwhite shadow-md overflow-clip">
-          <div className="flex flex-col gap-4 px-4 pb-2 pt-0">
+          <div className="flex flex-col gap-4 px-4">
             <div className="flex flex-row items-center justify-between">
               <DialogTitle>Select a Token</DialogTitle>
             </div>
@@ -538,7 +544,7 @@ const Swap = () => {
           <div className="mx-4">
             <div className="h-[1px] w-full border-[1px] border-offwhite border-opacity-25"></div>
           </div>
-          <div className="flex flex-col items-start justify-start gap-4 py-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-96">
+          <div className="flex flex-col items-start justify-start gap-4 pb-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-96">
             {filteredTokens.map((token, i) => {
               return (
                 <div
@@ -552,7 +558,7 @@ const Swap = () => {
                   className="flex flex-row items-center justify-between w-full gap-4 px-4 pt-1.5 rounded-full cursor-pointer hover:opacity-60"
                   key={i}
                 >
-                  <div className="flex flex-row items-center justify-start w-1/2 gap-4">
+                  <div className="flex flex-row items-center justify-start w-1/4 gap-4">
                     <div>
                       <Image
                         className="rounded-full aspect-square"
@@ -579,7 +585,7 @@ const Swap = () => {
 
       <Dialog open={isOpenOut} onOpenChange={() => setIsOpenOut(false)}>
         <DialogContent className="flex flex-col w-full max-w-lg text-white bg-primary rounded-3xl border-[1px] border-opacity-25 border-offwhite shadow-md overflow-clip">
-          <div className="flex flex-col gap-4 px-4 pb-2 pt-0">
+          <div className="flex flex-col gap-4 px-4">
             <div className="flex flex-row items-center justify-between">
               <DialogTitle>Select a Token</DialogTitle>
             </div>
@@ -634,7 +640,7 @@ const Swap = () => {
           <div className="mx-4">
             <div className="h-[1px] w-full border-[1px] border-offwhite border-opacity-25"></div>
           </div>
-          <div className="flex flex-col items-start justify-start gap-4 py-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-96">
+          <div className="flex flex-col items-start justify-start gap-4 pb-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-96">
             {filteredTokens.map((token, i) => {
               return (
                 <div
@@ -648,7 +654,7 @@ const Swap = () => {
                   className="flex flex-row items-center justify-between w-full gap-4 px-4 pt-1.5 rounded-full cursor-pointer hover:opacity-60"
                   key={i}
                 >
-                  <div className="flex flex-row items-center justify-start w-1/2 gap-4">
+                  <div className="flex flex-row items-center justify-start w-3/4 gap-4">
                     <div>
                       <Image
                         className="rounded-full aspect-square"
