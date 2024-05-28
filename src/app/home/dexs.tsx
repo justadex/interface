@@ -78,7 +78,7 @@ export default function Dexs() {
           {DexsData[selectedDex].dexs.map((dex: DEXS, d) => {
             return (
               <div
-                className="flex-col gap-4 border-2 border-secondary rounded flex justify-center py-6 items-center w-full blob"
+                className="flex-col gap-4 border border-offwhite/10 rounded flex justify-center py-6 items-center w-full blob"
                 key={d}
               >
                 <Image

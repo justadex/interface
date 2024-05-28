@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function Navbar() {
   return (
     <nav className="absolute z-20 flex flex-row items-center justify-between w-full px-8 py-6 lg:px-24">
-      <div className="grid grid-cols-2 xl:grid-cols-3 w-full">
+      <div className="flex flex-row justify-between items-center gap-4 w-full">
         <Link href={"/"}>
           <Image
             src={"/logo/logo-white.svg"}
@@ -14,15 +14,23 @@ export default function Navbar() {
             priority
           />
         </Link>
-        <ul className="hidden xl:flex flex-row gap-12 font-semibold text-lg justify-center items-center">
+        {/* <ul className="hidden xl:flex flex-row gap-12 font-semibold text-lg justify-center items-center">
           <li>
-            <Link href={"#integrations"}>Chains & DEXs</Link>
+            <Link href={"#integrations"}>Integrations</Link>
           </li>
           <li>
             <Link href={"#socials"}>Join Community</Link>
           </li>
-        </ul>
-        <ul className="flex flex-row items-center justify-end gap-12">
+        </ul> */}
+        <div className="flex">
+          <Link
+            href={"/app"}
+            className="px-6 py-2.5 text-white rounded-md shadow-sm cursor-pointer bg-accent font-semibold"
+          >
+            Launch App
+          </Link>
+        </div>
+        {/* <ul className="flex flex-row items-center justify-end gap-12">
           <li>
             <Link
               href={"/app"}
@@ -31,7 +39,7 @@ export default function Navbar() {
               Launch App
             </Link>
           </li>
-        </ul>
+        </ul> */}
       </div>
     </nav>
   );
