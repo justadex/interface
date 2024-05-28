@@ -8,7 +8,7 @@ export default function TypeEffect() {
         typewriter
           .typeString("Your Ultimate DEX Aggregator")
           .pauseFor(1000)
-          .typeString(" on Mode Blockchain")
+          .typeString(" on Mode Network")
           .start();
       }}
     />
