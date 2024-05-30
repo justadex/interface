@@ -10,12 +10,12 @@ const mulish = Mulish({
 export const metadata = {
   title: "JustaDEX - Your Ultimate DEX Aggregator on Mode Blockchain",
   description:
-    "Explore the best decentralized exchanges (DEXs) on the Mode blockchain with JustaDex. Enjoy seamless trading with the best rates and liquidity, all in one place. Start trading your favorite tokens today!",
+    "Explore the best DEXs on the Mode blockchain with JustaDex. Seamless trading with top rates and liquidity, all in one place. Start trading your favorite tokens today!",
   openGraph: {
     title: "JustaDEX - Your Ultimate DEX Aggregator on Mode Blockchain",
     url: process.env.URL,
     description:
-      "Explore the best decentralized exchanges (DEXs) on the Mode blockchain with JustaDex. Enjoy seamless trading with the best rates and liquidity, all in one place. Start trading your favorite tokens today!",
+      "Explore the best DEXs on the Mode blockchain with JustaDex. Seamless trading with top rates and liquidity, all in one place. Start trading your favorite tokens today!",
     images: [
       {
         url: "https://www.justadex.xyz/og/og-home.png",
@@ -36,7 +36,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "JustaDEX - Your Ultimate DEX Aggregator on Mode Blockchain",
     description:
-      "Explore the best decentralized exchanges (DEXs) on the Mode blockchain with JustaDex. Enjoy seamless trading with the best rates and liquidity, all in one place. Start trading your favorite tokens today!",
+      "Explore the best DEXs on the Mode blockchain with JustaDex. Seamless trading with top rates and liquidity, all in one place. Start trading your favorite tokens today!",
     creator: "@justadexx",
     images: ["https://www.justadex.xyz/og/og-home.png"],
   },
