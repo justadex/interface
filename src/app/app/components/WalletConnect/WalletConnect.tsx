@@ -59,7 +59,7 @@ export default function WalletConnect() {
                 <div className="flex flex-row justify-center items-center gap-4">
                   <button
                     onClick={openChainModal}
-                    className="flex flex-row justify-center items-center gap-2 bg-[#DFFE00] text-primary font-semibold px-2 xl:px-4 py-1.5 rounded"
+                    className="flex flex-row justify-center items-center gap-2 bg-[#DFFE00] text-primary font-semibold px-2 xl:px-4 py-1.5 rounded-full"
                     type="button"
                   >
                     <Image
@@ -70,7 +70,7 @@ export default function WalletConnect() {
                     />
                   </button>
                   <button
-                    className="px-4 xl:px-6 py-2 text-white rounded-md shadow-sm cursor-pointer bg-secondary font-semibold flex flex-row justify-center items-center"
+                    className="px-4 xl:px-6 py-2 text-white rounded-full shadow-sm cursor-pointer bg-secondary font-semibold flex flex-row justify-center items-center"
                     onClick={openAccountModal}
                     type="button"
                   >

@@ -205,7 +205,7 @@ const Swap = () => {
   }
 
   return (
-    <section className="flex flex-col gap-6 items-center justify-center min-h-screen relative px-8">
+    <section className="flex flex-col gap-6 items-center justify-start min-h-screen relative px-8 pt-44">
       <div className="w-full max-w-lg p-4 rounded-2xl shadow-sm bg-primary border-[1px] border-white/20 text-offwhite">
         <div className="flex flex-row items-center justify-between gap-4">
           <h2 className="text-lg font-bold">Swap</h2>
