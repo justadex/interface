@@ -23,6 +23,7 @@ import {
 } from "../utils/utils";
 
 import Adapters from "@/app/app/data/adapters.json";
+import PointsTracker from "../components/pointsTracker";
 
 let _tokens: Token[] = Tokens;
 
@@ -206,6 +207,7 @@ const Swap = () => {
 
   return (
     <section className="flex flex-col gap-6 items-center justify-center min-h-screen relative px-8">
+      {address && <PointsTracker walletAddress={address} />}
       <div className="w-full max-w-lg p-4 rounded-2xl shadow-sm bg-primary border-[1px] border-white/20 text-offwhite">
         <div className="flex flex-row items-center justify-between gap-4">
           <h2 className="text-lg font-bold">Swap</h2>
@@ -226,9 +228,8 @@ const Swap = () => {
               />
 
               <button
-                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
-                  tokenIn ? "bg-gray-600" : "bg-accent"
-                }`}
+                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${tokenIn ? "bg-gray-600" : "bg-accent"
+                  }`}
                 onClick={() => setIsOpen(true)}
               >
                 {tokenIn && (
@@ -317,13 +318,12 @@ const Swap = () => {
                 type="number"
                 placeholder="0"
                 min={0}
-                onChange={() => {}}
+                onChange={() => { }}
                 value={formatFloat(parseFloat(amountOut))}
               />
               <button
-                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
-                  !tokenOut ? "bg-accent" : "bg-gray-600"
-                }`}
+                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${!tokenOut ? "bg-accent" : "bg-gray-600"
+                  }`}
                 onClick={() => setIsOpenOut(true)}
               >
                 {tokenOut && (
