@@ -46,7 +46,6 @@ const Navbar = () => {
           })}
         </ul> */}
         <div className="flex justify-end col-span-2">
-          {/* <ConnectButton showBalance={false} /> */}
           <WalletOptions />
         </div>
       </div>
