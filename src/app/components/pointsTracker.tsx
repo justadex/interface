@@ -98,14 +98,14 @@ const PointsTracker: React.FC<PointsTrackerProps> = ({ walletAddress }) => {
         {userData ? userData.points : 0} Points
       </button>
       {show && (
-        <div className="absolute right-0 top-28 h-[50rem] z-50 w-96 shadow-2xl rounded-l-2xl bg-primary border border-r-0 border-white/20 text-offwhite">
+        <div className="absolute right-0 top-28 h-[50rem] z-50 w-96 shadow-2xl rounded-l-2xl border border-r-0 border-white/20 text-offwhite">
           <div className="flex flex-row justify-start items-center h-full">
             <div
-              className="h-full flex justify-center items-center w-12 bg-secondary hover:opacity-50 border-r border-white/20 cursor-pointer rounded-l-2xl"
+              className="h-full flex justify-center items-center w-12 bg-secondary hover:opacity-90 border-r border-white/20 cursor-pointer rounded-l-2xl"
               onClick={() => setShow(false)}
             >
               <svg
-                className="h-5 w-5"
+                className="h-6 w-6"
                 viewBox="0 0 15 15"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -120,17 +120,16 @@ const PointsTracker: React.FC<PointsTrackerProps> = ({ walletAddress }) => {
               </svg>
             </div>
             {userData ? (
-              <div className="flex flex-col gap-6 justify-start h-full items-center w-full overflow-y-auto px-6 py-12">
-                <div className="flex flex-col justify-start items-start w-full">
-                  <h2 className=" text-2xl font-semibold mb-4">
-                    Points Earned: {userData.points}
-                  </h2>
-                  <h3 className="font-semibold mb-2">
-                    Last Interaction Date:{" "}
+              <div className="flex flex-col gap-8 justify-start h-full items-center w-full overflow-y-auto px-6 py-12 bg-primary">
+                <div className="flex flex-col justify-start items-start w-full bg-accent text-white shadow-lg rounded-xl p-4 ">
+                  <h2 className=" font-medium">Points Earned</h2>
+                  <h3 className=" text-7xl font-black">{userData.points}</h3>
+                  <h4 className="text-xs w-full text-right">
+                    Last Transaction:{" "}
                     {moment(userData.lastInteractionDate).format("LL")}
-                  </h3>
+                  </h4>
                 </div>
-                <div className="flex flex-col gap-4 w-full">
+                <div className="flex flex-col w-full">
                   <div className="flex flex-row justify-start items-center gap-2">
                     <svg
                       className="h-5 w-5"
@@ -146,57 +145,112 @@ const PointsTracker: React.FC<PointsTrackerProps> = ({ walletAddress }) => {
                         data-darkreader-inline-fill=""
                       ></path>
                     </svg>
-                    <h3 className=" font-bold text-lg">Last 5 Transactions</h3>
+                    <h3 className=" font-bold text-lg">Recent Transactions</h3>
                   </div>
 
-                  <ul className="list-decimal list-outside ml-4">
+                  <ul>
                     {userData.transactions.map((transaction, index) => (
-                      <li key={index} className="mb-2">
-                        <div>{"tokenIn : " + getTokenInfoByAddress(transaction.tokenIn)!.name + " tokenOut : " + getTokenInfoByAddress(transaction.tokenOut)!.name + " AmountIn : " + parseFloat(formatUnits(BigInt(transaction.amountIn), parseInt(getTokenInfoByAddress(transaction.tokenIn)!.decimal))).toFixed(6) + " AmountOut : " + parseFloat(formatUnits(BigInt(transaction.amountOut), parseInt(getTokenInfoByAddress(transaction.tokenIn)!.decimal))).toFixed(6) + moment(transaction.date).format("LLL")}</div>
-                        {/* <div>Amount In: {transaction.amountIn}</div>
-                        <div>Amount Out: {transaction.amountOut}</div>
-                        <div>Token In: {transaction.tokenIn}</div>
-                        <div>Token Out: {transaction.tokenOut}</div> */}
+                      <li
+                        className="flex flex-row justify-between items-center border-b border-white/10 last:border-b-0 py-4"
+                        key={index}
+                      >
+                        <div className="flex flex-col gap-2">
+                          <div className="flex flex-row justify-start items-center">
+                            <div className="flex flex-row justify-start items-center gap-3 w-full">
+                              <div className="flex flex-row justify-start items-center gap-1">
+                                <div>
+                                  <Image
+                                    src={
+                                      getTokenInfoByAddress(
+                                        transaction.tokenIn
+                                      )!.icon || ""
+                                    }
+                                    alt={
+                                      getTokenInfoByAddress(
+                                        transaction.tokenIn
+                                      )!.name
+                                    }
+                                    width={"20"}
+                                    height={"20"}
+                                  />
+                                </div>
+                                <div>
+                                  {parseFloat(
+                                    formatUnits(
+                                      BigInt(transaction.amountIn),
+                                      parseInt(
+                                        getTokenInfoByAddress(
+                                          transaction.tokenIn
+                                        )!.decimal
+                                      )
+                                    )
+                                  ).toFixed(6)}
+                                </div>
+                              </div>
+                              <div>
+                                <svg
+                                  className="h-5 w-5"
+                                  viewBox="0 0 15 15"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    d="M8.14645 3.14645C8.34171 2.95118 8.65829 2.95118 8.85355 3.14645L12.8536 7.14645C13.0488 7.34171 13.0488 7.65829 12.8536 7.85355L8.85355 11.8536C8.65829 12.0488 8.34171 12.0488 8.14645 11.8536C7.95118 11.6583 7.95118 11.3417 8.14645 11.1464L11.2929 8H2.5C2.22386 8 2 7.77614 2 7.5C2 7.22386 2.22386 7 2.5 7H11.2929L8.14645 3.85355C7.95118 3.65829 7.95118 3.34171 8.14645 3.14645Z"
+                                    fill="currentColor"
+                                    fill-rule="evenodd"
+                                    clip-rule="evenodd"
+                                    data-darkreader-inline-fill=""
+                                  ></path>
+                                </svg>
+                              </div>
+                              <div className="flex flex-row justify-start items-center gap-1">
+                                <div>
+                                  <Image
+                                    src={
+                                      getTokenInfoByAddress(
+                                        transaction.tokenOut
+                                      )!.icon || ""
+                                    }
+                                    alt={
+                                      getTokenInfoByAddress(
+                                        transaction.tokenOut
+                                      )!.name
+                                    }
+                                    width={"20"}
+                                    height={"20"}
+                                  />
+                                </div>
+                                <div>
+                                  {parseFloat(
+                                    formatUnits(
+                                      BigInt(transaction.amountOut),
+                                      parseInt(
+                                        getTokenInfoByAddress(
+                                          transaction.tokenOut
+                                        )!.decimal
+                                      )
+                                    )
+                                  ).toFixed(6)}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div>{moment(transaction.date).format("LLL")}</div>
+                        </div>
+                        <h5 className="font-bold">+5</h5>
                       </li>
                     ))}
                   </ul>
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col justify-center h-full items-center w-full overflow-y-auto p-4">
-                <div>No data found for this user.</div>
+              <div className="flex flex-col gap-2 justify-center h-full items-center w-full overflow-y-auto p-4 bg-primary text-center">
+                <h3 className="text-3xl font-bold">No data found.</h3>
+                <h4>
+                  Perform atleast one transaction to start seeing your points.
+                </h4>
               </div>
             )}
-            {/* <div className="flex flex-col justify-start h-full items-center w-full overflow-y-auto">
-              {userData ? (
-                <>
-                  <h2 className="text-2xl font-semibold mb-4">
-                    User Points: {userData.points}
-                  </h2>
-                  <h3 className="text-xl font-semibold mb-2">
-                    Last Interaction Date: {userData.lastInteractionDate}
-                  </h3>
-                  <h3 className="text-xl font-semibold mb-2">
-                    Last 5 Transactions:
-                  </h3>
-                  <ul className="list-disc list-inside">
-                    {userData.transactions.map((transaction, index) => (
-                      <li key={index} className="mb-2">
-                        <div>
-                          Date: {new Date(transaction.date).toLocaleString()}
-                        </div>
-                        <div>Amount In: {transaction.amountIn}</div>
-                        <div>Amount Out: {transaction.amountOut}</div>
-                        <div>Token In: {transaction.tokenIn}</div>
-                        <div>Token Out: {transaction.tokenOut}</div>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              ) : (
-                <div>No data found for this user.</div>
-              )}
-            </div> */}
           </div>
         </div>
       )}
