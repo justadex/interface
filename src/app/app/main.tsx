@@ -20,9 +20,10 @@ import {
   buildBalanceCheckParams,
   convertToBigInt,
   formatFloat,
+  getTokenInfoByAdapters,
 } from "../utils/utils";
 
-import Adapters from "@/app/app/data/adapters.json";
+
 
 let _tokens: Token[] = Tokens;
 
@@ -185,24 +186,7 @@ const Swap = () => {
     );
   };
 
-  function getTokenInfoByAddress(
-    address: string
-  ): { name: string; icon: string } | undefined {
-    if (!address) {
-      return undefined;
-    }
-    const token = Adapters.find(
-      (token) => token.address.toLowerCase() === address.toLowerCase()
-    );
-    if (token) {
-      return {
-        name: token.name,
-        icon: token.icon,
-      };
-    } else {
-      return undefined;
-    }
-  }
+
 
   return (
     <section className="flex flex-col gap-6 items-center justify-start min-h-screen relative px-8 pt-44">
@@ -226,9 +210,8 @@ const Swap = () => {
               />
 
               <button
-                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
-                  tokenIn ? "bg-gray-600" : "bg-accent"
-                }`}
+                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${tokenIn ? "bg-gray-600" : "bg-accent"
+                  }`}
                 onClick={() => setIsOpen(true)}
               >
                 {tokenIn && (
@@ -317,13 +300,12 @@ const Swap = () => {
                 type="number"
                 placeholder="0"
                 min={0}
-                onChange={() => {}}
+                onChange={() => { }}
                 value={formatFloat(parseFloat(amountOut))}
               />
               <button
-                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
-                  !tokenOut ? "bg-accent" : "bg-gray-600"
-                }`}
+                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${!tokenOut ? "bg-accent" : "bg-gray-600"
+                  }`}
                 onClick={() => setIsOpenOut(true)}
               >
                 {tokenOut && (
@@ -458,13 +440,13 @@ const Swap = () => {
                           <>
                             <Image
                               src={
-                                getTokenInfoByAddress(tradeInfo.adapters[f])
+                                getTokenInfoByAdapters(tradeInfo.adapters[f])
                                   ?.icon!
                               }
                               width={"18"}
                               height={"18"}
                               alt={
-                                getTokenInfoByAddress(tradeInfo.adapters[f])
+                                getTokenInfoByAdapters(tradeInfo.adapters[f])
                                   ?.name!
                               }
                             />

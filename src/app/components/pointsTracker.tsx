@@ -15,6 +15,8 @@ import {
 } from "firebase/firestore";
 import Image from "next/image";
 import moment from "moment";
+import { getTokenInfoByAddress } from "../utils/utils";
+import { formatUnits } from "viem";
 type Transaction = {
   date: string;
   amountIn: string;
@@ -150,7 +152,7 @@ const PointsTracker: React.FC<PointsTrackerProps> = ({ walletAddress }) => {
                   <ul className="list-decimal list-outside ml-4">
                     {userData.transactions.map((transaction, index) => (
                       <li key={index} className="mb-2">
-                        <div>{moment(transaction.date).format("LLL")}</div>
+                        <div>{"tokenIn : " + getTokenInfoByAddress(transaction.tokenIn)!.name + " tokenOut : " + getTokenInfoByAddress(transaction.tokenOut)!.name + " AmountIn : " + parseFloat(formatUnits(BigInt(transaction.amountIn), parseInt(getTokenInfoByAddress(transaction.tokenIn)!.decimal))).toFixed(6) + " AmountOut : " + parseFloat(formatUnits(BigInt(transaction.amountOut), parseInt(getTokenInfoByAddress(transaction.tokenIn)!.decimal))).toFixed(6) + moment(transaction.date).format("LLL")}</div>
                         {/* <div>Amount In: {transaction.amountIn}</div>
                         <div>Amount Out: {transaction.amountOut}</div>
                         <div>Token In: {transaction.tokenIn}</div>
