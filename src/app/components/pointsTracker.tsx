@@ -17,6 +17,13 @@ import Image from "next/image";
 import moment from "moment";
 import { getTokenInfoByAddress } from "../utils/utils";
 import { formatUnits } from "viem";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 type Transaction = {
   date: string;
   amountIn: string;
@@ -120,14 +127,22 @@ const PointsTracker: React.FC<PointsTrackerProps> = ({ walletAddress }) => {
               </svg>
             </div>
             {userData ? (
-              <div className="flex flex-col gap-8 justify-start h-full items-center w-full overflow-y-auto px-6 py-12 bg-primary">
-                <div className="flex flex-col justify-start items-start w-full bg-accent text-white shadow-lg rounded-xl p-4 ">
-                  <h2 className=" font-medium">Points Earned</h2>
-                  <h3 className=" text-7xl font-black">{userData.points}</h3>
-                  <h4 className="text-xs w-full text-right">
-                    Last Transaction:{" "}
-                    {moment(userData.lastInteractionDate).format("LL")}
-                  </h4>
+              <div className="flex flex-col gap-12 justify-start h-full items-center w-full overflow-y-auto px-6 py-12 bg-primary">
+                <div className="flex flex-row justify-between items-center p-4 card-bg text-white shadow-lg rounded-xl w-full">
+                  <div className="flex flex-col justify-start items-start">
+                    <h2 className=" font-medium">Points Earned</h2>
+                    <h3 className=" text-7xl font-black">{userData.points}</h3>
+                    <h4 className="text-xs mt-1">
+                      Last Transaction:{" "}
+                      {moment(userData.lastInteractionDate).format("LL")}
+                    </h4>
+                  </div>
+                  <Image
+                    src={"/assets/icons/star-icon.svg"}
+                    width={"60"}
+                    height={"60"}
+                    alt="Star Icon"
+                  />
                 </div>
                 <div className="flex flex-col w-full">
                   <div className="flex flex-row justify-start items-center gap-2">
@@ -158,34 +173,70 @@ const PointsTracker: React.FC<PointsTrackerProps> = ({ walletAddress }) => {
                           <div className="flex flex-row justify-start items-center">
                             <div className="flex flex-row justify-start items-center gap-3 w-full">
                               <div className="flex flex-row justify-start items-center gap-1">
-                                <div>
-                                  <Image
-                                    src={
-                                      getTokenInfoByAddress(
-                                        transaction.tokenIn
-                                      )!.icon || ""
-                                    }
-                                    alt={
-                                      getTokenInfoByAddress(
-                                        transaction.tokenIn
-                                      )!.name
-                                    }
-                                    width={"20"}
-                                    height={"20"}
-                                  />
-                                </div>
-                                <div>
-                                  {parseFloat(
-                                    formatUnits(
-                                      BigInt(transaction.amountIn),
-                                      parseInt(
-                                        getTokenInfoByAddress(
-                                          transaction.tokenIn
-                                        )!.decimal
-                                      )
-                                    )
-                                  ).toFixed(6)}
-                                </div>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <div className="flex justify-center items-center">
+                                        <Image
+                                          src={
+                                            getTokenInfoByAddress(
+                                              transaction.tokenIn
+                                            )!.icon || ""
+                                          }
+                                          alt={
+                                            getTokenInfoByAddress(
+                                              transaction.tokenIn
+                                            )!.name
+                                          }
+                                          width={"20"}
+                                          height={"20"}
+                                        />
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent className="bg-secondary">
+                                      <p>
+                                        {
+                                          getTokenInfoByAddress(
+                                            transaction.tokenIn
+                                          )!.name
+                                        }
+                                      </p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <div className=" max-w-16 truncate">
+                                        {parseFloat(
+                                          formatUnits(
+                                            BigInt(transaction.amountIn),
+                                            parseInt(
+                                              getTokenInfoByAddress(
+                                                transaction.tokenIn
+                                              )!.decimal
+                                            )
+                                          )
+                                        ).toFixed(6)}
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent className="bg-secondary">
+                                      <p>
+                                        {parseFloat(
+                                          formatUnits(
+                                            BigInt(transaction.amountIn),
+                                            parseInt(
+                                              getTokenInfoByAddress(
+                                                transaction.tokenIn
+                                              )!.decimal
+                                            )
+                                          )
+                                        ).toFixed(6)}
+                                      </p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                               </div>
                               <div>
                                 <svg
@@ -204,38 +255,76 @@ const PointsTracker: React.FC<PointsTrackerProps> = ({ walletAddress }) => {
                                 </svg>
                               </div>
                               <div className="flex flex-row justify-start items-center gap-1">
-                                <div>
-                                  <Image
-                                    src={
-                                      getTokenInfoByAddress(
-                                        transaction.tokenOut
-                                      )!.icon || ""
-                                    }
-                                    alt={
-                                      getTokenInfoByAddress(
-                                        transaction.tokenOut
-                                      )!.name
-                                    }
-                                    width={"20"}
-                                    height={"20"}
-                                  />
-                                </div>
-                                <div>
-                                  {parseFloat(
-                                    formatUnits(
-                                      BigInt(transaction.amountOut),
-                                      parseInt(
-                                        getTokenInfoByAddress(
-                                          transaction.tokenOut
-                                        )!.decimal
-                                      )
-                                    )
-                                  ).toFixed(6)}
-                                </div>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <div className="flex justify-center items-center">
+                                        <Image
+                                          src={
+                                            getTokenInfoByAddress(
+                                              transaction.tokenOut
+                                            )!.icon || ""
+                                          }
+                                          alt={
+                                            getTokenInfoByAddress(
+                                              transaction.tokenOut
+                                            )!.name
+                                          }
+                                          width={"20"}
+                                          height={"20"}
+                                        />
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent className="bg-secondary">
+                                      <p>
+                                        {
+                                          getTokenInfoByAddress(
+                                            transaction.tokenOut
+                                          )!.name
+                                        }
+                                      </p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      {" "}
+                                      <div className="max-w-16 truncate">
+                                        {parseFloat(
+                                          formatUnits(
+                                            BigInt(transaction.amountOut),
+                                            parseInt(
+                                              getTokenInfoByAddress(
+                                                transaction.tokenOut
+                                              )!.decimal
+                                            )
+                                          )
+                                        ).toFixed(6)}
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent className="bg-secondary">
+                                      <p>
+                                        {parseFloat(
+                                          formatUnits(
+                                            BigInt(transaction.amountOut),
+                                            parseInt(
+                                              getTokenInfoByAddress(
+                                                transaction.tokenOut
+                                              )!.decimal
+                                            )
+                                          )
+                                        ).toFixed(6)}
+                                      </p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                               </div>
                             </div>
                           </div>
-                          <div>{moment(transaction.date).format("LLL")}</div>
+                          <p className="text-xs">
+                            {moment(transaction.date).format("LLL")}
+                          </p>
                         </div>
                         <h5 className="font-bold">+5</h5>
                       </li>
