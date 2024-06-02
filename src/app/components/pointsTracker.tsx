@@ -172,7 +172,7 @@ const PointsTracker: React.FC<PointsTrackerProps> = ({ walletAddress }) => {
                         <div className="flex flex-col gap-2">
                           <div className="flex flex-row justify-start items-center">
                             <div className="flex flex-row justify-start items-center gap-3 w-full">
-                              <div className="flex flex-row justify-start items-center gap-1">
+                              <div className="flex flex-row justify-start items-center gap-2">
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger>
@@ -254,7 +254,7 @@ const PointsTracker: React.FC<PointsTrackerProps> = ({ walletAddress }) => {
                                   ></path>
                                 </svg>
                               </div>
-                              <div className="flex flex-row justify-start items-center gap-1">
+                              <div className="flex flex-row justify-start items-center gap-2">
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger>
