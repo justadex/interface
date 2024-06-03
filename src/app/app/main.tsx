@@ -22,8 +22,12 @@ import {
   formatFloat,
   getTokenInfoByAdapters,
 } from "../utils/utils";
-
-
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 let _tokens: Token[] = Tokens;
 
@@ -186,8 +190,6 @@ const Swap = () => {
     );
   };
 
-
-
   return (
     <section className="flex flex-col gap-6 items-center justify-start min-h-screen relative px-8 pt-44">
       <div className="w-full max-w-lg p-4 rounded-2xl shadow-sm bg-primary border-[1px] border-white/20 text-offwhite">
@@ -210,8 +212,9 @@ const Swap = () => {
               />
 
               <button
-                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${tokenIn ? "bg-gray-600" : "bg-accent"
-                  }`}
+                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
+                  tokenIn ? "bg-gray-600" : "bg-accent"
+                }`}
                 onClick={() => setIsOpen(true)}
               >
                 {tokenIn && (
@@ -300,12 +303,13 @@ const Swap = () => {
                 type="number"
                 placeholder="0"
                 min={0}
-                onChange={() => { }}
+                onChange={() => {}}
                 value={formatFloat(parseFloat(amountOut))}
               />
               <button
-                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${!tokenOut ? "bg-accent" : "bg-gray-600"
-                  }`}
+                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
+                  !tokenOut ? "bg-accent" : "bg-gray-600"
+                }`}
                 onClick={() => setIsOpenOut(true)}
               >
                 {tokenOut && (
@@ -420,9 +424,19 @@ const Swap = () => {
                         height={"25"}
                         alt="ETH"
                       />
-                      <h4 className=" font-bold truncate w-full text-center">
-                        {flow.ticker}
-                      </h4>
+
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <h4 className=" font-bold truncate w-full text-center">
+                              {flow.ticker}
+                            </h4>
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-secondary">
+                            <p>{flow.ticker}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                     <div
                       className={
@@ -438,18 +452,36 @@ const Swap = () => {
                         />
                         {tradeInfo.adapters[f] && (
                           <>
-                            <Image
-                              src={
-                                getTokenInfoByAdapters(tradeInfo.adapters[f])
-                                  ?.icon!
-                              }
-                              width={"18"}
-                              height={"18"}
-                              alt={
-                                getTokenInfoByAdapters(tradeInfo.adapters[f])
-                                  ?.name!
-                              }
-                            />
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <Image
+                                    src={
+                                      getTokenInfoByAdapters(
+                                        tradeInfo.adapters[f]
+                                      )?.icon!
+                                    }
+                                    width={"18"}
+                                    height={"18"}
+                                    alt={
+                                      getTokenInfoByAdapters(
+                                        tradeInfo.adapters[f]
+                                      )?.name!
+                                    }
+                                  />
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-secondary">
+                                  <p className=" capitalize">
+                                    {
+                                      getTokenInfoByAdapters(
+                                        tradeInfo.adapters[f]
+                                      )?.name!
+                                    }
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+
                             {/* <span className="text-xs">
                               {
                                 getTokenInfoByAddress(tradeInfo.adapters[f])
