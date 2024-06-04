@@ -418,22 +418,22 @@ const Swap = () => {
                   >
                     <div className="flex flex-col gap-2 justify-center items-center w-14">
                       <Image
-                        className=" aspect-square"
+                        className=" aspect-square rounded-full"
                         src={flow.image}
                         width={"25"}
                         height={"25"}
-                        alt="ETH"
+                        alt={flow.name}
                       />
 
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger>
-                            <h4 className=" font-bold truncate w-full text-center">
+                            <h4 className=" font-bold truncate max-w-16 text-center">
                               {flow.ticker}
                             </h4>
                           </TooltipTrigger>
                           <TooltipContent className="bg-secondary">
-                            <p>{flow.ticker}</p>
+                            <p>{flow.name}</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -456,6 +456,7 @@ const Swap = () => {
                               <Tooltip>
                                 <TooltipTrigger>
                                   <Image
+                                    className=" aspect-square"
                                     src={
                                       getTokenInfoByAdapters(
                                         tradeInfo.adapters[f]

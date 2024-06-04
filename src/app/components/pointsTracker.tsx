@@ -102,7 +102,7 @@ const PointsTracker: React.FC<PointsTrackerProps> = ({ walletAddress }) => {
           width="20"
           alt="Star Icon"
         />
-        {userData ? userData.points : 0} Points
+        {userData ? userData.points : 0} XP
       </button>
       {show && (
         <div className="absolute right-0 top-28 h-[50rem] z-50 w-96 shadow-2xl rounded-l-2xl border border-r-0 border-white/20 text-offwhite">
@@ -130,7 +130,7 @@ const PointsTracker: React.FC<PointsTrackerProps> = ({ walletAddress }) => {
               <div className="flex flex-col gap-12 justify-start h-full items-center w-full overflow-y-auto px-6 py-12 bg-primary">
                 <div className="flex flex-row justify-between items-center p-4 card-bg text-white shadow-lg rounded-xl w-full">
                   <div className="flex flex-col justify-start items-start">
-                    <h2 className=" font-medium">Points Earned</h2>
+                    <h2 className=" font-medium">XP Earned</h2>
                     <h3 className=" text-7xl font-black">{userData.points}</h3>
                     <h4 className="text-xs mt-1">
                       Last Transaction:{" "}
@@ -144,7 +144,7 @@ const PointsTracker: React.FC<PointsTrackerProps> = ({ walletAddress }) => {
                     alt="Star Icon"
                   />
                 </div>
-                <div className="flex flex-col w-full">
+                <div className="flex flex-col w-full h-full overflow-y-scroll">
                   <div className="flex flex-row justify-start items-center gap-2">
                     <svg
                       className="h-5 w-5"
@@ -163,7 +163,7 @@ const PointsTracker: React.FC<PointsTrackerProps> = ({ walletAddress }) => {
                     <h3 className=" font-bold text-lg">Recent Transactions</h3>
                   </div>
 
-                  <ul>
+                  <ul className=" overflow-y-scroll">
                     {userData.transactions.map((transaction, index) => (
                       <li
                         className="flex flex-row justify-between items-center border-b border-white/10 last:border-b-0 py-4"
