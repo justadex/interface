@@ -14,5 +14,13 @@
     {
         "question": "Why use JustaDEX for trading?",
         "answer": "JustaDEX is the first DEX aggregator to offer a fee-free trading experience. We believe in the power of the community to drive innovation and improve the trading experience for all users. By trading with JustaDEX, we can offer a more transparent and best trading pricing on supported chains."
+    },
+    {
+        "question": "How does JustaDEX ensure the security of transactions?",
+        "answer": "JustaDEX employs multiple layers of security end-to-end encryption, and continuous monitoring of its infrastructure. This ensures that all transactions are secure and the users' assets are protected against unauthorized access."
+    },
+    {
+        "question": "What cryptocurrencies can I trade on JustaDEX?",
+        "answer": "JustaDEX supports a wide range of cryptocurrencies. We continuously evaluate and add new tokens based on community demand and market trends."
     }
 ]
