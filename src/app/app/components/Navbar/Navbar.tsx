@@ -11,7 +11,7 @@ const Navbar = () => {
 
   return (
     <nav className="fixed z-20 flex flex-row items-center justify-between w-full px-8 py-6 lg:px-24 text-offwhite">
-      <div className="flex flex-row justify-between items-center md:grid w-full grid-cols-3 gap-4">
+      <div className="flex flex-row justify-between items-start md:grid w-full grid-cols-3 gap-4">
         <Link href={"/"}>
           <Image
             src={"/logo/icon-white.svg"}

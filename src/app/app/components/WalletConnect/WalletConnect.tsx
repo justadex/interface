@@ -59,7 +59,7 @@ export default function WalletConnect() {
                 );
               }
               return (
-                <div className="flex flex-row justify-center items-center gap-4">
+                <div className="flex flex-row flex-wrap justify-end items-center gap-4">
                   {address && <PointsTracker walletAddress={address} />}
                   <button
                     onClick={openChainModal}
