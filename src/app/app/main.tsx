@@ -232,6 +232,20 @@ const Swap = () => {
                   <h3 className="font-semibold min-w-max truncate">
                     {tokenIn ? tokenIn?.ticker : "Select Token"}
                   </h3>
+                  <span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="md:w-5 md:h-5 w-4 h-4"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M12.53 16.28a.75.75 0 01-1.06 0l-7.5-7.5a.75.75 0 011.06-1.06L12 14.69l6.97-6.97a.75.75 0 111.06 1.06l-7.5 7.5z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </span>
                 </button>
               </div>
               {tokenIn &&
