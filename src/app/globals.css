@@ -2,11 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-} */
 :root {
   --foreground-rgb: 255, 255, 255;
   --background-start-rgb: 0, 0, 0;
@@ -20,15 +15,13 @@
     --background-end-rgb: 0, 0, 0;
   }
 }
+
 html {
   scroll-behavior: smooth;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: rgb(0, 0, 0);
-  background: -moz-linear-gradient(rgb(32, 39, 56) 0%, rgb(7, 8, 22) 100%);
-  background: -webkit-linear-gradient(rgb(32, 39, 56) 0%, rgb(7, 8, 22) 100%);
   background: linear-gradient(rgb(32, 39, 56) 0%, rgb(7, 8, 22) 100%);
 }
 
@@ -42,11 +35,12 @@ body {
   border: 5px solid rgb(13, 17, 28);
   z-index: 2;
 }
-.scrollbar::-webkit-scrollbar-track {
-  background: white;
-}
+
+.scrollbar::-webkit-scrollbar-track,
 .scrollbardark::-webkit-scrollbar-track {
-  background: black;
+  background: var(--background-start-rgb);
+  width: 4px;
+  height: 4px;
 }
 
 .scrollbar-thin::-webkit-scrollbar {
@@ -54,42 +48,47 @@ body {
   height: 4px;
 }
 
-.blob {
-  background: url("/patterns/blob.svg");
+.blob,
+.home,
+.noise {
   background-repeat: no-repeat;
   background-position: center;
+}
+
+.blob {
+  background-image: url("/patterns/blob.svg");
 }
 
 .home {
-  background: url("/patterns/triangle.svg");
-  background-repeat: no-repeat;
-  background-position: center;
+  background-image: url("/patterns/triangle.svg");
 }
 
 .noise {
-  background: url("/patterns/noise.svg");
-  background-repeat: no-repeat;
-  background-position: center;
+  background-image: url("/patterns/noise.svg");
   background-size: cover;
 }
 
-/* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-/* Firefox */
 input[type="number"] {
   -moz-appearance: textfield;
 }
 
 .card-bg {
-  background: rgb(76, 130, 251);
   background: linear-gradient(
     90deg,
     rgba(76, 130, 251, 1) 0%,
     rgba(19, 26, 42, 1) 100%
   );
+}
+
+.centered {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-top: auto;
 }

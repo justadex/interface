@@ -10,7 +10,7 @@ const Navbar = () => {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed z-20 flex flex-row items-center justify-between w-full px-8 py-6 lg:px-24 text-offwhite">
+    <nav className="absolute z-20 flex flex-row items-center justify-between w-full px-8 py-6 lg:px-24 text-offwhite">
       <div className="flex flex-row justify-between items-start md:grid w-full grid-cols-3 gap-4">
         <Link href={"/"}>
           <Image
