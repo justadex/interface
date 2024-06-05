@@ -193,7 +193,7 @@ const Swap = () => {
   return (
     <>
       {" "}
-      <section className="flex flex-col gap-6 items-center justify-start min-h-screen relative px-8 pt-44">
+      <section className="flex flex-col gap-6 items-center justify-start min-h-screen relative px-8 pt-36 md:pt-44">
         <div className="w-full max-w-lg p-4 rounded-2xl shadow-sm bg-primary border-[1px] border-white/20 text-offwhite">
           <div className="flex flex-row items-center justify-between gap-4">
             <h2 className="text-lg font-bold">Swap</h2>
@@ -586,7 +586,7 @@ const Swap = () => {
                         width="35"
                       />
                       <div className="flex flex-col">
-                        <h4 className="text-base w-full truncate">
+                        <h4 className="text-base w-36 truncate">
                           {token.name}
                         </h4>
                         <h5 className="text-sm text-offwhite">
@@ -687,7 +687,7 @@ const Swap = () => {
                       />
 
                       <div className="flex flex-col">
-                        <h4 className="text-base w-full truncate">
+                        <h4 className="text-base w-36 truncate">
                           {token.name}
                         </h4>
                         <h5 className="text-sm text-offwhite">
