@@ -586,7 +586,7 @@ const Swap = () => {
                         width="35"
                       />
                       <div className="flex flex-col">
-                        <h4 className="text-base w-36 truncate">
+                        <h4 className="text-base w-36 md:w-52 truncate">
                           {token.name}
                         </h4>
                         <h5 className="text-sm text-offwhite">
@@ -687,7 +687,7 @@ const Swap = () => {
                       />
 
                       <div className="flex flex-col">
-                        <h4 className="text-base w-36 truncate">
+                        <h4 className="text-base w-36 md:w-52 truncate">
                           {token.name}
                         </h4>
                         <h5 className="text-sm text-offwhite">
