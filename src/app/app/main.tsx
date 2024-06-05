@@ -577,18 +577,18 @@ const Swap = () => {
                     className="flex flex-row items-center justify-between w-full gap-4 px-4 pt-1.5 rounded-full cursor-pointer hover:opacity-60"
                     key={i}
                   >
-                    <div className="flex flex-row items-center justify-start w-1/4 gap-4">
-                      <div>
-                        <Image
-                          className="rounded-full aspect-square"
-                          src={token.image}
-                          alt={token.name}
-                          height="35"
-                          width="35"
-                        />
-                      </div>
+                    <div className="flex flex-row items-center justify-start gap-4">
+                      <Image
+                        className="rounded-full aspect-square"
+                        src={token.image}
+                        alt={token.name}
+                        height="35"
+                        width="35"
+                      />
                       <div className="flex flex-col">
-                        <h4 className="text-base">{token.name}</h4>
+                        <h4 className="text-base w-full truncate">
+                          {token.name}
+                        </h4>
                         <h5 className="text-sm text-offwhite">
                           {token.ticker}
                         </h5>
@@ -678,17 +678,18 @@ const Swap = () => {
                     key={i}
                   >
                     <div className="flex flex-row items-center justify-start w-3/4 gap-4">
-                      <div>
-                        <Image
-                          className="rounded-full aspect-square"
-                          src={token.image}
-                          alt={token.name}
-                          height="35"
-                          width="35"
-                        />
-                      </div>
+                      <Image
+                        className="rounded-full aspect-square"
+                        src={token.image}
+                        alt={token.name}
+                        height="35"
+                        width="35"
+                      />
+
                       <div className="flex flex-col">
-                        <h4 className="text-base">{token.name}</h4>
+                        <h4 className="text-base w-full truncate">
+                          {token.name}
+                        </h4>
                         <h5 className="text-sm text-offwhite">
                           {token.ticker}
                         </h5>
