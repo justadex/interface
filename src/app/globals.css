@@ -75,7 +75,9 @@ input::-webkit-inner-spin-button {
 }
 
 input[type="number"] {
+  -webkit-appearance: none;
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 .card-bg {
@@ -84,11 +86,4 @@ input[type="number"] {
     rgba(76, 130, 251, 1) 0%,
     rgba(19, 26, 42, 1) 100%
   );
-}
-
-.centered {
-  position: absolute;
-  left: 0;
-  right: 0;
-  margin-top: auto;
 }
