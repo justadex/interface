@@ -171,7 +171,7 @@ const PointsTracker: React.FC<PointsTrackerProps> = ({ walletAddress }) => {
                       </h3>
                     </div>
 
-                    <ul className=" overflow-y-auto h-64 md:h-full pr-4">
+                    <ul className=" overflow-y-auto h-[40vh] md:h-full pr-4">
                       {userData.transactions.map((transaction, index) => (
                         <li
                           className="flex flex-row justify-between items-center gap-2 border-b border-white/10 last:border-b-0 py-4"
