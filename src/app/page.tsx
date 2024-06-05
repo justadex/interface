@@ -5,6 +5,7 @@ import Dexs from "./home/dexs";
 import Footer from "./components/Footer";
 import Socails from "./home/socials";
 import TypeEffect from "./home/typeeffect";
+import FAQS from "./home/faqs";
 
 export default function Home() {
   return (
@@ -28,6 +29,7 @@ export default function Home() {
         </section>
         <Dexs />
         <Socails />
+        <FAQS />
         <Footer />
       </div>
     </>

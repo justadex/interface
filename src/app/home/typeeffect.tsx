@@ -6,7 +6,7 @@ export default function TypeEffect() {
     <Typewriter
       onInit={(typewriter) => {
         typewriter
-          .typeString("Your Ultimate DEX Aggregator")
+          .typeString("Zero-fee DEX Aggregator")
           .pauseFor(1000)
           .typeString(" on Mode Network")
           .start();

@@ -33,7 +33,7 @@ interface Adapters {
 export default function Dexs() {
   const [selectedDex, setSelectedDex] = useState(0);
   return (
-    <section className="py-12 xl:py-24" id="integrations">
+    <section className="py-12" id="integrations">
       <div className="grid grid-cols-1 gap-8">
         <div className="grid grid-cols-2 xl:flex flex-row gap-8 justify-between items-center">
           <h3 className=" text-left shadow-md text-xl xl:text-2xl font-medium border-b-2 border-accent">
