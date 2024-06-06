@@ -651,7 +651,7 @@ const Swap = () => {
           <div className="mx-4">
             <div className="h-[1px] w-full border-[1px] border-offwhite border-opacity-25"></div>
           </div>
-          <div className="flex flex-col items-start justify-start gap-4 pb-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-96">
+          <div className="flex flex-col items-start justify-start gap-4 pb-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-[40vh]">
             {filteredTokens.map((token, i) => {
               return (
                 <div
@@ -762,7 +762,7 @@ const Swap = () => {
           <div className="mx-4">
             <div className="h-[1px] w-full border-[1px] border-offwhite border-opacity-25"></div>
           </div>
-          <div className="flex flex-col items-start justify-start gap-4 pb-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-96">
+          <div className="flex flex-col items-start justify-start gap-4 pb-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-[40vh]">
             {filteredTokens.map((token, i) => {
               return (
                 <div
