@@ -598,12 +598,6 @@ const Swap = () => {
           <div className="flex flex-col gap-4 px-4">
             <div className="flex flex-row items-center justify-between">
               <DialogTitle>Select a Token</DialogTitle>
-              <button
-                onClick={() => setShowImportTokenDialog(true)}
-                className="text-accent font-semibold px-2 py-1 text-sm"
-              >
-                Import Token
-              </button>
             </div>
             <div className="relative">
               <input
