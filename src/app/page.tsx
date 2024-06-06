@@ -28,10 +28,10 @@ export default function Home() {
           </Link>
         </section>
         <Dexs />
-        <Socails />
+        {/* <Socails /> */}
         <FAQS />
-        <Footer />
       </div>
+      <Footer />
     </>
   );
 }
