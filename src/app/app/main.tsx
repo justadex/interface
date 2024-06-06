@@ -687,8 +687,8 @@ const Swap = () => {
           </div>
           <div className="flex flex-row items-center justify-between w-full gap-4 px-4 rounded-full cursor-pointer">
             <div className="flex flex-col">
-              <h4>Can{"'"}t find a token?</h4>
-              <h5 className="text-sm text-offwhite">
+              <h4 className="md:text-base text-sm">Can{"'"}t find a token?</h4>
+              <h5 className="text-xs md:text-sm text-offwhite">
                 Click on the button to import your token
               </h5>
             </div>
@@ -800,8 +800,8 @@ const Swap = () => {
           </div>
           <div className="flex flex-row items-center justify-between w-full gap-4 px-4 rounded-full cursor-pointer">
             <div className="flex flex-col">
-              <h4>Can{"'"}t find a token?</h4>
-              <h5 className="text-sm text-offwhite">
+              <h4 className="md:text-base text-sm">Can{"'"}t find a token?</h4>
+              <h5 className="text-xs md:text-sm text-offwhite">
                 Click on the button to import your token
               </h5>
             </div>
