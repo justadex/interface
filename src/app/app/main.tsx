@@ -692,15 +692,13 @@ const Swap = () => {
                 Click on the button to import your token
               </h5>
             </div>
-            <div className="flex flex-row justify-center items-center gap-2 px-4 py-2 font-semibold rounded-full bg-accent/40 text-accent hover:bg-accent/20 disabled:cursor-not-allowed">
+            <button
+              onClick={() => setShowImportTokenDialog(true)}
+              className="flex flex-row justify-center items-center gap-2 px-4 py-2 font-semibold rounded-full bg-accent/40 text-accent hover:bg-accent/20 disabled:cursor-not-allowed"
+            >
               <Import className="w-5 h-5" />
-              <button
-                onClick={() => setShowImportTokenDialog(true)}
-                className="font-medium"
-              >
-                Import
-              </button>
-            </div>
+              <span className="font-medium">Import</span>
+            </button>
           </div>
         </DialogContent>
       </Dialog>
@@ -805,15 +803,13 @@ const Swap = () => {
                 Click on the button to import your token
               </h5>
             </div>
-            <div className="flex flex-row justify-center items-center gap-2 px-4 py-2 font-semibold rounded-full bg-accent/40 text-accent hover:bg-accent/20 disabled:cursor-not-allowed">
+            <button
+              onClick={() => setShowImportTokenDialog(true)}
+              className="flex flex-row justify-center items-center gap-2 px-4 py-2 font-semibold rounded-full bg-accent/40 text-accent hover:bg-accent/20 disabled:cursor-not-allowed"
+            >
               <Import className="w-5 h-5" />
-              <button
-                onClick={() => setShowImportTokenDialog(true)}
-                className="font-medium"
-              >
-                Import
-              </button>
-            </div>
+              <span className="font-medium">Import</span>
+            </button>
           </div>
         </DialogContent>
       </Dialog>
