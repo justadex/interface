@@ -27,6 +27,8 @@ import Adapters from "@/app/app/data/adapters.json";
 let _tokens: Token[] = Tokens;
 
 const JadRouterAddress = process.env.NEXT_PUBLIC_ROUTER as `0x{string}`;
+console.log(JadRouterAddress);
+
 const WETH_ADDRESS: Address = "0x4200000000000000000000000000000000000006";
 const EMPTY_ADDRESS: Address = "0x0000000000000000000000000000000000000000";
 
@@ -42,6 +44,10 @@ const Swap = () => {
   const [swapStatus, setSwapStatus] = useState<SwapStatus>("IDLE");
 
   const [block, setBlock] = useState<string>("");
+  const [customTokenAddress, setCustomTokenAddress] = useState('');
+  const [importedToken, setImportedToken] = useState<Token | null>(null);
+  const [showImportTokenDialog, setShowImportTokenDialog] = useState(false);
+  
 
   const ethBalance = useBalance({
     address: address,
@@ -54,6 +60,37 @@ const Swap = () => {
     refetch: refreshBalance,
   } = useReadContracts({
     contracts: buildBalanceCheckParams(_tokens, address!),
+  });
+
+  {/* helper to get custom token info */}
+  const {
+    data: tokenName,
+    isLoading: nameLoading,
+    error: nameError
+  } = useReadContract({
+    address: customTokenAddress as `0x{string}`,
+    abi: erc20Abi,
+    functionName: 'name',
+  });
+
+  const {
+    data: tokenSymbol,
+    isLoading: symbolLoading,
+    error: symbolError
+  } = useReadContract({
+    address: customTokenAddress as `0x{string}`,
+    abi: erc20Abi,
+    functionName: 'symbol',
+  });
+
+  const {
+    data: tokenDecimals,
+    isLoading: decimalsLoading,
+    error: decimalsError
+  } = useReadContract({
+    address: customTokenAddress as `0x{string}`,
+    abi: erc20Abi,
+    functionName: 'decimals',
   });
 
   const {
@@ -203,6 +240,67 @@ const Swap = () => {
       return undefined;
     }
   }
+
+  const handleImportToken = async () => {
+    if (customTokenAddress) {
+
+      // Checking if the token already exists
+      const tokenExists = _tokens.some(
+        (token) => token.address.toLowerCase() === customTokenAddress.toLowerCase()
+      );
+
+      if (tokenExists) {
+        // if token already exists dont include it,
+        //TODO- UI instead of Console log
+        console.error('Token with this address already exists.');
+        return; 
+      }
+
+      // Fetch the token data
+      if (
+        tokenName &&
+        tokenSymbol &&
+        tokenDecimals !== undefined
+      ) {
+        const importedToken: Token = {
+          name: tokenName as string,
+          ticker: tokenSymbol as string,
+          address: customTokenAddress,
+          image: '/tokens/unknown.svg',
+          decimal: BigInt(tokenDecimals).toString(),
+          featured: false,
+        };
+        setImportedToken(importedToken);
+        _tokens = [..._tokens, importedToken]; 
+
+        // update local storage
+        const storedTokens = JSON.parse(localStorage.getItem('importedTokens') || '[]');
+        localStorage.setItem('importedTokens', JSON.stringify([...storedTokens, importedToken]));
+        setShowImportTokenDialog(false); 
+      }
+    }
+  };
+
+  /* Load imported tokens from local storage on every 
+   render so users wont have to import token again
+   & combine default tokens with imported*/
+  useEffect(() => {
+    const storedTokens = JSON.parse(localStorage.getItem('importedTokens') || '[]');
+    _tokens = [...Tokens, ...storedTokens];
+  }, []);
+
+  /* here it uppdate the list of filteredTokens 
+   whenever _tokens changes which includes imported tokens)*/
+  useEffect(() => {
+    setFilteredTokens(
+      _tokens.filter(
+        (token) =>
+          token.name.toLowerCase().includes(searchInput.toLowerCase()) ||
+          token.ticker.toLowerCase().includes(searchInput.toLowerCase()) ||
+          token.address.toLowerCase().includes(searchInput.toLowerCase())
+      )
+    );
+  }, [_tokens, searchInput]);
 
   return (
     <section className="flex flex-col gap-6 items-center justify-start min-h-screen relative px-8 pt-44">
@@ -491,6 +589,12 @@ const Swap = () => {
           <div className="flex flex-col gap-4 px-4">
             <div className="flex flex-row items-center justify-between">
               <DialogTitle>Select a Token</DialogTitle>
+              <button
+                onClick={() => setShowImportTokenDialog(true)}
+                className="text-sm text-accent font-semibold rounded-full px-2 py-1 hover:opacity-60"
+              >
+                Import Token
+              </button>
             </div>
             <div className="relative">
               <input
@@ -588,6 +692,12 @@ const Swap = () => {
           <div className="flex flex-col gap-4 px-4">
             <div className="flex flex-row items-center justify-between">
               <DialogTitle>Select a Token</DialogTitle>
+              <button
+                onClick={() => setShowImportTokenDialog(true)}
+                className="text-sm text-accent font-semibold rounded-full px-2 py-1 hover:opacity-60"
+              >
+                Import Token
+              </button>
             </div>
             <div className="relative">
               <input
@@ -678,6 +788,57 @@ const Swap = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog for importing a custom token */}
+      <Dialog open={showImportTokenDialog} onOpenChange={() => setShowImportTokenDialog(false)}>
+        <DialogContent className="flex flex-col w-full max-w-lg text-white bg-primary rounded-3xl border-[1px] border-opacity-25 border-offwhite shadow-md overflow-clip">
+          <div className="flex flex-col gap-4 px-4">
+            <div className="flex flex-row items-center justify-between">
+              <DialogTitle>Import Token</DialogTitle>
+              <button
+                onClick={() => setShowImportTokenDialog(false)}
+                className="text-sm text-accent font-semibold rounded-full px-2 py-1 hover:opacity-60"
+              >
+                Close
+              </button>
+            </div>
+            <div className="relative">
+              <input
+                className="w-full px-12 py-2 bg-secondary rounded-2xl focus:outline-none focus:bg-primary border-[1px] border-opacity-25 border-offwhite"
+                placeholder="Enter token address"
+                value={customTokenAddress}
+                onChange={(e) => setCustomTokenAddress(e.target.value)}
+              />
+            </div>
+            <div className="mt-4">
+              {importedToken && (
+                <div className="flex flex-row justify-between items-center">
+                  <span>
+                    <Image
+                      className="rounded-full aspect-square"
+                      src={importedToken?.image}
+                      alt={importedToken?.name}
+                      height="35"
+                      width="35"
+                    />
+                    <span className="ml-2 text-sm">
+                      {importedToken.ticker} ({importedToken.address})
+                    </span>
+                  </span>
+                </div>
+              )}
+            </div>
+            <button
+              className="w-full px-8 py-4 text-lg font-semibold rounded-3xl bg-accent/40 text-accent hover:bg-accent/20 disabled:cursor-not-allowed"
+              disabled={!customTokenAddress}
+              onClick={handleImportToken}
+            >
+              Import
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {block && (
         <div className="fixed bottom-4 right-4 text-xs text-green flex flex-row justify-center items-center gap-1">
           <div className="h-2.5 w-2.5 bg-green rounded-full animate-pulse"></div>
