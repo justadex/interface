@@ -6,6 +6,7 @@ import {
 } from "@wagmi/core";
 import { config } from "./components/Wagmi/config";
 import { JadRouterABI } from "./abi/JadRouterABI";
+import { WethABI } from "./abi/WETHABI";
 import { SwapStatus, TradeInfo } from "./types/interface";
 
 const JadRouterAddress = process.env.NEXT_PUBLIC_ROUTER as `0x{string}`;
@@ -105,19 +106,10 @@ const swapToEth = async (tradeInfo: TradeInfo, userAddress: Address) => {
 const swapNoSplitToEth = async (tradeInfo: TradeInfo, userAddress: Address) => {
   try {
     let result = await writeContract(config, {
-      abi: JadRouterABI,
-      address: JadRouterAddress,
-      functionName: "swapNoSplitToETH",
-      args: [
-        {
-          adapters: tradeInfo.adapters,
-          amountIn: tradeInfo.amountIn,
-          amountOut: tradeInfo.amountOut,
-          path: tradeInfo.path,
-        },
-        userAddress,
-        BigInt(0),
-      ],
+      abi: WethABI,
+      address: WETH_ADDRESS,
+      functionName: "withdraw",
+      args: [tradeInfo.amountIn]
     });
     await waitForTransaction(result);
     return {
@@ -132,19 +124,10 @@ const swapNoSplitToEth = async (tradeInfo: TradeInfo, userAddress: Address) => {
 const swapNoSplitFromEth = async (tradeInfo: TradeInfo, userAddress: Address) => {
   try {
     let result = await writeContract(config, {
-      abi: JadRouterABI,
-      address: JadRouterAddress,
-      functionName: "swapNoSplitFromETH",
-      args: [
-        {
-          adapters: tradeInfo.adapters,
-          amountIn: tradeInfo.amountIn,
-          amountOut: tradeInfo.amountOut,
-          path: tradeInfo.path,
-        },
-        userAddress,
-        BigInt(0),
-      ],
+      abi: WethABI,
+      address: WETH_ADDRESS,
+      functionName: "deposit",
+      args: [],
       value: tradeInfo.amountIn,
     });
     await waitForTransaction(result);

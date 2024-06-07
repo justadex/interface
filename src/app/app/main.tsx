@@ -131,13 +131,16 @@ const Swap = () => {
   useEffect(() => {
     if (data) {
       if (data?.amounts.length > 0 && tokenOut) {
-        setAmountOut(
-          formatUnits(
-            data?.amounts[data.amounts.length - 1],
-            parseInt(tokenOut.decimal)
-          )
-        );
-
+        if ((tokenIn?.address === EMPTY_ADDRESS && tokenOut?.address === WETH_ADDRESS) || (tokenIn?.address === WETH_ADDRESS && tokenOut?.address === EMPTY_ADDRESS)) {
+          setAmountOut(amountIn);
+        } else {
+          setAmountOut(
+            formatUnits(
+              data?.amounts[data.amounts.length - 1],
+              parseInt(tokenOut.decimal)
+            )
+          );
+        }
         const trade = {
           amountIn: data.amounts[0],
           amountOut: data.amounts[data.amounts.length - 1],
@@ -514,7 +517,7 @@ const Swap = () => {
           </button>
         </div>
       </div>
-      {tradeInfo && amountIn && (
+      {tradeInfo && amountIn && !((tokenIn?.address === EMPTY_ADDRESS && tokenOut?.address === WETH_ADDRESS) || (tokenIn?.address === WETH_ADDRESS && tokenOut?.address === EMPTY_ADDRESS)) && (
         <div className="w-full max-w-lg p-4 rounded-2xl shadow-sm bg-primary border-[1px] border-white/20 text-offwhite">
           <div className="flex flex-row justify-center items-center flex-wrap gap-6">
             {tradeInfo &&
