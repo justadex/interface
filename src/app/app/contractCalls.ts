@@ -102,6 +102,61 @@ const swapToEth = async (tradeInfo: TradeInfo, userAddress: Address) => {
   }
 };
 
+const swapNoSplitToEth = async (tradeInfo: TradeInfo, userAddress: Address) => {
+  try {
+    let result = await writeContract(config, {
+      abi: JadRouterABI,
+      address: JadRouterAddress,
+      functionName: "swapNoSplitToETH",
+      args: [
+        {
+          adapters: tradeInfo.adapters,
+          amountIn: tradeInfo.amountIn,
+          amountOut: tradeInfo.amountOut,
+          path: tradeInfo.path,
+        },
+        userAddress,
+        BigInt(0),
+      ],
+    });
+    await waitForTransaction(result);
+    return {
+      success: true,
+      data: result,
+    };
+  } catch (e: any) {
+    throw e;
+  }
+}
+
+const swapNoSplitFromEth = async (tradeInfo: TradeInfo, userAddress: Address) => {
+  try {
+    let result = await writeContract(config, {
+      abi: JadRouterABI,
+      address: JadRouterAddress,
+      functionName: "swapNoSplitFromETH",
+      args: [
+        {
+          adapters: tradeInfo.adapters,
+          amountIn: tradeInfo.amountIn,
+          amountOut: tradeInfo.amountOut,
+          path: tradeInfo.path,
+        },
+        userAddress,
+        BigInt(0),
+      ],
+      value: tradeInfo.amountIn,
+    });
+    await waitForTransaction(result);
+    return {
+      success: true,
+      data: result,
+    };
+  } catch (e: any) {
+    throw e;
+  }
+}
+
 const swap = async (tradeInfo: TradeInfo, userAddress: Address) => {
   try {
     let result = await writeContract(config, {
@@ -170,7 +225,11 @@ export const swapTokens = async (
     }
     // setStatus("APPROVED");
     setStatus("SWAPPING");
-    if (tokenInAddress === EMPTY_ADDRESS) {
+    if (tokenInAddress === EMPTY_ADDRESS && tokenOutAddress === WETH_ADDRESS) {
+      swapResponse = await swapNoSplitFromEth(tradeInfo, userAddress);
+    } else if (tokenInAddress === WETH_ADDRESS && tokenOutAddress === EMPTY_ADDRESS) {
+      swapResponse = await swapNoSplitToEth(tradeInfo, userAddress);
+    } else if (tokenInAddress === EMPTY_ADDRESS) {
       swapResponse = await swapFromEth(tradeInfo, userAddress);
     } else if (tokenOutAddress === EMPTY_ADDRESS) {
       swapResponse = await swapToEth(tradeInfo, userAddress);
