@@ -36,7 +36,7 @@ export default function Dexs() {
     <section className="py-12" id="integrations">
       <div className="grid grid-cols-1 gap-8">
         <div className="grid grid-cols-2 xl:flex flex-row gap-8 justify-between items-center">
-          <h3 className=" text-left shadow-md text-xl xl:text-2xl font-medium border-b-2 border-accent">
+          <h3 className=" text-left shadow-md text-xl xl:text-2xl font-medium border-b-2 border-accent w-fit">
             Chains & DEXs
           </h3>
           <Select

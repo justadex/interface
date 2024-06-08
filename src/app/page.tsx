@@ -13,7 +13,7 @@ export default function Home() {
       <Navbar />
       <div className="px-8 xl:px-24 noise">
         <section className="min-h-screen home flex flex-col justify-center text-center gap-6 items-center">
-          <h1 className="text-6xl xl:text-5xl font-bold max-w-4xl leading-snug">
+          <h1 className="text-4xl md:text-5xl font-bold max-w-4xl leading-snug">
             <TypeEffect />
           </h1>
           <p className="text-lg xl:text-xl max-w-2xl font-light">
@@ -22,7 +22,7 @@ export default function Home() {
           </p>
           <Link
             href={"/app"}
-            className="px-6 py-2.5 text-white rounded-md shadow-sm cursor-pointer bg-accent font-semibold mt-4 text-xl"
+            className="px-6 py-2.5 text-white rounded-md shadow-sm cursor-pointer bg-accent font-semibold mt-4 text-lg md:text-xl"
           >
             Launch App
           </Link>

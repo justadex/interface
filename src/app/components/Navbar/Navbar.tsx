@@ -22,7 +22,7 @@ export default function Navbar() {
             <Link href={"#socials"}>Join Community</Link>
           </li>
         </ul> */}
-        <div className="flex">
+        <div className="hidden md:flex">
           <Link
             href={"/app"}
             className="px-6 py-2.5 text-white rounded-md shadow-sm cursor-pointer bg-accent font-semibold"

@@ -21,7 +21,7 @@ export default function FAQS() {
                 key={f}
                 value={f.toString()}
               >
-                <AccordionTrigger className="hover:no-underline text-lg font-bold">
+                <AccordionTrigger className="hover:no-underline text-lg font-bold text-left">
                   {faq.question}
                 </AccordionTrigger>
                 <AccordionContent className="text-base">
