@@ -131,13 +131,16 @@ const Swap = () => {
   useEffect(() => {
     if (data) {
       if (data?.amounts.length > 0 && tokenOut) {
-        setAmountOut(
-          formatUnits(
-            data?.amounts[data.amounts.length - 1],
-            parseInt(tokenOut.decimal)
-          )
-        );
-
+        if ((tokenIn?.address === EMPTY_ADDRESS && tokenOut?.address === WETH_ADDRESS) || (tokenIn?.address === WETH_ADDRESS && tokenOut?.address === EMPTY_ADDRESS)) {
+          setAmountOut(amountIn);
+        } else {
+          setAmountOut(
+            formatUnits(
+              data?.amounts[data.amounts.length - 1],
+              parseInt(tokenOut.decimal)
+            )
+          );
+        }
         const trade = {
           amountIn: data.amounts[0],
           amountOut: data.amounts[data.amounts.length - 1],
@@ -201,17 +204,20 @@ const Swap = () => {
     }
     const amountInValue = parseFloat(amountIn);
     const amountOutValue = parseFloat(amountOut);
-    if ((amountInValue <= 0 && amountOutValue <= 0) || !amountInValue) {
+    if ((tokenIn?.address === EMPTY_ADDRESS && tokenOut?.address === WETH_ADDRESS)) {
+      return { enabled: true, text: "Wrap" };
+    } else if ((tokenIn?.address === WETH_ADDRESS && tokenOut?.address === EMPTY_ADDRESS)) {
+      return { enabled: true, text: "Un Wrap" };
+    } else if ((amountInValue <= 0 && amountOutValue <= 0) || !amountInValue) {
       return { enabled: false, text: "Enter amount to swap" };
-    }
-    if (amountInValue && tokenIn?.balance) {
+    } else if (amountInValue && tokenIn?.balance) {
       if (parseFloat(tokenIn.balance) < amountInValue) {
         return { enabled: false, text: "Insufficient Balance" };
       }
-    }
-    if (amountOutValue <= 0) {
+    } else if (amountOutValue <= 0) {
       return { enabled: false, text: "Insufficient liquidity" };
     }
+
     return { enabled: true, text: "Swap" };
   }
 
@@ -290,6 +296,30 @@ const Swap = () => {
       }
     }
   };
+
+  const swapTokensWrapper = async () => {
+    try {
+      await swapTokens(
+        (_swapStatus: SwapStatus) => {
+          setSwapStatus(_swapStatus);
+        },
+        tokenIn?.address as `0x{string}`,
+        tokenOut?.address as `0x{string}`,
+        address!,
+        tradeInfo!
+      );
+      setTimeout(() => {
+        setSwapStatus("IDLE");
+      }, 1000);
+
+      refreshBalance();
+    } catch (e) {
+      setSwapStatus("FAILED");
+      setTimeout(() => {
+        setSwapStatus("IDLE");
+      }, 3000);
+    }
+  }
 
   /* Load imported tokens from local storage on every 
    render so users wont have to import token again
@@ -486,27 +516,9 @@ const Swap = () => {
             disabled={!getTokenSwapButtonText().enabled}
             onClick={async () => {
               if (tradeInfo && address && tokenIn && tokenOut) {
-                try {
-                  await swapTokens(
-                    (_swapStatus: SwapStatus) => {
-                      setSwapStatus(_swapStatus);
-                    },
-                    tokenIn?.address as `0x{string}`,
-                    tokenOut?.address as `0x{string}`,
-                    address!,
-                    tradeInfo!
-                  );
-                  setTimeout(() => {
-                    setSwapStatus("IDLE");
-                  }, 1000);
-
-                  refreshBalance();
-                } catch (e) {
-                  setSwapStatus("FAILED");
-                  setTimeout(() => {
-                    setSwapStatus("IDLE");
-                  }, 3000);
-                }
+                await swapTokensWrapper();
+              } else if ((tokenIn?.address === EMPTY_ADDRESS && tokenOut?.address === WETH_ADDRESS) || (tokenIn?.address === WETH_ADDRESS && tokenOut?.address === EMPTY_ADDRESS)) {
+                await swapTokensWrapper();
               }
             }}
           >
@@ -514,7 +526,7 @@ const Swap = () => {
           </button>
         </div>
       </div>
-      {tradeInfo && amountIn && (
+      {tradeInfo && amountIn && !((tokenIn?.address === EMPTY_ADDRESS && tokenOut?.address === WETH_ADDRESS) || (tokenIn?.address === WETH_ADDRESS && tokenOut?.address === EMPTY_ADDRESS)) && (
         <div className="w-full max-w-lg p-4 rounded-2xl shadow-sm bg-primary border-[1px] border-white/20 text-offwhite">
           <div className="flex flex-row justify-center items-center flex-wrap gap-6">
             {tradeInfo &&
