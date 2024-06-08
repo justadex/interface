@@ -206,19 +206,15 @@ const Swap = () => {
     const amountOutValue = parseFloat(amountOut);
     if ((tokenIn?.address === EMPTY_ADDRESS && tokenOut?.address === WETH_ADDRESS)) {
       return { enabled: true, text: "Wrap" };
-    }
-    if ((tokenIn?.address === WETH_ADDRESS && tokenOut?.address === EMPTY_ADDRESS)) {
+    } else if ((tokenIn?.address === WETH_ADDRESS && tokenOut?.address === EMPTY_ADDRESS)) {
       return { enabled: true, text: "Un Wrap" };
-    }
-    if ((amountInValue <= 0 && amountOutValue <= 0) || !amountInValue) {
+    } else if ((amountInValue <= 0 && amountOutValue <= 0) || !amountInValue) {
       return { enabled: false, text: "Enter amount to swap" };
-    }
-    if (amountInValue && tokenIn?.balance) {
+    } else if (amountInValue && tokenIn?.balance) {
       if (parseFloat(tokenIn.balance) < amountInValue) {
         return { enabled: false, text: "Insufficient Balance" };
       }
-    }
-    if (amountOutValue <= 0) {
+    } else if (amountOutValue <= 0) {
       return { enabled: false, text: "Insufficient liquidity" };
     }
 
@@ -300,6 +296,30 @@ const Swap = () => {
       }
     }
   };
+
+  const swapTokensWrapper = async () => {
+    try {
+      await swapTokens(
+        (_swapStatus: SwapStatus) => {
+          setSwapStatus(_swapStatus);
+        },
+        tokenIn?.address as `0x{string}`,
+        tokenOut?.address as `0x{string}`,
+        address!,
+        tradeInfo!
+      );
+      setTimeout(() => {
+        setSwapStatus("IDLE");
+      }, 1000);
+
+      refreshBalance();
+    } catch (e) {
+      setSwapStatus("FAILED");
+      setTimeout(() => {
+        setSwapStatus("IDLE");
+      }, 3000);
+    }
+  }
 
   /* Load imported tokens from local storage on every 
    render so users wont have to import token again
@@ -496,27 +516,9 @@ const Swap = () => {
             disabled={!getTokenSwapButtonText().enabled}
             onClick={async () => {
               if (tradeInfo && address && tokenIn && tokenOut) {
-                try {
-                  await swapTokens(
-                    (_swapStatus: SwapStatus) => {
-                      setSwapStatus(_swapStatus);
-                    },
-                    tokenIn?.address as `0x{string}`,
-                    tokenOut?.address as `0x{string}`,
-                    address!,
-                    tradeInfo!
-                  );
-                  setTimeout(() => {
-                    setSwapStatus("IDLE");
-                  }, 1000);
-
-                  refreshBalance();
-                } catch (e) {
-                  setSwapStatus("FAILED");
-                  setTimeout(() => {
-                    setSwapStatus("IDLE");
-                  }, 3000);
-                }
+                await swapTokensWrapper();
+              } else if ((tokenIn?.address === EMPTY_ADDRESS && tokenOut?.address === WETH_ADDRESS) || (tokenIn?.address === WETH_ADDRESS && tokenOut?.address === EMPTY_ADDRESS)) {
+                await swapTokensWrapper();
               }
             }}
           >
