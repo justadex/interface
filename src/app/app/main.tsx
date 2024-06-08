@@ -761,6 +761,23 @@ const Swap = () => {
                 );
               })}
             </div>
+            <div className="flex flex-row items-center justify-between w-full gap-4 px-4 rounded-full cursor-pointer">
+              <div className="flex flex-col">
+                <h4 className="md:text-base text-sm">
+                  Can{"'"}t find a token?
+                </h4>
+                <h5 className="text-xs md:text-sm text-offwhite">
+                  Click on the button to import your token
+                </h5>
+              </div>
+              <button
+                onClick={() => setShowImportTokenDialog(true)}
+                className="flex flex-row justify-center items-center gap-2 px-4 py-2 font-semibold rounded-full bg-accent/40 text-accent hover:bg-accent/20 disabled:cursor-not-allowed"
+              >
+                <Import className="w-5 h-5" />
+                <span className="font-medium">Import</span>
+              </button>
+            </div>
           </DialogContent>
         </Dialog>
 
