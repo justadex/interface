@@ -204,6 +204,12 @@ const Swap = () => {
     }
     const amountInValue = parseFloat(amountIn);
     const amountOutValue = parseFloat(amountOut);
+    if ((tokenIn?.address === EMPTY_ADDRESS && tokenOut?.address === WETH_ADDRESS)) {
+      return { enabled: true, text: "Wrap" };
+    }
+    if ((tokenIn?.address === WETH_ADDRESS && tokenOut?.address === EMPTY_ADDRESS)) {
+      return { enabled: true, text: "Un Wrap" };
+    }
     if ((amountInValue <= 0 && amountOutValue <= 0) || !amountInValue) {
       return { enabled: false, text: "Enter amount to swap" };
     }
@@ -215,12 +221,7 @@ const Swap = () => {
     if (amountOutValue <= 0) {
       return { enabled: false, text: "Insufficient liquidity" };
     }
-    if ((tokenIn?.address === EMPTY_ADDRESS && tokenOut?.address === WETH_ADDRESS)) {
-      return { enabled: true, text: "Wrap" };
-    }
-    if ((tokenIn?.address === WETH_ADDRESS && tokenOut?.address === EMPTY_ADDRESS)) {
-      return { enabled: true, text: "Un Wrap" };
-    }
+
     return { enabled: true, text: "Swap" };
   }
 
