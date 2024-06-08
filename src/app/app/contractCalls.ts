@@ -6,6 +6,7 @@ import {
 } from "@wagmi/core";
 import { config } from "./components/Wagmi/config";
 import { JadRouterABI } from "./abi/JadRouterABI";
+import { WethABI } from "./abi/WETHABI";
 import { SwapStatus, TradeInfo } from "./types/interface";
 
 const JadRouterAddress = process.env.NEXT_PUBLIC_ROUTER as `0x{string}`;
@@ -102,6 +103,43 @@ const swapToEth = async (tradeInfo: TradeInfo, userAddress: Address) => {
   }
 };
 
+const swapNoSplitToEth = async (tradeInfo: TradeInfo, userAddress: Address) => {
+  try {
+    let result = await writeContract(config, {
+      abi: WethABI,
+      address: WETH_ADDRESS,
+      functionName: "withdraw",
+      args: [tradeInfo.amountIn]
+    });
+    await waitForTransaction(result);
+    return {
+      success: true,
+      data: result,
+    };
+  } catch (e: any) {
+    throw e;
+  }
+}
+
+const swapNoSplitFromEth = async (tradeInfo: TradeInfo, userAddress: Address) => {
+  try {
+    let result = await writeContract(config, {
+      abi: WethABI,
+      address: WETH_ADDRESS,
+      functionName: "deposit",
+      args: [],
+      value: tradeInfo.amountIn,
+    });
+    await waitForTransaction(result);
+    return {
+      success: true,
+      data: result,
+    };
+  } catch (e: any) {
+    throw e;
+  }
+}
+
 const swap = async (tradeInfo: TradeInfo, userAddress: Address) => {
   try {
     let result = await writeContract(config, {
@@ -170,7 +208,11 @@ export const swapTokens = async (
     }
     // setStatus("APPROVED");
     setStatus("SWAPPING");
-    if (tokenInAddress === EMPTY_ADDRESS) {
+    if (tokenInAddress === EMPTY_ADDRESS && tokenOutAddress === WETH_ADDRESS) {
+      swapResponse = await swapNoSplitFromEth(tradeInfo, userAddress);
+    } else if (tokenInAddress === WETH_ADDRESS && tokenOutAddress === EMPTY_ADDRESS) {
+      swapResponse = await swapNoSplitToEth(tradeInfo, userAddress);
+    } else if (tokenInAddress === EMPTY_ADDRESS) {
       swapResponse = await swapFromEth(tradeInfo, userAddress);
     } else if (tokenOutAddress === EMPTY_ADDRESS) {
       swapResponse = await swapToEth(tradeInfo, userAddress);

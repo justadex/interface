@@ -29,9 +29,16 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+import Adapters from "@/app/app/data/adapters.json";
+import truncate from "../utils/truncate";
+import Clipboard from "../utils/clip-board";
+import { Import, Trash, Trash2 } from "lucide-react";
+import toast from "react-hot-toast";
+
 let _tokens: Token[] = Tokens;
 
 const JadRouterAddress = process.env.NEXT_PUBLIC_ROUTER as `0x{string}`;
+
 const WETH_ADDRESS: Address = "0x4200000000000000000000000000000000000006";
 const EMPTY_ADDRESS: Address = "0x0000000000000000000000000000000000000000";
 
@@ -47,6 +54,9 @@ const Swap = () => {
   const [swapStatus, setSwapStatus] = useState<SwapStatus>("IDLE");
 
   const [block, setBlock] = useState<string>("");
+  const [customTokenAddress, setCustomTokenAddress] = useState("");
+  const [importedToken, setImportedToken] = useState<Token | null>(null);
+  const [showImportTokenDialog, setShowImportTokenDialog] = useState(false);
 
   const ethBalance = useBalance({
     address: address,
@@ -59,6 +69,39 @@ const Swap = () => {
     refetch: refreshBalance,
   } = useReadContracts({
     contracts: buildBalanceCheckParams(_tokens, address!),
+  });
+
+  {
+    /* helper to get custom token info */
+  }
+  const {
+    data: tokenName,
+    isLoading: nameLoading,
+    error: nameError,
+  } = useReadContract({
+    address: customTokenAddress as `0x{string}`,
+    abi: erc20Abi,
+    functionName: "name",
+  });
+
+  const {
+    data: tokenSymbol,
+    isLoading: symbolLoading,
+    error: symbolError,
+  } = useReadContract({
+    address: customTokenAddress as `0x{string}`,
+    abi: erc20Abi,
+    functionName: "symbol",
+  });
+
+  const {
+    data: tokenDecimals,
+    isLoading: decimalsLoading,
+    error: decimalsError,
+  } = useReadContract({
+    address: customTokenAddress as `0x{string}`,
+    abi: erc20Abi,
+    functionName: "decimals",
   });
 
   const {
@@ -95,13 +138,21 @@ const Swap = () => {
   useEffect(() => {
     if (data) {
       if (data?.amounts.length > 0 && tokenOut) {
-        setAmountOut(
-          formatUnits(
-            data?.amounts[data.amounts.length - 1],
-            parseInt(tokenOut.decimal)
-          )
-        );
-
+        if (
+          (tokenIn?.address === EMPTY_ADDRESS &&
+            tokenOut?.address === WETH_ADDRESS) ||
+          (tokenIn?.address === WETH_ADDRESS &&
+            tokenOut?.address === EMPTY_ADDRESS)
+        ) {
+          setAmountOut(amountIn);
+        } else {
+          setAmountOut(
+            formatUnits(
+              data?.amounts[data.amounts.length - 1],
+              parseInt(tokenOut.decimal)
+            )
+          );
+        }
         const trade = {
           amountIn: data.amounts[0],
           amountOut: data.amounts[data.amounts.length - 1],
@@ -118,9 +169,11 @@ const Swap = () => {
         setTradeInfo(trade);
       } else {
         setAmountOut("0");
+        setTradeInfo(undefined);
       }
     } else {
       setAmountOut("0");
+      setTradeInfo(undefined);
     }
   }, [data, tokenOut]);
 
@@ -163,14 +216,26 @@ const Swap = () => {
     }
     const amountInValue = parseFloat(amountIn);
     const amountOutValue = parseFloat(amountOut);
-    if ((amountInValue <= 0 && amountOutValue <= 0) || !amountInValue) {
+    if (
+      tokenIn?.address === EMPTY_ADDRESS &&
+      tokenOut?.address === WETH_ADDRESS
+    ) {
+      return { enabled: true, text: "Wrap" };
+    } else if (
+      tokenIn?.address === WETH_ADDRESS &&
+      tokenOut?.address === EMPTY_ADDRESS
+    ) {
+      return { enabled: true, text: "Unwrap" };
+    } else if ((amountInValue <= 0 && amountOutValue <= 0) || !amountInValue) {
       return { enabled: false, text: "Enter amount to swap" };
-    }
-    if (amountInValue && tokenIn?.balance) {
+    } else if (amountInValue && tokenIn?.balance) {
       if (parseFloat(tokenIn.balance) < amountInValue) {
         return { enabled: false, text: "Insufficient Balance" };
       }
+    } else if (amountOutValue <= 0) {
+      return { enabled: false, text: "Insufficient liquidity" };
     }
+
     return { enabled: true, text: "Swap" };
   }
 
@@ -190,10 +255,117 @@ const Swap = () => {
     );
   };
 
+  function getTokenInfoByAddress(
+    address: string
+  ): { name: string; icon: string } | undefined {
+    if (!address) {
+      return undefined;
+    }
+    const token = Adapters.find(
+      (token) => token.address.toLowerCase() === address.toLowerCase()
+    );
+    if (token) {
+      return {
+        name: token.name,
+        icon: token.icon,
+      };
+    } else {
+      return undefined;
+    }
+  }
+
+  const handleImportToken = async () => {
+    if (customTokenAddress) {
+      // Checking if the token already exists
+      const tokenExists = _tokens.some(
+        (token) =>
+          token.address.toLowerCase() === customTokenAddress.toLowerCase()
+      );
+
+      if (tokenExists) {
+        // if token already exists dont include it,
+        //TODO- UI instead of Console log
+        toast.error("Token is already imported");
+        return;
+      }
+
+      // Fetch the token data
+      if (tokenName && tokenSymbol && tokenDecimals !== undefined) {
+        const importedToken: Token = {
+          name: tokenName as string,
+          ticker: tokenSymbol as string,
+          address: customTokenAddress,
+          image: "/tokens/unknown.svg",
+          decimal: BigInt(tokenDecimals).toString(),
+          featured: false,
+        };
+        setImportedToken(importedToken);
+        _tokens = [..._tokens, importedToken];
+
+        // update local storage
+        const storedTokens = JSON.parse(
+          localStorage.getItem("importedTokens") || "[]"
+        );
+        localStorage.setItem(
+          "importedTokens",
+          JSON.stringify([...storedTokens, importedToken])
+        );
+        setShowImportTokenDialog(false);
+      }
+    }
+  };
+
+  const swapTokensWrapper = async () => {
+    try {
+      await swapTokens(
+        (_swapStatus: SwapStatus) => {
+          setSwapStatus(_swapStatus);
+        },
+        tokenIn?.address as `0x{string}`,
+        tokenOut?.address as `0x{string}`,
+        address!,
+        tradeInfo!
+      );
+      setTimeout(() => {
+        setSwapStatus("IDLE");
+      }, 1000);
+
+      refreshBalance();
+    } catch (e) {
+      setSwapStatus("FAILED");
+      setTimeout(() => {
+        setSwapStatus("IDLE");
+      }, 3000);
+    }
+  };
+
+  /* Load imported tokens from local storage on every 
+   render so users wont have to import token again
+   & combine default tokens with imported*/
+  useEffect(() => {
+    const storedTokens = JSON.parse(
+      localStorage.getItem("importedTokens") || "[]"
+    );
+    _tokens = [...Tokens, ...storedTokens];
+  }, []);
+
+  /* here it uppdate the list of filteredTokens 
+   whenever _tokens changes which includes imported tokens)*/
+  useEffect(() => {
+    setFilteredTokens(
+      _tokens.filter(
+        (token) =>
+          token.name.toLowerCase().includes(searchInput.toLowerCase()) ||
+          token.ticker.toLowerCase().includes(searchInput.toLowerCase()) ||
+          token.address.toLowerCase().includes(searchInput.toLowerCase())
+      )
+    );
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchInput, _tokens]);
   return (
     <>
-      {" "}
-      <section className="flex flex-col gap-6 items-center justify-start min-h-screen relative px-8 pt-36 md:pt-44">
+      <section className="flex flex-col gap-6 items-center justify-start min-h-screen relative px-8 pt-44">
         <div className="w-full max-w-lg p-4 rounded-2xl shadow-sm bg-primary border-[1px] border-white/20 text-offwhite">
           <div className="flex flex-row items-center justify-between gap-4">
             <h2 className="text-lg font-bold">Swap</h2>
@@ -214,7 +386,7 @@ const Swap = () => {
                 />
 
                 <button
-                  className={`flex flex-row items-center justify-center gap-1 md:gap-2 px-2 md:px-4 py-1 text-white rounded-full cursor-pointer ${
+                  className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
                     tokenIn ? "bg-gray-600" : "bg-accent"
                   }`}
                   onClick={() => setIsOpen(true)}
@@ -229,7 +401,7 @@ const Swap = () => {
                     />
                   )}
 
-                  <h3 className="font-semibold min-w-max truncate">
+                  <h3 className="font-semibold min-w-max">
                     {tokenIn ? tokenIn?.ticker : "Select Token"}
                   </h3>
                   <span>
@@ -237,7 +409,7 @@ const Swap = () => {
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
                       fill="currentColor"
-                      className="md:w-5 md:h-5 w-4 h-4"
+                      className="w-5 h-5"
                     >
                       <path
                         fillRule="evenodd"
@@ -311,7 +483,7 @@ const Swap = () => {
                   value={formatFloat(parseFloat(amountOut))}
                 />
                 <button
-                  className={`flex flex-row items-center justify-center gap-1 px-3 md:px-4 py-1 text-white rounded-full cursor-pointer ${
+                  className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
                     !tokenOut ? "bg-accent" : "bg-gray-600"
                   }`}
                   onClick={() => setIsOpenOut(true)}
@@ -326,7 +498,7 @@ const Swap = () => {
                     />
                   )}
 
-                  <h3 className="font-semibold min-w-max truncate">
+                  <h3 className="font-semibold min-w-max">
                     {tokenOut ? tokenOut.ticker : "Select token"}
                   </h3>
                   <span>
@@ -334,7 +506,7 @@ const Swap = () => {
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
                       fill="currentColor"
-                      className="md:w-5 md:h-5 w-4 h-4"
+                      className="w-5 h-5"
                     >
                       <path
                         fillRule="evenodd"
@@ -366,27 +538,14 @@ const Swap = () => {
               disabled={!getTokenSwapButtonText().enabled}
               onClick={async () => {
                 if (tradeInfo && address && tokenIn && tokenOut) {
-                  try {
-                    await swapTokens(
-                      (_swapStatus: SwapStatus) => {
-                        setSwapStatus(_swapStatus);
-                      },
-                      tokenIn?.address as `0x{string}`,
-                      tokenOut?.address as `0x{string}`,
-                      address!,
-                      tradeInfo!
-                    );
-                    setTimeout(() => {
-                      setSwapStatus("IDLE");
-                    }, 1000);
-
-                    refreshBalance();
-                  } catch (e) {
-                    setSwapStatus("FAILED");
-                    setTimeout(() => {
-                      setSwapStatus("IDLE");
-                    }, 3000);
-                  }
+                  await swapTokensWrapper();
+                } else if (
+                  (tokenIn?.address === EMPTY_ADDRESS &&
+                    tokenOut?.address === WETH_ADDRESS) ||
+                  (tokenIn?.address === WETH_ADDRESS &&
+                    tokenOut?.address === EMPTY_ADDRESS)
+                ) {
+                  await swapTokensWrapper();
                 }
               }}
             >
@@ -394,115 +553,114 @@ const Swap = () => {
             </button>
           </div>
         </div>
-        {tradeInfo && amountIn && (
-          <div className="w-full max-w-lg p-4 rounded-2xl shadow-sm bg-primary border-[1px] border-white/20 text-offwhite">
-            <div className="flex flex-row justify-center items-center flex-wrap gap-6">
-              {tradeInfo &&
-                tradeInfo.pathTokens.map((flow: Token, f: number) => {
-                  if (
-                    tokenIn &&
-                    f == 0 &&
-                    tradeInfo.path[f] === WETH_ADDRESS &&
-                    tokenIn.address === EMPTY_ADDRESS
-                  ) {
-                    flow = _tokens[0];
-                  }
-                  if (
-                    tokenOut &&
-                    f == tradeInfo.path.length - 1 &&
-                    tradeInfo.path[f] === WETH_ADDRESS &&
-                    tokenOut.address === EMPTY_ADDRESS
-                  ) {
-                    flow = _tokens[0];
-                  }
-                  return (
-                    <div
-                      className="flex flex-row justify-center items-center gap-6"
-                      key={f}
-                    >
-                      <div className="flex flex-col gap-2 justify-center items-center w-14">
-                        <Image
-                          className=" aspect-square rounded-full"
-                          src={flow.image}
-                          width={"25"}
-                          height={"25"}
-                          alt={flow.name}
-                        />
-
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <h4 className=" font-bold truncate max-w-16 text-center">
-                                {flow.ticker}
-                              </h4>
-                            </TooltipTrigger>
-                            <TooltipContent className="bg-secondary">
-                              <p>{flow.name}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
+        {tradeInfo &&
+          amountIn &&
+          !(
+            (tokenIn?.address === EMPTY_ADDRESS &&
+              tokenOut?.address === WETH_ADDRESS) ||
+            (tokenIn?.address === WETH_ADDRESS &&
+              tokenOut?.address === EMPTY_ADDRESS)
+          ) && (
+            <div className="w-full max-w-lg p-4 rounded-2xl shadow-sm bg-primary border-[1px] border-white/20 text-offwhite">
+              <div className="flex flex-row justify-center items-center flex-wrap gap-6">
+                {tradeInfo &&
+                  tradeInfo.pathTokens.map((flow: Token, f: number) => {
+                    if (
+                      tokenIn &&
+                      f == 0 &&
+                      tradeInfo.path[f] === WETH_ADDRESS &&
+                      tokenIn.address === EMPTY_ADDRESS
+                    ) {
+                      flow = _tokens[0];
+                    }
+                    if (
+                      tokenOut &&
+                      f == tradeInfo.path.length - 1 &&
+                      tradeInfo.path[f] === WETH_ADDRESS &&
+                      tokenOut.address === EMPTY_ADDRESS
+                    ) {
+                      flow = _tokens[0];
+                    }
+                    return (
                       <div
-                        className={
-                          tradeInfo.pathTokens.length === f + 1 ? "hidden" : ""
-                        }
+                        className="flex flex-row justify-center items-center gap-6"
+                        key={f}
                       >
-                        <div className="flex flex-col justify-center items-center gap-2">
+                        <div className="flex flex-col gap-2 justify-center items-center w-14">
                           <Image
-                            src={"/assets/icons/arrow-right-white.svg"}
-                            width={"15"}
-                            height={"15"}
-                            alt="Arrow Right"
+                            className=" aspect-square"
+                            src={flow.image}
+                            width={"25"}
+                            height={"25"}
+                            alt="ETH"
                           />
-                          {tradeInfo.adapters[f] && (
-                            <>
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger>
-                                    <Image
-                                      className=" aspect-square"
-                                      src={
-                                        getTokenInfoByAdapters(
-                                          tradeInfo.adapters[f]
-                                        )?.icon!
-                                      }
-                                      width={"18"}
-                                      height={"18"}
-                                      alt={
-                                        getTokenInfoByAdapters(
-                                          tradeInfo.adapters[f]
-                                        )?.name!
-                                      }
-                                    />
-                                  </TooltipTrigger>
-                                  <TooltipContent className="bg-secondary">
-                                    <p className=" capitalize">
-                                      {
-                                        getTokenInfoByAdapters(
-                                          tradeInfo.adapters[f]
-                                        )?.name!
-                                      }
-                                    </p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
+                          <h4 className=" font-bold truncate w-full text-center">
+                            {flow.ticker}
+                          </h4>
+                        </div>
+                        <div
+                          className={
+                            tradeInfo.pathTokens.length === f + 1
+                              ? "hidden"
+                              : ""
+                          }
+                        >
+                          <div className="flex flex-col justify-center items-center gap-2">
+                            <Image
+                              src={"/assets/icons/arrow-right-white.svg"}
+                              width={"15"}
+                              height={"15"}
+                              alt="Arrow Right"
+                            />
+                            {tradeInfo.adapters[f] && (
+                              <>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <Image
+                                        className=" aspect-square"
+                                        src={
+                                          getTokenInfoByAdapters(
+                                            tradeInfo.adapters[f]
+                                          )?.icon!
+                                        }
+                                        width={"18"}
+                                        height={"18"}
+                                        alt={
+                                          getTokenInfoByAdapters(
+                                            tradeInfo.adapters[f]
+                                          )?.name!
+                                        }
+                                      />
+                                    </TooltipTrigger>
+                                    <TooltipContent className="bg-secondary">
+                                      <p className=" capitalize">
+                                        {
+                                          getTokenInfoByAdapters(
+                                            tradeInfo.adapters[f]
+                                          )?.name!
+                                        }
+                                      </p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
 
-                              {/* <span className="text-xs">
-                              {
-                                getTokenInfoByAddress(tradeInfo.adapters[f])
-                                  ?.name!
-                              }
-                            </span> */}
-                            </>
-                          )}
+                                {/* <span className="text-xs">
+                          {
+                            getTokenInfoByAddress(tradeInfo.adapters[f])
+                              ?.name!
+                          }
+                        </span> */}
+                              </>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+              </div>
             </div>
-          </div>
-        )}
+          )}
         {swapStatus !== "IDLE" && <Toast text={swapStatus} />}
 
         <Dialog open={isOpen} onOpenChange={() => setIsOpen(false)}>
@@ -660,10 +818,11 @@ const Swap = () => {
                 })}
               </div>
             </div>
+
             <div className="mx-4">
               <div className="h-[1px] w-full border-[1px] border-offwhite border-opacity-25"></div>
             </div>
-            <div className="flex flex-col items-start justify-start gap-4 pb-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-96">
+            <div className="flex flex-col items-start justify-start gap-4 pb-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-[40vh]">
               {filteredTokens.map((token, i) => {
                 return (
                   <div
@@ -678,18 +837,17 @@ const Swap = () => {
                     key={i}
                   >
                     <div className="flex flex-row items-center justify-start w-3/4 gap-4">
-                      <Image
-                        className="rounded-full aspect-square"
-                        src={token.image}
-                        alt={token.name}
-                        height="35"
-                        width="35"
-                      />
-
+                      <div>
+                        <Image
+                          className="rounded-full aspect-square"
+                          src={token.image}
+                          alt={token.name}
+                          height="35"
+                          width="35"
+                        />
+                      </div>
                       <div className="flex flex-col">
-                        <h4 className="text-base w-36 md:w-52 truncate">
-                          {token.name}
-                        </h4>
+                        <h4 className="text-base">{token.name}</h4>
                         <h5 className="text-sm text-offwhite">
                           {token.ticker}
                         </h5>
@@ -703,6 +861,82 @@ const Swap = () => {
                   </div>
                 );
               })}
+            </div>
+            <div className="flex flex-row items-center justify-between w-full gap-4 px-4 rounded-full cursor-pointer">
+              <div className="flex flex-col">
+                <h4 className="md:text-base text-sm">
+                  Can{"'"}t find a token?
+                </h4>
+                <h5 className="text-xs md:text-sm text-offwhite">
+                  Click on the button to import your token
+                </h5>
+              </div>
+              <button
+                onClick={() => setShowImportTokenDialog(true)}
+                className="flex flex-row justify-center items-center gap-2 px-4 py-2 font-semibold rounded-full bg-accent/40 text-accent hover:bg-accent/20 disabled:cursor-not-allowed"
+              >
+                <Import className="w-5 h-5" />
+                <span className="font-medium">Import</span>
+              </button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog for importing a custom token */}
+        <Dialog
+          open={showImportTokenDialog}
+          onOpenChange={() => setShowImportTokenDialog(false)}
+        >
+          <DialogContent className="flex flex-col w-full max-w-lg text-white bg-primary rounded-3xl border-[1px] border-opacity-25 border-offwhite shadow-md overflow-clip">
+            <div className="flex flex-col gap-4 px-4">
+              <div className="flex flex-row items-center justify-between">
+                <DialogTitle>Import Token</DialogTitle>
+              </div>
+
+              <div className="relative">
+                <input
+                  className="w-full px-4 py-2 bg-secondary rounded-2xl focus:outline-none focus:bg-primary border-[1px] border-opacity-25 border-offwhite"
+                  placeholder="Enter token address"
+                  value={customTokenAddress}
+                  onChange={(e) => setCustomTokenAddress(e.target.value)}
+                  spellCheck={false}
+                />
+              </div>
+
+              <button
+                className="w-full px-8 py-4 text-lg font-semibold rounded-full bg-accent/40 text-accent hover:bg-accent/20 disabled:cursor-not-allowed mt-2"
+                disabled={!customTokenAddress}
+                onClick={handleImportToken}
+              >
+                Import
+              </button>
+              {importedToken && (
+                <div className="mt-4 flex flex-col gap-4">
+                  <div className="flex flex-row items-center justify-between">
+                    <DialogTitle>Recent Imports</DialogTitle>
+                  </div>
+                  <div className="flex flex-row justify-between items-center">
+                    <div className="flex flex-row items-center justify-start gap-4">
+                      <Image
+                        className="rounded-full aspect-square"
+                        src={importedToken?.image}
+                        alt={importedToken?.name}
+                        height="35"
+                        width="35"
+                      />
+
+                      <div className="flex flex-col">
+                        {importedToken.ticker}
+                        <span className="text-sm text-offwhite flex flex-row justify-center items-center gap-2">
+                          ({truncate(importedToken.address, 24, "...")}){" "}
+                          <Clipboard copyText={importedToken.address} />
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex flex-row justify-center items-center gap-4"></div>
+                  </div>
+                </div>
+              )}
             </div>
           </DialogContent>
         </Dialog>
