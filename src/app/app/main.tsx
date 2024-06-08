@@ -131,7 +131,12 @@ const Swap = () => {
   useEffect(() => {
     if (data) {
       if (data?.amounts.length > 0 && tokenOut) {
-        if ((tokenIn?.address === EMPTY_ADDRESS && tokenOut?.address === WETH_ADDRESS) || (tokenIn?.address === WETH_ADDRESS && tokenOut?.address === EMPTY_ADDRESS)) {
+        if (
+          (tokenIn?.address === EMPTY_ADDRESS &&
+            tokenOut?.address === WETH_ADDRESS) ||
+          (tokenIn?.address === WETH_ADDRESS &&
+            tokenOut?.address === EMPTY_ADDRESS)
+        ) {
           setAmountOut(amountIn);
         } else {
           setAmountOut(
@@ -204,10 +209,16 @@ const Swap = () => {
     }
     const amountInValue = parseFloat(amountIn);
     const amountOutValue = parseFloat(amountOut);
-    if ((tokenIn?.address === EMPTY_ADDRESS && tokenOut?.address === WETH_ADDRESS)) {
+    if (
+      tokenIn?.address === EMPTY_ADDRESS &&
+      tokenOut?.address === WETH_ADDRESS
+    ) {
       return { enabled: true, text: "Wrap" };
-    } else if ((tokenIn?.address === WETH_ADDRESS && tokenOut?.address === EMPTY_ADDRESS)) {
-      return { enabled: true, text: "Un Wrap" };
+    } else if (
+      tokenIn?.address === WETH_ADDRESS &&
+      tokenOut?.address === EMPTY_ADDRESS
+    ) {
+      return { enabled: true, text: "Unwrap" };
     } else if ((amountInValue <= 0 && amountOutValue <= 0) || !amountInValue) {
       return { enabled: false, text: "Enter amount to swap" };
     } else if (amountInValue && tokenIn?.balance) {
@@ -319,7 +330,7 @@ const Swap = () => {
         setSwapStatus("IDLE");
       }, 3000);
     }
-  }
+  };
 
   /* Load imported tokens from local storage on every 
    render so users wont have to import token again
@@ -368,8 +379,9 @@ const Swap = () => {
               />
 
               <button
-                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${tokenIn ? "bg-gray-600" : "bg-accent"
-                  }`}
+                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
+                  tokenIn ? "bg-gray-600" : "bg-accent"
+                }`}
                 onClick={() => setIsOpen(true)}
               >
                 {tokenIn && (
@@ -458,12 +470,13 @@ const Swap = () => {
                 type="number"
                 placeholder="0"
                 min={0}
-                onChange={() => { }}
+                onChange={() => {}}
                 value={formatFloat(parseFloat(amountOut))}
               />
               <button
-                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${!tokenOut ? "bg-accent" : "bg-gray-600"
-                  }`}
+                className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
+                  !tokenOut ? "bg-accent" : "bg-gray-600"
+                }`}
                 onClick={() => setIsOpenOut(true)}
               >
                 {tokenOut && (
@@ -517,7 +530,12 @@ const Swap = () => {
             onClick={async () => {
               if (tradeInfo && address && tokenIn && tokenOut) {
                 await swapTokensWrapper();
-              } else if ((tokenIn?.address === EMPTY_ADDRESS && tokenOut?.address === WETH_ADDRESS) || (tokenIn?.address === WETH_ADDRESS && tokenOut?.address === EMPTY_ADDRESS)) {
+              } else if (
+                (tokenIn?.address === EMPTY_ADDRESS &&
+                  tokenOut?.address === WETH_ADDRESS) ||
+                (tokenIn?.address === WETH_ADDRESS &&
+                  tokenOut?.address === EMPTY_ADDRESS)
+              ) {
                 await swapTokensWrapper();
               }
             }}
@@ -526,86 +544,93 @@ const Swap = () => {
           </button>
         </div>
       </div>
-      {tradeInfo && amountIn && !((tokenIn?.address === EMPTY_ADDRESS && tokenOut?.address === WETH_ADDRESS) || (tokenIn?.address === WETH_ADDRESS && tokenOut?.address === EMPTY_ADDRESS)) && (
-        <div className="w-full max-w-lg p-4 rounded-2xl shadow-sm bg-primary border-[1px] border-white/20 text-offwhite">
-          <div className="flex flex-row justify-center items-center flex-wrap gap-6">
-            {tradeInfo &&
-              tradeInfo.pathTokens.map((flow: Token, f: number) => {
-                if (
-                  tokenIn &&
-                  f == 0 &&
-                  tradeInfo.path[f] === WETH_ADDRESS &&
-                  tokenIn.address === EMPTY_ADDRESS
-                ) {
-                  flow = _tokens[0];
-                }
-                if (
-                  tokenOut &&
-                  f == tradeInfo.path.length - 1 &&
-                  tradeInfo.path[f] === WETH_ADDRESS &&
-                  tokenOut.address === EMPTY_ADDRESS
-                ) {
-                  flow = _tokens[0];
-                }
-                return (
-                  <div
-                    className="flex flex-row justify-center items-center gap-6"
-                    key={f}
-                  >
-                    <div className="flex flex-col gap-2 justify-center items-center w-14">
-                      <Image
-                        className=" aspect-square"
-                        src={flow.image}
-                        width={"25"}
-                        height={"25"}
-                        alt="ETH"
-                      />
-                      <h4 className=" font-bold truncate w-full text-center">
-                        {flow.ticker}
-                      </h4>
-                    </div>
+      {tradeInfo &&
+        amountIn &&
+        !(
+          (tokenIn?.address === EMPTY_ADDRESS &&
+            tokenOut?.address === WETH_ADDRESS) ||
+          (tokenIn?.address === WETH_ADDRESS &&
+            tokenOut?.address === EMPTY_ADDRESS)
+        ) && (
+          <div className="w-full max-w-lg p-4 rounded-2xl shadow-sm bg-primary border-[1px] border-white/20 text-offwhite">
+            <div className="flex flex-row justify-center items-center flex-wrap gap-6">
+              {tradeInfo &&
+                tradeInfo.pathTokens.map((flow: Token, f: number) => {
+                  if (
+                    tokenIn &&
+                    f == 0 &&
+                    tradeInfo.path[f] === WETH_ADDRESS &&
+                    tokenIn.address === EMPTY_ADDRESS
+                  ) {
+                    flow = _tokens[0];
+                  }
+                  if (
+                    tokenOut &&
+                    f == tradeInfo.path.length - 1 &&
+                    tradeInfo.path[f] === WETH_ADDRESS &&
+                    tokenOut.address === EMPTY_ADDRESS
+                  ) {
+                    flow = _tokens[0];
+                  }
+                  return (
                     <div
-                      className={
-                        tradeInfo.pathTokens.length === f + 1 ? "hidden" : ""
-                      }
+                      className="flex flex-row justify-center items-center gap-6"
+                      key={f}
                     >
-                      <div className="flex flex-col justify-center items-center gap-2">
+                      <div className="flex flex-col gap-2 justify-center items-center w-14">
                         <Image
-                          src={"/assets/icons/arrow-right-white.svg"}
-                          width={"15"}
-                          height={"15"}
-                          alt="Arrow Right"
+                          className=" aspect-square"
+                          src={flow.image}
+                          width={"25"}
+                          height={"25"}
+                          alt="ETH"
                         />
-                        {tradeInfo.adapters[f] && (
-                          <>
-                            <Image
-                              src={
-                                getTokenInfoByAddress(tradeInfo.adapters[f])
-                                  ?.icon!
-                              }
-                              width={"18"}
-                              height={"18"}
-                              alt={
-                                getTokenInfoByAddress(tradeInfo.adapters[f])
-                                  ?.name!
-                              }
-                            />
-                            {/* <span className="text-xs">
+                        <h4 className=" font-bold truncate w-full text-center">
+                          {flow.ticker}
+                        </h4>
+                      </div>
+                      <div
+                        className={
+                          tradeInfo.pathTokens.length === f + 1 ? "hidden" : ""
+                        }
+                      >
+                        <div className="flex flex-col justify-center items-center gap-2">
+                          <Image
+                            src={"/assets/icons/arrow-right-white.svg"}
+                            width={"15"}
+                            height={"15"}
+                            alt="Arrow Right"
+                          />
+                          {tradeInfo.adapters[f] && (
+                            <>
+                              <Image
+                                src={
+                                  getTokenInfoByAddress(tradeInfo.adapters[f])
+                                    ?.icon!
+                                }
+                                width={"18"}
+                                height={"18"}
+                                alt={
+                                  getTokenInfoByAddress(tradeInfo.adapters[f])
+                                    ?.name!
+                                }
+                              />
+                              {/* <span className="text-xs">
                               {
                                 getTokenInfoByAddress(tradeInfo.adapters[f])
                                   ?.name!
                               }
                             </span> */}
-                          </>
-                        )}
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+            </div>
           </div>
-        </div>
-      )}
+        )}
       {swapStatus !== "IDLE" && <Toast text={swapStatus} />}
 
       <Dialog open={isOpen} onOpenChange={() => setIsOpen(false)}>
