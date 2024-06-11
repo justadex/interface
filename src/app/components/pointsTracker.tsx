@@ -1,18 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { initializeApp } from "firebase/app";
-import firebase from "firebase/compat/app";
-import {
-  collection,
-  doc,
-  getDoc,
-  getFirestore,
-  limit,
-  onSnapshot,
-  orderBy,
-  query,
-  startAfter,
-  where,
-} from "firebase/firestore";
 import Image from "next/image";
 import moment from "moment";
 import { getTokenInfoByAddress } from "../utils/utils";
@@ -92,7 +78,7 @@ const PointsTracker: React.FC<PointsTrackerProps> = ({ walletAddress }) => {
       });
   }, [walletAddress]);
 
-  useEffect(() => {}, []);
+  useEffect(() => { }, []);
 
   if (!walletAddress) return null;
 
