@@ -10,6 +10,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import axios from "axios";
+import Link from "next/link";
+import { Link as LinkIcon } from "lucide-react";
 
 export interface IUser {
   _id: string;
@@ -78,7 +80,7 @@ const PointsTracker: React.FC<PointsTrackerProps> = ({ walletAddress }) => {
       });
   }, [walletAddress]);
 
-  useEffect(() => { }, []);
+  useEffect(() => {}, []);
 
   if (!walletAddress) return null;
 
@@ -322,9 +324,17 @@ const PointsTracker: React.FC<PointsTrackerProps> = ({ walletAddress }) => {
                                 </div>
                               </div>
                             </div>
-                            <p className="text-xs">
-                              {moment(transaction.date).format("LLL")}
-                            </p>
+                            <div className="flex flex-row justify-between items-center gap-3 text-xs">
+                              <p>{moment(transaction.date).format("LLL")}</p>
+                              <Link
+                                href={`https://modescan.io/tx/${transaction.transactionhash}`}
+                                target="_blank"
+                                className="flex flex-row justify-start items-center gap-1 hover:underline"
+                              >
+                                <LinkIcon className="h-3 w-3" />
+                                View Tx
+                              </Link>
+                            </div>
                           </div>
                           <h5 className="font-bold">+5</h5>
                         </li>
