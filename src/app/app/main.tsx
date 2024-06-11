@@ -732,7 +732,7 @@ const Swap = () => {
                       setTokenIn(token);
                       setIsOpen(false);
                     }}
-                    className="flex flex-row items-center justify-between w-full gap-4 px-4 pt-1.5 rounded-full cursor-pointer hover:opacity-60"
+                    className="flex flex-row items-center justify-between w-full gap-4 px-4 py-3 rounded cursor-pointer hover:bg-secondary"
                     key={i}
                   >
                     <div className="flex flex-row items-center justify-start gap-4">
@@ -839,7 +839,7 @@ const Swap = () => {
             <div className="mx-4">
               <div className="h-[1px] w-full border-[1px] border-offwhite border-opacity-25"></div>
             </div>
-            <div className="flex flex-col items-start justify-start gap-4 pb-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-[40vh]">
+            <div className="flex flex-col items-start justify-start overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-[40vh]">
               {filteredTokens.map((token, i) => {
                 return (
                   <div
@@ -850,7 +850,7 @@ const Swap = () => {
                       setTokenOut(token);
                       setIsOpenOut(false);
                     }}
-                    className="flex flex-row items-center justify-between w-full gap-4 px-4 pt-1.5 rounded-full cursor-pointer hover:opacity-60"
+                    className="flex flex-row items-center justify-between w-full gap-4 px-4 py-3 rounded cursor-pointer hover:bg-secondary"
                     key={i}
                   >
                     <div className="flex flex-row items-center justify-start w-3/4 gap-4">

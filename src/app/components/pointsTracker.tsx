@@ -23,27 +23,46 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import axios from "axios";
 
-type Transaction = {
+export interface IUser {
+  _id: string;
+  points: number;
+  lastInteractionDate: string;
+  dailyTransactions: number;
+  transactions: [ITransaction];
+  volume: IVolume;
+  weeklyVolume: IWeeklyVolume;
+}
+interface WeekData {
+  amountIn: number;
+  amountOut: number;
+}
+export interface IWeeklyVolume {
+  [week: string]: WeekData;
+}
+interface Volume {
+  amountIn: number;
+  amountOut: number;
+}
+export interface IVolume {
+  [pair: string]: Volume;
+}
+export interface ITransaction {
   date: string;
   amountIn: string;
   amountOut: string;
   tokenIn: string;
   tokenOut: string;
-};
-
-type UserData = {
-  points: number;
-  lastInteractionDate: string;
-  transactions: Transaction[];
-};
+  transactionhash: string;
+}
 
 type PointsTrackerProps = {
   walletAddress?: string | null;
 };
 
 const PointsTracker: React.FC<PointsTrackerProps> = ({ walletAddress }) => {
-  const [userData, setUserData] = useState<UserData | null>(null);
+  const [userData, setUserData] = useState<IUser | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [show, setShow] = useState(false);
 
@@ -52,41 +71,28 @@ const PointsTracker: React.FC<PointsTrackerProps> = ({ walletAddress }) => {
       setLoading(false);
       return;
     }
+    axios
+      .get(`https://points.justadex.xyz/user/${walletAddress.toLowerCase()}`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => {
+        console.log(response.data);
 
-    const fetchData = async () => {
-      try {
-        let app;
-        // Initialize Firebase if not already initialized
-        if (!firebase.apps.length) {
-          app = initializeApp({
-            apiKey: "AIzaSyA4cA6aY909NVtLndDjZ8VT6aE4p6WSlfI",
-            authDomain: "jadpointstracker.firebaseapp.com",
-            projectId: "jadpointstracker",
-            storageBucket: "jadpointstracker.appspot.com",
-            messagingSenderId: "265789759494",
-            appId: "1:265789759494:web:e2b553dafda09f7525e387",
-            measurementId: "G-SWPQK2HM1B",
-          });
-        } else {
-          app = firebase.apps[0];
-        }
-        console.log(walletAddress);
-        const db = getFirestore(app);
-        const docRef = doc(db, "users", walletAddress.toLowerCase());
-        const docSnap = await getDoc(docRef);
-        const _userData: UserData = docSnap.data()! as UserData;
-        setUserData(_userData);
-      } catch (error) {
-        console.log(error);
-        console.error("Error fetching user data:", error);
+        setUserData(response.data);
+      })
+      .catch((err) => {
+        console.log(err);
+        console.error("Error fetching user data:", err);
         setUserData(null);
-      } finally {
+      })
+      .finally(() => {
         setLoading(false);
-      }
-    };
-
-    fetchData();
+      });
   }, [walletAddress]);
+
+  useEffect(() => {}, []);
 
   if (!walletAddress) return null;
 
