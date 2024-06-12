@@ -1,0 +1,26 @@
+[
+    {
+        "question": "What is a DEX?",
+        "answer": "A DEX (decentralized exchange) allows direct peer-to-peer cryptocurrency transactions without a central authority. It uses blockchain and smart contracts for security and transparency, ensuring users retain control of their funds. Examples include Uniswap and SushiSwap."
+    },
+    {
+        "question": "What is a DEX aggregator?",
+        "answer": "A DEX aggregator is a platform that consolidates liquidity from multiple decentralized exchanges (DEXs) to provide users with the best possible trading prices and reduced slippage. By routing trades through various DEXs, aggregators optimize the trading experience and improve efficiency. Examples include 1inch and Matcha."
+    },
+    {
+        "question": "Why use a DEX aggregator instead of a DEX?",
+        "answer": "Using a DEX aggregator instead of a single DEX offers better prices, reduced slippage, increased liquidity, and greater convenience. Aggregators optimize trades by sourcing the best rates and liquidity from multiple DEXs, enhancing overall trading efficiency."
+    },
+    {
+        "question": "Why trading with JustaDEX?",
+        "answer": "By trading with JustaDEX, we can offer a more transparent and best trading pricing on supported chains. we can add its 100% on chain, so its has 100% uptime and low risk, real time quotes."
+    },
+    {
+        "question": "How does JustaDEX ensure the security of transactions?",
+        "answer": "JustaDEX employs multiple layers of security end-to-end encryption, and continuous monitoring of its infrastructure. This ensures that all transactions are secure and the users' assets are protected against unauthorized access."
+    },
+    {
+        "question": "What tokens can I trade on JustaDEX?",
+        "answer": "JustaDEX supports a wide range of tokens. We continuously evaluate and add new tokens based on community demand and market trends."
+    }
+]

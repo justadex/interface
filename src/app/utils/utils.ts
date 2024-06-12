@@ -1,5 +1,7 @@
 import { Address, erc20Abi } from "viem";
 import { Token } from "../app/types/interface";
+import Adapters from "@/app/app/data/adapters.json";
+import Tokens from "@/app/app/data/tokens.json";
 
 export function convertToBigInt(amount: number, decimals: number) {
   const parsedAmountIn = BigInt(Math.floor(amount * Math.pow(10, 6)));
@@ -43,4 +45,45 @@ export function formatFloat(value: number) {
   }
 
   return value;
+}
+
+export function getTokenInfoByAddress(
+  address: string
+): { name: string; decimal: string; icon: string } | undefined {
+  console.log(address);
+  if (!address) {
+    return undefined;
+  }
+  const token = Tokens.find(
+    (token) => token.address.toLowerCase() === address.toLowerCase()
+  );
+  if (token) {
+    return {
+      name: token.name,
+      decimal: token.decimal,
+      icon: token.image,
+    };
+  } else {
+    return undefined;
+  }
+}
+
+export function getTokenInfoByAdapters(
+  address: string
+): { name: string; icon: string } | undefined {
+  console.log(address);
+  if (!address) {
+    return undefined;
+  }
+  const token = Adapters.find(
+    (token) => token.address.toLowerCase() === address.toLowerCase()
+  );
+  if (token) {
+    return {
+      name: token.name,
+      icon: token.icon,
+    };
+  } else {
+    return undefined;
+  }
 }

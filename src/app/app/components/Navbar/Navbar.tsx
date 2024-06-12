@@ -10,8 +10,8 @@ const Navbar = () => {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed z-20 flex flex-row items-center justify-between w-full px-8 py-6 lg:px-24 text-offwhite">
-      <div className="grid w-full grid-cols-3 gap-4">
+    <nav className="absolute z-20 flex flex-row items-center justify-between w-full px-8 py-6 lg:px-24 text-offwhite">
+      <div className="flex flex-row justify-between items-start md:grid w-full grid-cols-3 gap-4">
         <Link href={"/"}>
           <Image
             src={"/logo/icon-white.svg"}
@@ -46,7 +46,6 @@ const Navbar = () => {
           })}
         </ul> */}
         <div className="flex justify-end col-span-2">
-          {/* <ConnectButton showBalance={false} /> */}
           <WalletOptions />
         </div>
       </div>

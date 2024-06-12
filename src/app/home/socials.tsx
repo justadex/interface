@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function Socails() {
   return (
-    <section className="py-12 xl:py-36" id="socials">
+    <section className="py-12" id="socials">
       <div className="flex flex-col gap-12 border border-offwhite/10 rounded justify-start py-12 xl:py-24 items-center w-full px-8">
         <h3 className=" text-center shadow-md text-2xl xl:text-3xl font-medium border-b-2 border-accent">
           Join the community

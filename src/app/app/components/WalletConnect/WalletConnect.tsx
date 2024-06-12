@@ -1,7 +1,10 @@
 "use client";
 import Image from "next/image";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import PointsTracker from "@/app/components/pointsTracker";
+import { useAccount } from "wagmi";
 export default function WalletConnect() {
+  const { address, isConnected, chainId } = useAccount();
   return (
     <ConnectButton.Custom>
       {({
@@ -56,7 +59,8 @@ export default function WalletConnect() {
                 );
               }
               return (
-                <div className="flex flex-row justify-center items-center gap-4">
+                <div className="flex flex-row flex-wrap justify-end items-center gap-4">
+                  {address && <PointsTracker walletAddress={address} />}
                   <button
                     onClick={openChainModal}
                     className="flex flex-row justify-center items-center gap-2 bg-[#DFFE00] text-primary font-semibold px-2 xl:px-4 py-1.5 rounded-full"
