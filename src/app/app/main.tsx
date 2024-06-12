@@ -9,12 +9,7 @@ import {
 } from "wagmi";
 import Image from "next/image";
 import Tokens from "@/app/app/data/tokens.json";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { JadRouterABI } from "./abi/JadRouterABI";
 import { formatEther, formatUnits, Address, erc20Abi } from "viem";
 import { useWatchBlocks } from "wagmi";
@@ -37,7 +32,7 @@ import {
 import Adapters from "@/app/app/data/adapters.json";
 import truncate from "../utils/truncate";
 import Clipboard from "../utils/clip-board";
-import { FileX2, Import, Trash, Trash2 } from "lucide-react";
+import { FileCheck2, Import, LoaderCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
 let _tokens: Token[] = Tokens;
@@ -707,7 +702,32 @@ const Swap = () => {
               <li className="flex flex-row justify-between items-center gap-2">
                 <div className="flex flex-row justify-start items-center gap-2">
                   <div className="w-8 h-8 bg-secondary rounded-full flex justify-center items-center">
-                    <FileX2 />
+                    <FileCheck2 />
+                  </div>
+                  <div>Sign Message</div>
+                </div>
+                <div>
+                  <Image
+                    src={"/assets/icons/close.svg"}
+                    width={"20"}
+                    height={"20"}
+                    alt="Close Icon"
+                  />
+                </div>
+              </li>
+              <li>
+                <Image
+                  className="ml-[0.4rem] rotate-90"
+                  src={"/assets/icons/arrow-right-white.svg"}
+                  width={"20"}
+                  height={"20"}
+                  alt="Down Icon"
+                />
+              </li>
+              <li className="flex flex-row justify-between items-center gap-2">
+                <div className="flex flex-row justify-start items-center gap-2">
+                  <div className="w-8 h-8 bg-secondary rounded-full flex justify-center items-center">
+                    <LoaderCircle className="text-accent animate-spin" />
                   </div>
                   <div>Sign Message</div>
                 </div>
