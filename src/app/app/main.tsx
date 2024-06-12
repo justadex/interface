@@ -9,7 +9,12 @@ import {
 } from "wagmi";
 import Image from "next/image";
 import Tokens from "@/app/app/data/tokens.json";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { JadRouterABI } from "./abi/JadRouterABI";
 import { formatEther, formatUnits, Address, erc20Abi } from "viem";
 import { useWatchBlocks } from "wagmi";
@@ -32,7 +37,7 @@ import {
 import Adapters from "@/app/app/data/adapters.json";
 import truncate from "../utils/truncate";
 import Clipboard from "../utils/clip-board";
-import { Import, Trash, Trash2 } from "lucide-react";
+import { FileX2, Import, Trash, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 let _tokens: Token[] = Tokens;
@@ -662,7 +667,110 @@ const Swap = () => {
             </div>
           )}
         {swapStatus !== "IDLE" && <Toast text={swapStatus} />}
+        <Dialog open={true}>
+          <DialogContent className="flex flex-col gap-4 w-full max-w-lg text-white bg-primary rounded-3xl border px-6 pb-6 pt-5 border-opacity-25 border-offwhite shadow-md overflow-clip">
+            <DialogTitle className=" pb-3 border-offwhite/10">
+              Transaction Inprogress
+            </DialogTitle>
 
+            <ul className="flex flex-col gap-4">
+              <li className="flex flex-row justify-between items-center gap-2 opacity-50">
+                <div className="flex flex-row justify-start items-center gap-2">
+                  <div className="w-8 h-8 bg-secondary rounded-full flex justify-center items-center">
+                    <Image
+                      src={"/tokens/wETH.png"}
+                      height={"50"}
+                      width={"50"}
+                      alt="Token"
+                    />
+                  </div>
+                  <div>Approved WETH</div>
+                </div>
+                <div>
+                  <Image
+                    src={"/assets/icons/tick.svg"}
+                    width={"20"}
+                    height={"20"}
+                    alt="Tick Icon"
+                  />
+                </div>
+              </li>
+              <li>
+                <Image
+                  className="ml-[0.4rem] rotate-90"
+                  src={"/assets/icons/arrow-right-white.svg"}
+                  width={"20"}
+                  height={"20"}
+                  alt="Down Icon"
+                />
+              </li>
+              <li className="flex flex-row justify-between items-center gap-2">
+                <div className="flex flex-row justify-start items-center gap-2">
+                  <div className="w-8 h-8 bg-secondary rounded-full flex justify-center items-center">
+                    <FileX2 />
+                  </div>
+                  <div>Sign Message</div>
+                </div>
+                <div>
+                  <Image
+                    src={"/assets/icons/close.svg"}
+                    width={"20"}
+                    height={"20"}
+                    alt="Close Icon"
+                  />
+                </div>
+              </li>
+            </ul>
+          </DialogContent>
+        </Dialog>
+        <Dialog open={false}>
+          <DialogContent className="flex flex-col justify-between items-center gap-8 w-full max-w-lg text-white bg-primary rounded-3xl border p-6 pt-16 border-opacity-25 border-offwhite shadow-md overflow-clip">
+            <div className="flex flex-col justify-center items-center gap-8">
+              <div className="flex flex-col justify-center items-center gap-4">
+                <Image
+                  src={"/assets/icons/close-swap.svg"}
+                  alt="Success Icon"
+                  height={"70"}
+                  width={"70"}
+                />
+                <h3 className="font-semibold text-lg">Swap success</h3>
+              </div>
+              <div className="flex flex-row justify-center items-center gap-4">
+                <div className="flex flex-row justify-center items-center gap-1">
+                  <Image
+                    className="rounded-full"
+                    src={"/tokens/djump.svg"}
+                    alt="DJump"
+                    height={"20"}
+                    width={"20"}
+                  />
+                  <h4 className="max-w-16 truncate">100000</h4>
+                  <h5>DJUMP</h5>
+                </div>
+                <Image
+                  src={"/assets/icons/arrow-right-white.svg"}
+                  width={"20"}
+                  height={"20"}
+                  alt="Right Icon"
+                />
+                <div className="flex flex-row justify-center items-center gap-1">
+                  <Image
+                    className="rounded-full"
+                    src={"/tokens/ezETH.webp"}
+                    alt="ezETH"
+                    height={"20"}
+                    width={"20"}
+                  />
+                  <h4 className="max-w-16 truncate">0.00011</h4>
+                  <h5>ezETH</h5>
+                </div>
+              </div>
+            </div>
+            <div className="mt-6">
+              <div className="text-accent font-bold">View on Explorer</div>
+            </div>
+          </DialogContent>
+        </Dialog>
         <Dialog open={isOpen} onOpenChange={() => setIsOpen(false)}>
           <DialogContent className="flex flex-col w-full max-w-lg text-white bg-primary rounded-3xl border-[1px] border-opacity-25 border-offwhite shadow-md overflow-clip">
             <div className="flex flex-col gap-4 px-4">
