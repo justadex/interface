@@ -187,6 +187,7 @@ const waitForTransaction = async (hash: Address) => {
 
 export const swapTokens = async (
   setStatus: (status: SwapStatus) => void,
+  setSwapHash: (hash: string) => void,
   tokenInAddress: Address,
   tokenOutAddress: Address,
   userAddress: Address,
@@ -220,6 +221,7 @@ export const swapTokens = async (
       swapResponse = await swap(tradeInfo, userAddress);
     }
     setStatus("SWAPPED");
+    setSwapHash(swapResponse.data);
     return swapResponse;
   } catch (error) {
     throw error;
