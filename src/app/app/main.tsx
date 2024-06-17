@@ -671,7 +671,7 @@ const Swap = () => {
           swapStatus !== "SWAPPED" &&
           swapStatus !== "FAILED" && (
             <Dialog open={true}>
-              <DialogContent className="flex flex-col gap-4 w-full max-w-lg text-white bg-primary rounded-3xl border px-6 pb-6 pt-5 border-opacity-25 border-offwhite shadow-md overflow-clip">
+              <DialogContent className="flex flex-col gap-5 w-full max-w-lg text-white bg-primary rounded-3xl border px-8 pb-8 pt-6 border-opacity-25 border-offwhite shadow-md overflow-clip">
                 <DialogTitle className=" pb-3 border-offwhite/10">
                   Transaction In progress
                 </DialogTitle>
