@@ -54,6 +54,23 @@ export function getTokenInfoByAddress(
   if (!address) {
     return undefined;
   }
+
+  // first let check if token is already in localStorage
+  const storedTokens = JSON.parse(
+    localStorage.getItem("importedTokens") || "[]"
+  );
+  const importedToken = storedTokens.find(
+    (token: Token) => token.address.toLowerCase() === address.toLowerCase()
+  );
+  if (importedToken) {
+    return {
+      name: importedToken.name,
+      decimal: importedToken.decimal,
+      icon: importedToken.image,
+    };
+  }
+
+  //  if not in the local storage let now check if token exists in tokens.json
   const token = Tokens.find(
     (token) => token.address.toLowerCase() === address.toLowerCase()
   );
@@ -63,9 +80,8 @@ export function getTokenInfoByAddress(
       decimal: token.decimal,
       icon: token.image,
     };
-  } else {
-    return undefined;
   }
+  return undefined;
 }
 
 export function getTokenInfoByAdapters(
