@@ -181,9 +181,11 @@ const PointsTracker: React.FC<PointsTrackerProps> = ({ walletAddress }) => {
                                         <div className="flex justify-center items-center">
                                           <Image
                                             src={
-                                              getTokenInfoByAddress(
-                                                transaction.tokenIn
-                                              )!.icon || ""
+                                              (transaction.tokenIn &&
+                                                getTokenInfoByAddress(
+                                                  transaction.tokenIn
+                                                )!.icon) ||
+                                              ""
                                             }
                                             alt={
                                               getTokenInfoByAddress(

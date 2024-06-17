@@ -63,7 +63,6 @@ const Swap = () => {
   const [showImportTokenDialog, setShowImportTokenDialog] = useState(false);
   const [swapHash, setSwapHash] = useState<string | null>(null);
 
-
   const ethBalance = useBalance({
     address: address,
   });
@@ -111,7 +110,7 @@ const Swap = () => {
     data,
     isLoading: quoteLoading,
     refetch: quoteRefresh,
-    error: quoteError
+    error: quoteError,
   } = useReadContract({
     abi: JadRouterABI,
     address: JadRouterAddress,
@@ -392,8 +391,9 @@ const Swap = () => {
                 />
 
                 <button
-                  className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${tokenIn ? "bg-gray-600" : "bg-accent"
-                    }`}
+                  className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
+                    tokenIn ? "bg-gray-600" : "bg-accent"
+                  }`}
                   onClick={() => setIsOpen(true)}
                 >
                   {tokenIn && (
@@ -484,12 +484,13 @@ const Swap = () => {
                   type="number"
                   placeholder="0"
                   min={0}
-                  onChange={() => { }}
+                  onChange={() => {}}
                   value={formatFloat(parseFloat(amountOut))}
                 />
                 <button
-                  className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${!tokenOut ? "bg-accent" : "bg-gray-600"
-                    }`}
+                  className={`flex flex-row items-center justify-center gap-2 px-4 py-1 text-white rounded-full cursor-pointer ${
+                    !tokenOut ? "bg-accent" : "bg-gray-600"
+                  }`}
                   onClick={() => setIsOpenOut(true)}
                 >
                   {tokenOut && (
@@ -666,27 +667,39 @@ const Swap = () => {
             </div>
           )}
         {/* {swapStatus !== "IDLE" && <Toast text={swapStatus} />} */}
-        {swapStatus !== "IDLE" && swapStatus !== "SWAPPED" && swapStatus !== "FAILED" && <Dialog open={true}>
-          <DialogContent className="flex flex-col gap-4 w-full max-w-lg text-white bg-primary rounded-3xl border px-6 pb-6 pt-5 border-opacity-25 border-offwhite shadow-md overflow-clip">
-            <DialogTitle className=" pb-3 border-offwhite/10">
-              Transaction In progress
-            </DialogTitle>
+        {swapStatus !== "IDLE" &&
+          swapStatus !== "SWAPPED" &&
+          swapStatus !== "FAILED" && (
+            <Dialog open={true}>
+              <DialogContent className="flex flex-col gap-4 w-full max-w-lg text-white bg-primary rounded-3xl border px-6 pb-6 pt-5 border-opacity-25 border-offwhite shadow-md overflow-clip">
+                <DialogTitle className=" pb-3 border-offwhite/10">
+                  Transaction In progress
+                </DialogTitle>
 
-            <ul className="flex flex-col gap-4">
-              <li className="flex flex-row justify-between items-center gap-2 opacity-50">
-                <div className="flex flex-row justify-start items-center gap-2">
-                  <div className="w-8 h-8 bg-secondary rounded-full flex justify-center items-center">
-                    {swapStatus === "APPROVING" ? <LoaderCircle className="text-accent animate-spin" /> :
-                      <Image
-                        src={getTokenInfoByAddress(tokenIn!.address)?.icon!}
-                        alt={getTokenInfoByAddress(tokenIn!.address)?.name!}
-                        height={"50"}
-                        width={"50"}
-                      />}
-                  </div>
-                  <div> {swapStatus === "APPROVING" ? "Approving" : "Approved"} {getTokenInfoByAddress(tokenIn!.address)?.name!}</div>
-                </div>
-                {/* <div>
+                <ul className="flex flex-col gap-4">
+                  <li className="flex flex-row justify-between items-center gap-2 opacity-50">
+                    <div className="flex flex-row justify-start items-center gap-2">
+                      <div className="w-8 h-8 bg-secondary rounded-full flex justify-center items-center">
+                        {swapStatus === "APPROVING" ? (
+                          <LoaderCircle className="text-accent animate-spin" />
+                        ) : (
+                          <Image
+                            src={getTokenInfoByAddress(tokenIn!.address)?.icon!}
+                            alt={getTokenInfoByAddress(tokenIn!.address)?.name!}
+                            height={"50"}
+                            width={"50"}
+                          />
+                        )}
+                      </div>
+                      <div>
+                        {" "}
+                        {swapStatus === "APPROVING"
+                          ? "Approving"
+                          : "Approved"}{" "}
+                        {getTokenInfoByAddress(tokenIn!.address)?.name!}
+                      </div>
+                    </div>
+                    {/* <div>
                   <Image
                     src={swapStatus === "APPROVING" ? "/assets/icons/loader.svg" : "/assets/icons/tick.svg"}
                     width={"20"}
@@ -694,8 +707,8 @@ const Swap = () => {
                     alt="Tick Icon"
                   />
                 </div> */}
-              </li>
-              {/* <li>
+                  </li>
+                  {/* <li>
                 <Image
                   className="ml-[0.4rem] rotate-90"
                   src={"/assets/icons/arrow-right-white.svg"}
@@ -704,23 +717,30 @@ const Swap = () => {
                   alt="Down Icon"
                 />
               </li> */}
-              <li>
-                <Image
-                  className="ml-[0.4rem] rotate-90"
-                  src={"/assets/icons/arrow-right-white.svg"}
-                  width={"20"}
-                  height={"20"}
-                  alt="Down Icon"
-                />
-              </li>
-              <li className="flex flex-row justify-between items-center gap-2">
-                <div className="flex flex-row justify-start items-center gap-2">
-                  <div className="w-8 h-8 bg-secondary rounded-full flex justify-center items-center">
-                    <LoaderCircle className="text-accent animate-spin" />
-                  </div>
-                  <div>{swapStatus === "SWAPPING" ? "Swapping " : "Swaped " + getTokenInfoByAddress(tokenIn!.address)?.name! + " for " + getTokenInfoByAddress(tokenOut!.address)?.name!}</div>
-                </div>
-                {/* <div>
+                  <li>
+                    <Image
+                      className="ml-[0.4rem] rotate-90"
+                      src={"/assets/icons/arrow-right-white.svg"}
+                      width={"20"}
+                      height={"20"}
+                      alt="Down Icon"
+                    />
+                  </li>
+                  <li className="flex flex-row justify-between items-center gap-2">
+                    <div className="flex flex-row justify-start items-center gap-2">
+                      <div className="w-8 h-8 bg-secondary rounded-full flex justify-center items-center">
+                        <LoaderCircle className="text-accent animate-spin" />
+                      </div>
+                      <div>
+                        {swapStatus === "SWAPPING"
+                          ? "Swapping "
+                          : "Swaped " +
+                            getTokenInfoByAddress(tokenIn!.address)?.name! +
+                            " for " +
+                            getTokenInfoByAddress(tokenOut!.address)?.name!}
+                      </div>
+                    </div>
+                    {/* <div>
                   <Image
                     src={"/assets/icons/close.svg"}
                     width={"20"}
@@ -728,65 +748,86 @@ const Swap = () => {
                     alt="Close Icon"
                   />
                 </div> */}
-              </li>
-            </ul>
-          </DialogContent>
-        </Dialog>}
+                  </li>
+                </ul>
+              </DialogContent>
+            </Dialog>
+          )}
 
-        {(swapStatus === "SWAPPED" || swapStatus === "FAILED") && <Dialog open={true} onOpenChange={() => {
-          setSwapStatus("IDLE");
-          setSwapHash(null);
-        }}>
-          <DialogContent className="flex flex-col justify-between items-center gap-8 w-full max-w-lg text-white bg-primary rounded-3xl border p-6 pt-16 border-opacity-25 border-offwhite shadow-md overflow-clip">
-            <div className="flex flex-col justify-center items-center gap-8">
-              <div className="flex flex-col justify-center items-center gap-4">
-                <Image
-                  src={swapStatus === "SWAPPED" ? "/assets/icons/tick-swap.svg" : "/assets/icons/close-swap.svg"}
-                  alt="Success Icon"
-                  height={"70"}
-                  width={"70"}
-                />
-                <h3 className="font-semibold text-lg">Swap {swapStatus === "SWAPPED" ? "success" : "failed"}</h3>
-              </div>
-              <div className="flex flex-row justify-center items-center gap-4">
-                <div className="flex flex-row justify-center items-center gap-1">
+        {(swapStatus === "SWAPPED" || swapStatus === "FAILED") && (
+          <Dialog
+            open={true}
+            onOpenChange={() => {
+              setSwapStatus("IDLE");
+              setSwapHash(null);
+            }}
+          >
+            <DialogContent className="flex flex-col justify-between items-center gap-8 w-full max-w-lg text-white bg-primary rounded-3xl border p-6 py-12 border-opacity-25 border-offwhite shadow-md overflow-clip">
+              <div className="flex flex-col justify-center items-center gap-8">
+                <div className="flex flex-col justify-center items-center gap-4">
                   <Image
-                    className="rounded-full"
-                    src={getTokenInfoByAddress(tokenIn!.address)?.icon!}
-                    alt={getTokenInfoByAddress(tokenIn!.address)?.name!}
-                    height={"20"}
-                    width={"20"}
+                    src={
+                      swapStatus === "SWAPPED"
+                        ? "/assets/icons/tick-swap.svg"
+                        : "/assets/icons/close-swap.svg"
+                    }
+                    alt="Success Icon"
+                    height={"70"}
+                    width={"70"}
                   />
-                  <h4 className="max-w-16 truncate">{amountIn}</h4>
-                  <h5>{getTokenInfoByAddress(tokenIn!.address)?.name}</h5>
+                  <h3 className="font-semibold text-lg">
+                    Swap {swapStatus === "SWAPPED" ? "success" : "failed"}
+                  </h3>
                 </div>
-                <Image
-                  src={"/assets/icons/arrow-right-white.svg"}
-                  width={"20"}
-                  height={"20"}
-                  alt="Right Icon"
-                />
-                <div className="flex flex-row justify-center items-center gap-1">
+                <div className="flex flex-row justify-center items-center gap-4">
+                  <div className="flex flex-row justify-center items-center gap-1">
+                    <Image
+                      className="rounded-full"
+                      src={getTokenInfoByAddress(tokenIn!.address)?.icon!}
+                      alt={getTokenInfoByAddress(tokenIn!.address)?.name!}
+                      height={"20"}
+                      width={"20"}
+                    />
+                    <h4 className="max-w-16 truncate">{amountIn}</h4>
+                    <h5>{getTokenInfoByAddress(tokenIn!.address)?.name}</h5>
+                  </div>
                   <Image
-                    className="rounded-full"
-                    src={getTokenInfoByAddress(tokenOut!.address)?.icon!}
-                    alt={getTokenInfoByAddress(tokenOut!.address)?.name!}
-                    height={"20"}
+                    src={"/assets/icons/arrow-right-white.svg"}
                     width={"20"}
+                    height={"20"}
+                    alt="Right Icon"
                   />
-                  <h4 className="max-w-16 truncate">{amountOut}</h4>
-                  <h5>{getTokenInfoByAddress(tokenOut!.address)?.name}</h5>
+                  <div className="flex flex-row justify-center items-center gap-1">
+                    <Image
+                      className="rounded-full"
+                      src={getTokenInfoByAddress(tokenOut!.address)?.icon!}
+                      alt={getTokenInfoByAddress(tokenOut!.address)?.name!}
+                      height={"20"}
+                      width={"20"}
+                    />
+                    <h4 className="max-w-16 truncate">{amountOut}</h4>
+                    <h5>{getTokenInfoByAddress(tokenOut!.address)?.name}</h5>
+                  </div>
                 </div>
               </div>
-            </div>
-            {swapHash && <div className="mt-6">
-              <div className="text-accent font-bold cursor-pointer" onClick={() => {
-                window.open(`${chain?.blockExplorers?.default.url}/tx/${swapHash}`, "_blank");
-              }} >View on Explorer
-              </div>
-            </div>}
-          </DialogContent>
-        </Dialog>}
+              {swapHash && (
+                <div className="mt-6">
+                  <div
+                    className="text-accent font-bold cursor-pointer"
+                    onClick={() => {
+                      window.open(
+                        `${chain?.blockExplorers?.default.url}/tx/${swapHash}`,
+                        "_blank"
+                      );
+                    }}
+                  >
+                    View on Explorer
+                  </div>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
+        )}
 
         <Dialog open={isOpen} onOpenChange={() => setIsOpen(false)}>
           <DialogContent className="flex flex-col w-full max-w-lg text-white bg-primary rounded-3xl border-[1px] border-opacity-25 border-offwhite shadow-md overflow-clip">
@@ -846,7 +887,7 @@ const Swap = () => {
             <div className="mx-4">
               <div className="h-[1px] w-full border-[1px] border-offwhite border-opacity-25"></div>
             </div>
-            <div className="flex flex-col items-start justify-start gap-4 pb-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-96">
+            <div className="flex flex-col items-start justify-start pb-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin md:h-96 h-64">
               {filteredTokens.map((token, i) => {
                 return (
                   <div
@@ -964,7 +1005,7 @@ const Swap = () => {
             <div className="mx-4">
               <div className="h-[1px] w-full border-[1px] border-offwhite border-opacity-25"></div>
             </div>
-            <div className="flex flex-col items-start justify-start overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin h-[40vh]">
+            <div className="flex flex-col items-start justify-start pb-2 overflow-y-auto overflow-x-clip scrollbar-thumb-gray-900 scrollbar-thin md:h-96 h-64">
               {filteredTokens.map((token, i) => {
                 return (
                   <div
