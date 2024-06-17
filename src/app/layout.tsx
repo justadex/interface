@@ -37,7 +37,7 @@ export const metadata = {
     title: "JustaDEX - Your Ultimate DEX Aggregator on Mode Blockchain",
     description:
       "Explore the best DEXs on the Mode blockchain with JustaDex. Seamless trading with top rates and liquidity, all in one place. Start trading your favorite tokens today!",
-    creator: "@heyjustadex",
+    creator: "@justadex_defi",
     images: ["https://www.justadex.xyz/og/og-home.png"],
   },
   robots: {
