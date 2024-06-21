@@ -1,7 +1,19 @@
-import { Address, erc20Abi } from "viem";
+import { Address, erc20Abi, createPublicClient, http, parseAbi } from "viem";
 import { Token } from "../app/types/interface";
 import Adapters from "@/app/app/data/adapters.json";
 import Tokens from "@/app/app/data/tokens.json";
+import { mode } from 'viem/chains';
+
+const client = createPublicClient({
+  chain: mode,
+  transport: http()
+});
+
+const erc20ABI = parseAbi([
+  'function name() view returns (string)',
+  'function symbol() view returns (string)',
+  'function decimals() view returns (uint8)',
+]);
 
 export function convertToBigInt(amount: number, decimals: number) {
   const parsedAmountIn = BigInt(Math.floor(amount * Math.pow(10, 6)));
@@ -47,9 +59,8 @@ export function formatFloat(value: number) {
   return value;
 }
 
-export function getTokenInfoByAddress(
-  address: string
-): { name: string; decimal: string; icon: string } | undefined {
+
+export async function getTokenInfoByAddress(address: string): Promise<{ name: string; decimal: string; icon: string } | undefined> {
   console.log(address);
   if (!address) {
     return undefined;
@@ -81,7 +92,25 @@ export function getTokenInfoByAddress(
       icon: token.image,
     };
   }
-  return undefined;
+
+  // If token is not found, then fetch it from teh blockchain
+  try {
+    const [name, decimals] = await Promise.all([
+      client.readContract({ address: address as Address, abi: erc20ABI, functionName: 'name' }),
+      //client.readContract({ address: address as Address, abi: erc20ABI, functionName: 'symbol' }),
+      client.readContract({ address: address as Address, abi: erc20ABI, functionName: 'decimals' }),
+    ]);
+
+    return {
+      name: name as string,
+      decimal: (decimals as number).toString(),
+      icon: "/tokens/unknown.svg",
+    };
+  } catch (error) {
+    console.error("Error fetching token details:", error);
+    return undefined;
+  }
+
 }
 
 export function getTokenInfoByAdapters(
