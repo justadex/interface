@@ -678,7 +678,7 @@ const Swap = () => {
 
                 <ul className="flex flex-col gap-4">
                   <li className="flex flex-row justify-between items-center gap-2 opacity-50">
-                    <div className="flex flex-row justify-start items-center gap-2">
+                    {/* <div className="flex flex-row justify-start items-center gap-2">
                       <div className="w-8 h-8 bg-secondary rounded-full flex justify-center items-center">
                         {swapStatus === "APPROVING" ? (
                           <LoaderCircle className="text-accent animate-spin" />
@@ -698,7 +698,7 @@ const Swap = () => {
                           : "Approved"}{" "}
                         {getTokenInfoByAddress(tokenIn!.address)?.name!}
                       </div>
-                    </div>
+                    </div> */}
                     {/* <div>
                   <Image
                     src={swapStatus === "APPROVING" ? "/assets/icons/loader.svg" : "/assets/icons/tick.svg"}
@@ -731,14 +731,14 @@ const Swap = () => {
                       <div className="w-8 h-8 bg-secondary rounded-full flex justify-center items-center">
                         <LoaderCircle className="text-accent animate-spin" />
                       </div>
-                      <div>
+                      {/* <div>
                         {swapStatus === "SWAPPING"
                           ? "Swapping "
                           : "Swaped " +
                             getTokenInfoByAddress(tokenIn!.address)?.name! +
                             " for " +
                             getTokenInfoByAddress(tokenOut!.address)?.name!}
-                      </div>
+                      </div> */}
                     </div>
                     {/* <div>
                   <Image
@@ -780,7 +780,7 @@ const Swap = () => {
                   </h3>
                 </div>
                 <div className="flex flex-row justify-center items-center gap-4">
-                  <div className="flex flex-row justify-center items-center gap-1">
+                  {/* <div className="flex flex-row justify-center items-center gap-1">
                     <Image
                       className="rounded-full"
                       src={getTokenInfoByAddress(tokenIn!.address)?.icon!}
@@ -790,7 +790,7 @@ const Swap = () => {
                     />
                     <h4 className="max-w-16 truncate">{amountIn}</h4>
                     <h5>{getTokenInfoByAddress(tokenIn!.address)?.name}</h5>
-                  </div>
+                  </div> */}
                   <Image
                     src={"/assets/icons/arrow-right-white.svg"}
                     width={"20"}
@@ -798,15 +798,15 @@ const Swap = () => {
                     alt="Right Icon"
                   />
                   <div className="flex flex-row justify-center items-center gap-1">
-                    <Image
+                    {/* <Image
                       className="rounded-full"
                       src={getTokenInfoByAddress(tokenOut!.address)?.icon!}
                       alt={getTokenInfoByAddress(tokenOut!.address)?.name!}
                       height={"20"}
                       width={"20"}
-                    />
+                    /> */}
                     <h4 className="max-w-16 truncate">{amountOut}</h4>
-                    <h5>{getTokenInfoByAddress(tokenOut!.address)?.name}</h5>
+                    {/* <h5>{getTokenInfoByAddress(tokenOut!.address)?.name}</h5> */}
                   </div>
                 </div>
               </div>
