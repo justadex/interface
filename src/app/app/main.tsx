@@ -684,8 +684,8 @@ const Swap = () => {
                           <LoaderCircle className="text-accent animate-spin" />
                         ) : (
                           <Image
-                            src={getTokenInfoByAddress(tokenIn!.address)?.icon!}
-                            alt={getTokenInfoByAddress(tokenIn!.address)?.name!}
+                            src={getTokenInfoByAddress(tokenIn!.address)?.icon! || ""}
+                            alt={getTokenInfoByAddress(tokenIn!.address)?.name! || ""}
                             height={"50"}
                             width={"50"}
                           />
